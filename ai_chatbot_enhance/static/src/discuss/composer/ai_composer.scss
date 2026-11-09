@@ -1,0 +1,88 @@
+/* 1. 外层面板：流光渐变边框 + 霓虹呼吸阴影 + 科技微暗底色 */
+.ai-cyber-panel {
+    background: #111827 !important; /* 改用高级深暗色背景，只有暗底才能彻底衬托出霓虹发光的鲜艳感！ */
+    position: relative;
+    max-width: max-content;
+    padding: 3px !important;
+
+    /* 核心：极其华丽的极光渐变边框效果 */
+    border: 1px solid transparent;
+    background-image: linear-gradient(#111827, #111827), linear-gradient(135deg, #00f2fe 0%, #4facfe 40%, #f355da 100%) !important;
+    background-origin: border-box !important;
+    background-clip: padding-box, border-box !important;
+
+    /* 外发光霓虹氛围灯阴影 */
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.15), 0 0 20px rgba(243, 85, 218, 0.1) !important;
+}
+
+/* 2. 内部选项外壳：半透明暗色融合 */
+.ai-cyber-select-group {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 悬浮时内部选框边缘亮起 */
+.ai-cyber-select-group:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(0, 242, 254, 0.4);
+    box-shadow: inset 0 0 6px rgba(0, 242, 254, 0.2);
+}
+
+/* 3. 极度鲜艳的 Icon 霓虹发光（通过多层复合阴影达到超亮电光效果） */
+.ai-neon-glow-green {
+    color: #00ffcc !important; /* 荧光青绿 */
+    font-size: 13px;
+    text-shadow: 0 0 4px #00ffcc, 0 0 10px rgba(0, 255, 204, 0.6), 0 0 20px rgba(0, 255, 204, 0.3);
+    animation: ai-cyber-pulse 1.5s infinite alternate;
+}
+
+.ai-neon-glow-purple {
+    color: #ff007f !important; /* 爆裂霓虹紫红 */
+    font-size: 13px;
+    text-shadow: 0 0 4px #ff007f, 0 0 10px rgba(255, 0, 127, 0.6), 0 0 20px rgba(255, 0, 127, 0.3);
+    animation: ai-cyber-pulse 1.5s infinite alternate-reverse; /* 交错呼吸，更显生动 */
+}
+
+/* 4. 极致鲜艳的文本颜色 */
+.text-gradient-green {
+    color: #00f2fe !important; /* 激光电青色文字 */
+    text-shadow: 0 0 2px rgba(0, 242, 254, 0.5);
+}
+
+.text-gradient-blue {
+    color: #ff99dd !important; /* 芭比迷幻粉紫文字（配合大脑非常赛博朋克），或者改成纯鲜艳黄 #ffd200 */
+    text-shadow: 0 0 2px rgba(255, 153, 221, 0.5);
+}
+
+/* 5. 清除原生垃圾白底的 Select 控件 */
+.ai-cyber-select {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    font-size: 11px;
+    padding-right: 4px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* 展开下拉菜单时的暗色选项背景（防止下拉出来的面板被浏览器默认渲染成惨白破坏美感） */
+.ai-option-dark {
+    background-color: #1f2937 !important;
+    color: #ffffff !important;
+}
+
+/* 中间高能能量阻断线 */
+.ai-cyber-divider {
+    width: 1px;
+    height: 14px;
+    background: linear-gradient(to bottom, transparent, #00f2fe, transparent);
+    opacity: 0.7;
+}
+
+/* 动力学高频呼吸动画 */
+@keyframes ai-cyber-pulse {
+    0% { transform: scale(0.96); filter: brightness(0.9); }
+    100% { transform: scale(1.04); filter: brightness(1.2); }
+}

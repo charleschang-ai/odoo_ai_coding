@@ -1,0 +1,1913 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Skills and topic are UPDATABLE (no noupdate): improvements ship with
+         module upgrades. Agent / composer / prompt buttons below keep
+         noupdate="1" so customer customizations survive upgrades. -->
+    <data>
+
+    <record id="ai_action_get_model_fields" model="ir.actions.server">
+        <field name="name">AI Skill: Get Model Fields</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_confirmation_policy">never</field>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Returns field definitions for any Odoo model.
+Call this BEFORE creating or updating records to know:
+- Which fields are required (must be provided)
+- Field types (char, many2one, selection, boolean, etc.)
+- Available options for selection fields
+- Related models for many2one fields
+
+Use when the user wants to create or update a record and you need to know the correct field names and required fields.
+
+Returns: required_fields (must provide) and optional_fields (common ones). Readonly/computed fields are excluded — never try to write them.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "model_name": {
+            "type": "string",
+            "description": "Odoo technical model name, e.g. res.partner, sale.order, crm.lead, project.task, hr.employee"
+        }
+    },
+    "required": ["model_name"]
+}</field>
+        <field name="code">if model_name not in env:
+    ai['result'] = f"ERROR: Model '{model_name}' does not exist in Odoo."
+else:
+    fields = env[model_name].fields_get(
+        attributes=['string', 'type', 'required', 'selection', 'relation', 'help', 'readonly']
+    )
+    try:
+        defaults = env[model_name].default_get(list(fields.keys()))
+    except Exception:
+        defaults = {}
+
+    SKIP_FIELDS = {
+        'id', 'create_uid', 'create_date', 'write_uid', 'write_date',
+        'message_ids', 'message_follower_ids', 'activity_ids',
+        '__last_update', 'display_name', 'access_token',
+    }
+    SKIP_TYPES = {'one2many', 'binary', 'reference'}
+
+    required_lines = []
+    optional_lines = []
+    auto_lines = []
+
+    for fname, fdef in fields.items():
+        if fname in SKIP_FIELDS:
+            continue
+        if fdef['type'] in SKIP_TYPES:
+            continue
+        if fdef.get('readonly'):
+            continue
+
+        line = f"  {fname} | {fdef['string']} | {fdef['type']}"
+        if fdef['type'] == 'many2one':
+            line += f" -&gt; {fdef.get('relation', '')} | use many2one_field_names"
+        if fdef['type'] == 'selection':
+            opts = [str(v) for v, _ in (fdef.get('selection') or [])]
+            line += f" | options: [{', '.join(opts)}]"
+
+        has_default = fname in defaults and defaults[fname] not in (False, None, '')
+        if fdef.get('required') and has_default:
+            auto_lines.append(line)
+        elif fdef.get('required'):
+            required_lines.append(line)
+        elif len(optional_lines) &lt; 20:
+            optional_lines.append(line)
+
+    output = f"Model: {model_name}\nFormat: field_name | label | type | notes\n"
+    output += "\nREQUIRED FIELDS (you MUST provide these):\n"
+    output += "\n".join(required_lines) if required_lines else "  (none)"
+    output += "\n\nAUTO-GENERATED FIELDS (system fills them — do NOT provide unless the user explicitly gave a value; document numbers like sale order names come from sequences):\n"
+    output += "\n".join(auto_lines) if auto_lines else "  (none)"
+    output += "\n\nCOMMON OPTIONAL FIELDS:\n"
+    output += "\n".join(optional_lines) if optional_lines else "  (none)"
+
+    ai['result'] = output</field>
+    </record>
+
+    <record id="ai_action_create_record" model="ir.actions.server">
+        <field name="name">AI Skill: Create Record</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_requires_guide" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Creates one record in any Odoo model ("create a contact", "add an order line" — master data and documents alike).
+
+Call Get Model Fields first. Many2one values are resolved by display name with anti-duplicate guards; exact-name duplicates on master data are blocked. Full parameter semantics: load the skill guide.
+Returns the new record ID and name.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "model_name": {
+            "type": "string",
+            "description": "Odoo technical model name, e.g. res.partner, crm.lead, sale.order.line"
+        },
+        "field_names": {
+            "type": "array",
+            "description": "List of Odoo technical field names to set. Must match field_values by index. E.g. ['name', 'email', 'order_id', 'product_uom_qty']",
+            "items": {"type": "string"}
+        },
+        "field_values": {
+            "type": "array",
+            "description": "List of values corresponding to field_names. Same order and length. All as strings: booleans as 'true'/'false', numbers as '10', known database IDs as '5'. E.g. ['John', 'john@test.com', '1', '10']",
+            "items": {"type": "string"}
+        },
+        "many2one_field_names": {
+            "type": "array",
+            "description": "List of Many2one field names where you only have a display name (system will resolve to ID). E.g. ['partner_id', 'product_id']. Empty array if none.",
+            "items": {"type": "string"}
+        },
+        "many2one_search_names": {
+            "type": "array",
+            "description": "List of display names to search for, matching many2one_field_names by index. E.g. ['李强', 'Product2']",
+            "items": {"type": "string"}
+        },
+        "many2one_create_flags": {
+            "type": "array",
+            "description": "For each many2one_field_names entry: 'false' = never create; 'true' = create when not found AND nothing similar exists (user approved creating); 'force' = create even though similar records exist — ONLY after the user saw the similar list and explicitly chose a new record. Same order and length as many2one_field_names.",
+            "items": {"type": "string"}
+        },
+        "force_create": {
+            "type": "string",
+            "description": "'false' normally. The tool BLOCKS creation when a record with the same name already exists (master data like customers/products). Retry with 'true' ONLY after the user saw the existing record and explicitly wants a duplicate."
+        }
+    },
+    "required": ["model_name", "field_names", "field_values", "many2one_field_names", "many2one_search_names", "many2one_create_flags", "force_create"]
+}</field>
+        <field name="code">if model_name not in env:
+    ai['result'] = f"ERROR: Model '{model_name}' does not exist."
+elif len(field_names or []) != len(field_values or []):
+    ai['result'] = (
+        f"ERROR: field_names has {len(field_names or [])} items but field_values has "
+        f"{len(field_values or [])} — they must match one-to-one by index. Fix the arrays and retry."
+    )
+elif len(many2one_field_names or []) != len(many2one_search_names or []):
+    ai['result'] = "ERROR: many2one_field_names and many2one_search_names must have the same length. Fix the arrays and retry."
+elif model_name in ('hr.payslip', 'hr.payslip.line', 'hr.payslip.run', 'hr.contract'):
+    ai['result'] = "BLOCKED: payroll and contract data is READ-ONLY for AI — changes go through the HR payroll workflow with human approval."
+else:
+    all_fields = env[model_name].fields_get(
+        attributes=['string', 'type', 'required', 'relation', 'readonly']
+    )
+    try:
+        defaults = env[model_name].default_get(list(all_fields.keys()))
+    except Exception:
+        defaults = {}
+
+    # ── Zip field_names + field_values into dict, auto-cast type ──
+    vals = {}
+    bad_fields = []
+    for fname, fval in zip(field_names or [], field_values or []):
+        if fname not in all_fields:
+            bad_fields.append(fname)
+            continue
+        ftype = all_fields[fname]['type']
+        if ftype == 'boolean':
+            vals[fname] = fval.lower() in ('true', '1', 'yes')
+        elif ftype in ('integer', 'many2one'):
+            vals[fname] = int(fval) if fval.lstrip('-').isdigit() else fval
+        elif ftype in ('float', 'monetary'):
+            vals[fname] = float(fval)
+        else:
+            vals[fname] = fval
+
+    # Sequence-generated document numbers (default 'New' or '/') must never
+    # be overridden: drop them so Odoo assigns the real number (e.g. S00042)
+    dropped_fields = []
+    name_default = defaults.get('name')
+    if 'name' in vals and isinstance(name_default, str) and name_default.strip() in ('New', '/'):
+        vals.pop('name')
+        dropped_fields.append("name (sequence-generated by the system)")
+
+    if bad_fields:
+        ai['result'] = (
+            f"ERROR: Unknown fields for {model_name}: {bad_fields}\n"
+            f"Call 'AI Skill: Get Model Fields' first to see valid field names."
+        )
+    elif 'name' in all_fields and 'name' not in vals and not defaults.get('name') and not all_fields['name'].get('readonly'):
+        # e.g. res.partner: name is enforced by a DB constraint, not by the
+        # field definition, so the generic required-check cannot see it
+        ai['result'] = (
+            f"ERROR: creating a {model_name} record needs a 'name' value and none was provided. "
+            "Add 'name' to field_names/field_values — ask the user if you don't know it."
+        )
+    elif ('name' in vals and 'state' not in all_fields
+          and str(force_create).lower() not in ('true', '1', 'yes')
+          and (existing_same := env[model_name].search(
+              [['name', '=ilike', str(vals['name']).strip()]], limit=1))):
+        # Master-data duplicate guard (customers, products...): a record with
+        # this exact name already exists — creating another one is almost
+        # always a mistake. Documents (with a 'state' field) are exempt.
+        ai['result'] = (
+            f"BLOCKED to avoid a duplicate: {model_name} '{existing_same.display_name}' "
+            f"already exists (ID: {existing_same.id}).\n"
+            "Use this existing record instead of creating a new one. Only if the user "
+            "explicitly wants ANOTHER record with the same name, retry with force_create='true'."
+        )
+    else:
+        # ── Check required fields the user must really provide ──
+        # Readonly/computed fields, x2many/binary fields and fields with a
+        # system default (sequences, dates, company...) are filled by Odoo
+        # itself: never demand them from the caller.
+        SYSTEM_FIELDS = {'id', 'create_uid', 'write_uid', 'create_date', 'write_date', 'active'}
+        SKIP_TYPES = {'one2many', 'many2many', 'binary', 'reference'}
+        m2o_keys = list(many2one_field_names or [])
+        missing = [
+            f"{f} ({all_fields[f]['string']}, {all_fields[f]['type']})"
+            for f, d in all_fields.items()
+            if d.get('required')
+            and not d.get('readonly')
+            and d['type'] not in SKIP_TYPES
+            and f not in SYSTEM_FIELDS
+            and f not in vals
+            and f not in m2o_keys
+            and not (f in defaults and defaults[f] not in (False, None, ''))
+        ]
+        if missing:
+            ai['result'] = (
+                f"ERROR: Missing required fields for {model_name}:\n"
+                + "\n".join(f"  - {m}" for m in missing)
+                + "\nPlease provide these fields and try again."
+            )
+        else:
+            # ── Resolve many2one names to IDs (exact, then fuzzy, then suggest) ──
+            resolve_error = None
+            created_related = []
+            create_flags = [str(f).lower() for f in (many2one_create_flags or [])]
+            idx = 0
+            for fname, search_name in zip(many2one_field_names or [], many2one_search_names or []):
+                flag = create_flags[idx] if idx &lt; len(create_flags) else 'false'
+                idx += 1
+                allow_create = flag in ('true', '1', 'yes', 'force')
+                force_create = flag == 'force'
+                search_name = (search_name or '').strip()
+                if not fname or not search_name:
+                    continue
+                if fname not in all_fields:
+                    resolve_error = f"ERROR: Field '{fname}' not found in {model_name}."
+                    break
+                related_model = all_fields[fname].get('relation')
+                if not related_model:
+                    resolve_error = f"ERROR: '{fname}' is not a Many2one field."
+                    break
+                Related = env[related_model]
+                if related_model == 'product.product':
+                    # Variant-aware resolution: 'PVC板(昆明,8mm)' selects the variant
+                    # whose attribute values match; plain names must be unambiguous.
+                    norm_name = search_name.replace('（', '(').replace('）', ')')
+                    base_name = norm_name.split('(')[0].strip() if '(' in norm_name else norm_name.strip()
+                    inner_part = norm_name.split('(', 1)[1].split(')')[0] if '(' in norm_name else ''
+                    for sep in ('，', '、', '|', '；', ';'):
+                        inner_part = inner_part.replace(sep, ',')
+                    wanted_vals = [w.strip().lower() for w in inner_part.split(',') if w.strip()]
+                    found = Related.search([['default_code', '=ilike', base_name]], limit=1)
+                    if not found:
+                        p_tmpl = env['product.template'].search([['name', '=ilike', base_name]], limit=1)
+                        if not p_tmpl:
+                            p_tmpl = env['product.template'].search([['name', 'ilike', base_name]], limit=1)
+                        if p_tmpl:
+                            cand = p_tmpl.product_variant_ids
+                            if wanted_vals:
+                                # exact value match first ('5mm' must not hit '15mm'),
+                                # substring only as fallback
+                                matched = env['product.product']
+                                loose = env['product.product']
+                                for p in cand:
+                                    vname_list = [(n or '').lower() for n in p.product_template_attribute_value_ids.mapped('name')]
+                                    exact_ok = True
+                                    loose_ok = True
+                                    for w in wanted_vals:
+                                        if w not in vname_list:
+                                            exact_ok = False
+                                        hit = False
+                                        for n in vname_list:
+                                            if w in n:
+                                                hit = True
+                                                break
+                                        if not hit:
+                                            loose_ok = False
+                                    if exact_ok:
+                                        matched += p
+                                    if loose_ok:
+                                        loose += p
+                                cand = matched if matched else loose
+                            if len(cand) == 1:
+                                found = cand
+                            elif len(cand) &gt; 1:
+                                cand_names = "; ".join(f"ID {p.id}: {p.display_name}" for p in cand[:12])
+                                resolve_error = (
+                                    f"ERROR: '{search_name}' matches SEVERAL variants of '{p_tmpl.name}': {cand_names}\n"
+                                    "Ask the user which one (quick options), then retry passing the chosen "
+                                    "variant ID directly (field_names ['product_id'], field_values ['&lt;id&gt;'])."
+                                )
+                                break
+                            elif wanted_vals:
+                                avail = "; ".join(f"ID {p.id}: {p.display_name}" for p in p_tmpl.product_variant_ids[:12])
+                                resolve_error = (
+                                    f"ERROR: no variant of '{p_tmpl.name}' matches ({inner_part}). Existing variants: {avail}\n"
+                                    "If this combination should exist, run 'AI Skill: Configure Product Variants' "
+                                    "first to add it, then retry."
+                                )
+                                break
+                else:
+                    found = Related.search([['name', '=ilike', search_name]], limit=1)
+                    if not found:
+                        found = Related.search([['name', 'ilike', search_name]], limit=1)
+                if not found and allow_create:
+                    # Anti-duplicate guard: even with the create flag, refuse to
+                    # create when similar records exist (typos!) unless forced
+                    similar_guard = Related.search(
+                        [['name', 'ilike', search_name[:max(3, len(search_name) - 2)]]], limit=5
+                    )
+                    if similar_guard and not force_create:
+                        names = ", ".join(similar_guard.mapped('display_name'))
+                        resolve_error = (
+                            f"BLOCKED to avoid a duplicate: '{search_name}' was not found exactly, "
+                            f"but similar records already exist in {related_model}: {names}\n"
+                            "Ask the user (quick options): use one of these existing records, or really "
+                            "create a new one? Only if they explicitly choose a NEW record, retry with "
+                            "this many2one_create_flags entry set to 'force'."
+                        )
+                        break
+                    found = Related.create({'name': search_name})
+                    created_related.append(f"{related_model} '{search_name}' (ID: {found.id})")
+                if not found:
+                    prefix = search_name[:max(3, len(search_name) - 2)]
+                    similar = Related.search([['name', 'ilike', prefix]], limit=5)
+                    if similar:
+                        names = ", ".join(similar.mapped('display_name'))
+                        resolve_error = (
+                            f"ERROR: Cannot find '{search_name}' in {related_model}.\n"
+                            f"Similar existing records: {names}\n"
+                            "Ask the user which one to use (present them as quick options), "
+                            "or set the matching many2one_create_flags entry to 'true' if the user wants a new record created."
+                        )
+                    else:
+                        resolve_error = (
+                            f"ERROR: Cannot find '{search_name}' in {related_model} and no similar record exists.\n"
+                            "Ask the user to confirm the exact name, or whether to create it "
+                            "(then set the matching many2one_create_flags entry to 'true')."
+                        )
+                    break
+                vals[fname] = found.id
+
+            if resolve_error:
+                ai['result'] = resolve_error
+            else:
+                record = env[model_name].create(vals)
+                extra = ""
+                if created_related:
+                    extra = "\n  Also created: " + "; ".join(created_related)
+                if dropped_fields:
+                    extra += "\n  Ignored (auto-generated by the system): " + "; ".join(dropped_fields)
+                ai['result'] = (
+                    f"Created {model_name} record successfully.\n"
+                    f"  ID: {record.id}\n"
+                    f"  Name: {record.display_name}"
+                    + extra
+                )</field>
+    </record>
+
+    <record id="ai_action_update_record" model="ir.actions.server">
+        <field name="name">AI Skill: Update Record</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_requires_guide" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Updates fields on an existing record ("change John's email", "link this line to product X").
+
+Identify the record by record_id (preferred; Search first if unknown) or search_name. Many2one values resolved by display name, same guards as Create Record. Full semantics: load the skill guide.
+Returns every change old -&gt; new.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "model_name": {
+            "type": "string",
+            "description": "Odoo technical model name, e.g. res.partner, crm.lead, sale.order.line"
+        },
+        "record_id": {
+            "type": "number",
+            "description": "Database ID of the record to update. Use 0 if searching by name instead."
+        },
+        "search_name": {
+            "type": "string",
+            "description": "Name to search for the record if record_id is 0. Leave empty string if using record_id."
+        },
+        "field_names": {
+            "type": "array",
+            "description": "List of Odoo technical field names to update. Must match field_values by index. Empty array if only updating many2one fields.",
+            "items": {"type": "string"}
+        },
+        "field_values": {
+            "type": "array",
+            "description": "List of new values corresponding to field_names. Same order and length. All as strings.",
+            "items": {"type": "string"}
+        },
+        "many2one_field_names": {
+            "type": "array",
+            "description": "List of Many2one field names to set by display name, e.g. ['product_id']. Empty array if none.",
+            "items": {"type": "string"}
+        },
+        "many2one_search_names": {
+            "type": "array",
+            "description": "Display names matching many2one_field_names by index, e.g. ['Product2']",
+            "items": {"type": "string"}
+        },
+        "many2one_create_flags": {
+            "type": "array",
+            "description": "For each many2one_field_names entry: 'false' = never create; 'true' = create when not found AND nothing similar exists; 'force' = create despite similar records — only after explicit user choice.",
+            "items": {"type": "string"}
+        }
+    },
+    "required": ["model_name", "record_id", "search_name", "field_names", "field_values", "many2one_field_names", "many2one_search_names", "many2one_create_flags"]
+}</field>
+        <field name="code">if model_name not in env:
+    ai['result'] = f"ERROR: Model '{model_name}' does not exist."
+elif not (field_names or many2one_field_names):
+    ai['result'] = "ERROR: Nothing to update: provide field_names or many2one_field_names."
+elif len(field_names or []) != len(field_values or []):
+    ai['result'] = (
+        f"ERROR: field_names has {len(field_names or [])} items but field_values has "
+        f"{len(field_values or [])} — they must match one-to-one by index. Fix the arrays and retry."
+    )
+elif len(many2one_field_names or []) != len(many2one_search_names or []):
+    ai['result'] = "ERROR: many2one_field_names and many2one_search_names must have the same length. Fix the arrays and retry."
+elif model_name in ('hr.payslip', 'hr.payslip.line', 'hr.payslip.run', 'hr.contract'):
+    ai['result'] = "BLOCKED: payroll and contract data is READ-ONLY for AI — changes go through the HR payroll workflow with human approval."
+else:
+    all_fields = env[model_name].fields_get(
+        attributes=['string', 'type', 'relation']
+    )
+
+    # ── Zip field_names + field_values into dict, auto-cast type ──
+    vals = {}
+    bad_fields = []
+    for fname, fval in zip(field_names or [], field_values or []):
+        if fname not in all_fields:
+            bad_fields.append(fname)
+            continue
+        ftype = all_fields[fname]['type']
+        if ftype == 'boolean':
+            vals[fname] = fval.lower() in ('true', '1', 'yes')
+        elif ftype in ('integer', 'many2one'):
+            vals[fname] = int(fval) if fval.lstrip('-').isdigit() else fval
+        elif ftype in ('float', 'monetary'):
+            vals[fname] = float(fval)
+        else:
+            vals[fname] = fval
+
+    # ── Resolve many2one names to IDs (exact, then fuzzy, then suggest) ──
+    resolve_error = None
+    created_related = []
+    create_flags = [str(f).lower() for f in (many2one_create_flags or [])]
+    idx = 0
+    for fname, m2o_name in zip(many2one_field_names or [], many2one_search_names or []):
+        flag = create_flags[idx] if idx &lt; len(create_flags) else 'false'
+        idx += 1
+        allow_create = flag in ('true', '1', 'yes', 'force')
+        force_create = flag == 'force'
+        m2o_name = (m2o_name or '').strip()
+        if not fname or not m2o_name:
+            continue
+        if fname not in all_fields:
+            resolve_error = f"ERROR: Field '{fname}' not found in {model_name}."
+            break
+        related_model = all_fields[fname].get('relation')
+        if not related_model:
+            resolve_error = f"ERROR: '{fname}' is not a Many2one field."
+            break
+        Related = env[related_model]
+        if related_model == 'product.product':
+            # Variant-aware resolution: 'PVC板(昆明,8mm)' selects the exact variant
+            norm_name = m2o_name.replace('（', '(').replace('）', ')')
+            base_name = norm_name.split('(')[0].strip() if '(' in norm_name else norm_name.strip()
+            inner_part = norm_name.split('(', 1)[1].split(')')[0] if '(' in norm_name else ''
+            for sep in ('，', '、', '|', '；', ';'):
+                inner_part = inner_part.replace(sep, ',')
+            wanted_vals = [w.strip().lower() for w in inner_part.split(',') if w.strip()]
+            found = Related.search([['default_code', '=ilike', base_name]], limit=1)
+            if not found:
+                p_tmpl = env['product.template'].search([['name', '=ilike', base_name]], limit=1)
+                if not p_tmpl:
+                    p_tmpl = env['product.template'].search([['name', 'ilike', base_name]], limit=1)
+                if p_tmpl:
+                    cand = p_tmpl.product_variant_ids
+                    if wanted_vals:
+                        # exact value match first ('5mm' must not hit '15mm'),
+                        # substring only as fallback
+                        matched = env['product.product']
+                        loose = env['product.product']
+                        for p in cand:
+                            vname_list = [(n or '').lower() for n in p.product_template_attribute_value_ids.mapped('name')]
+                            exact_ok = True
+                            loose_ok = True
+                            for w in wanted_vals:
+                                if w not in vname_list:
+                                    exact_ok = False
+                                hit = False
+                                for n in vname_list:
+                                    if w in n:
+                                        hit = True
+                                        break
+                                if not hit:
+                                    loose_ok = False
+                            if exact_ok:
+                                matched += p
+                            if loose_ok:
+                                loose += p
+                        cand = matched if matched else loose
+                    if len(cand) == 1:
+                        found = cand
+                    elif len(cand) &gt; 1:
+                        cand_names = "; ".join(f"ID {p.id}: {p.display_name}" for p in cand[:12])
+                        resolve_error = (
+                            f"ERROR: '{m2o_name}' matches SEVERAL variants of '{p_tmpl.name}': {cand_names}\n"
+                            "Ask the user which one (quick options), then retry passing the chosen "
+                            "variant ID directly."
+                        )
+                        break
+                    elif wanted_vals:
+                        avail = "; ".join(f"ID {p.id}: {p.display_name}" for p in p_tmpl.product_variant_ids[:12])
+                        resolve_error = (
+                            f"ERROR: no variant of '{p_tmpl.name}' matches ({inner_part}). Existing variants: {avail}\n"
+                            "If this combination should exist, run 'AI Skill: Configure Product Variants' "
+                            "first to add it, then retry."
+                        )
+                        break
+        else:
+            found = Related.search([['name', '=ilike', m2o_name]], limit=1)
+            if not found:
+                found = Related.search([['name', 'ilike', m2o_name]], limit=1)
+        if not found and allow_create:
+            similar_guard = Related.search(
+                [['name', 'ilike', m2o_name[:max(3, len(m2o_name) - 2)]]], limit=5
+            )
+            if similar_guard and not force_create:
+                names = ", ".join(similar_guard.mapped('display_name'))
+                resolve_error = (
+                    f"BLOCKED to avoid a duplicate: '{m2o_name}' was not found exactly, "
+                    f"but similar records already exist in {related_model}: {names}\n"
+                    "Ask the user (quick options): use one of these existing records, or really "
+                    "create a new one? Only if they explicitly choose a NEW record, retry with "
+                    "this many2one_create_flags entry set to 'force'."
+                )
+                break
+            found = Related.create({'name': m2o_name})
+            created_related.append(f"{related_model} '{m2o_name}' (ID: {found.id})")
+        if not found:
+            prefix = m2o_name[:max(3, len(m2o_name) - 2)]
+            similar = Related.search([['name', 'ilike', prefix]], limit=5)
+            if similar:
+                names = ", ".join(similar.mapped('display_name'))
+                resolve_error = (
+                    f"ERROR: Cannot find '{m2o_name}' in {related_model}.\n"
+                    f"Similar existing records: {names}\n"
+                    "Ask the user which one to use (present them as quick options)."
+                )
+            else:
+                resolve_error = (
+                    f"ERROR: Cannot find '{m2o_name}' in {related_model} and no similar record exists.\n"
+                    "Ask the user to confirm the exact name, or whether to create it."
+                )
+            break
+        vals[fname] = found.id
+
+    if bad_fields:
+        ai['result'] = (
+            f"ERROR: Unknown fields: {bad_fields}\n"
+            f"Call 'AI Skill: Get Model Fields' to see valid field names."
+        )
+    elif resolve_error:
+        ai['result'] = resolve_error
+    else:
+        target = None
+        if record_id:
+            target = env[model_name].browse(int(record_id))
+            if not target.exists():
+                ai['result'] = f"ERROR: No record with ID {record_id} in {model_name}."
+                target = None
+        elif search_name:
+            target = env[model_name].search(
+                [['name', 'ilike', search_name]], limit=1
+            )
+            if not target:
+                ai['result'] = f"ERROR: Cannot find '{search_name}' in {model_name}."
+                target = None
+        else:
+            ai['result'] = "ERROR: Provide either record_id or search_name."
+
+        if target and model_name == 'account.move' and target.state != 'draft':
+            ai['result'] = (
+                f"BLOCKED: {target.display_name} is not a draft (state: {target.state}). "
+                "Posted legal documents are never edited directly — reset to draft first "
+                "(button_draft, after explicit user confirmation and a warning about the consequences)."
+            )
+            target = None
+        if target:
+            # Capture old values so the audit trail shows exactly what changed
+            old_values = {}
+            for f in vals:
+                fdef = all_fields.get(f, {})
+                old = target[f]
+                if fdef.get('type') == 'many2one':
+                    old = old.display_name if old else ''
+                old_values[f] = old
+            target.write(vals)
+            changes = []
+            for f in vals:
+                fdef = all_fields.get(f, {})
+                new = target[f]
+                if fdef.get('type') == 'many2one':
+                    new = new.display_name if new else ''
+                changes.append(f"    {f}: {old_values[f]!r} -&gt; {new!r}")
+            extra = ""
+            if created_related:
+                extra = "\n  Also created: " + "; ".join(created_related)
+            ai['result'] = (
+                f"Updated {model_name} record successfully.\n"
+                f"  ID: {target.id}\n"
+                f"  Name: {target.display_name}\n"
+                f"  Changes (old -&gt; new):\n" + "\n".join(changes)
+                + extra
+            )</field>
+    </record>
+
+    <record id="ai_action_archive_record" model="ir.actions.server">
+        <field name="name">AI Skill: Archive Record</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_requires_guide" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Archives (soft-deletes) an existing Odoo record by setting active=False.
+
+Use when the user says: "delete", "remove", "archive", "deactivate".
+Examples: "delete contact Test123", "archive this lead", "remove employee John".
+
+Note: This archives the record (hides it), not permanently deletes it.
+If you don't have the record ID, use AI: Search first to find it.
+
+Returns: confirmation with record name on success.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "model_name": {
+            "type": "string",
+            "description": "Odoo technical model name, e.g. res.partner, crm.lead, project.task, hr.employee"
+        },
+        "record_id": {
+            "type": "number",
+            "description": "Database ID of the record to archive. Use 0 if searching by name instead."
+        },
+        "search_name": {
+            "type": "string",
+            "description": "Name to search for the record if record_id is 0. Leave empty string if using record_id."
+        }
+    },
+    "required": ["model_name", "record_id", "search_name"]
+}</field>
+        <field name="code">if model_name not in env:
+    ai['result'] = f"ERROR: Model '{model_name}' does not exist."
+else:
+    target = None
+
+    if record_id:
+        target = env[model_name].browse(int(record_id))
+        if not target.exists():
+            ai['result'] = f"ERROR: No record found with ID {record_id} in {model_name}."
+            target = None
+    elif search_name:
+        target = env[model_name].search(
+            [['name', 'ilike', search_name], ['active', '=', True]], limit=1
+        )
+        if not target:
+            ai['result'] = f"ERROR: Cannot find active record '{search_name}' in {model_name}."
+            target = None
+    else:
+        ai['result'] = "ERROR: Please provide either record_id or search_name."
+
+    if target:
+        record_name = target.display_name
+        if 'active' not in env[model_name].fields_get(['active']):
+            ai['result'] = f"ERROR: Model {model_name} does not support archiving (no active field)."
+        else:
+            target.write({'active': False})
+            ai['result'] = (
+                f"Archived {model_name} record successfully.\n"
+                f"  ID: {target.id}\n"
+                f"  Name: {record_name}"
+            )</field>
+    </record>
+
+    <record id="ai_action_read_record" model="ir.actions.server">
+        <field name="name">AI Skill: Read Record Details</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_confirmation_policy">never</field>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Reads the current values of specific fields on one record (by database ID).
+
+Use it to:
+- show the user the current state before an update (confirmation preview)
+- verify the result after a create/update
+- answer questions about a specific record
+
+Read-only: needs no confirmation.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "model_name": {
+            "type": "string",
+            "description": "Odoo technical model name, e.g. res.partner, sale.order"
+        },
+        "record_id": {
+            "type": "number",
+            "description": "Database ID of the record to read."
+        },
+        "field_names": {
+            "type": "array",
+            "description": "Technical field names to read, e.g. ['name', 'email', 'partner_id', 'amount_total']. Empty array reads common fields (name/display_name).",
+            "items": {"type": "string"}
+        }
+    },
+    "required": ["model_name", "record_id", "field_names"]
+}</field>
+        <field name="code">if model_name not in env:
+    ai['result'] = f"ERROR: Model '{model_name}' does not exist."
+else:
+    target = env[model_name].browse(int(record_id))
+    if not target.exists():
+        ai['result'] = f"ERROR: No record with ID {record_id} in {model_name}."
+    else:
+        all_fields = env[model_name].fields_get(attributes=['string', 'type'])
+        names = [f for f in (field_names or []) if f]
+        if not names:
+            names = [f for f in ('name', 'display_name') if f in all_fields]
+        lines = [f"Record {model_name} ID {target.id} ({target.display_name}):"]
+        for fname in names:
+            if fname not in all_fields:
+                lines.append(f"  {fname}: (unknown field)")
+                continue
+            value = target[fname]
+            ftype = all_fields[fname]['type']
+            if ftype == 'many2one':
+                value = value.display_name if value else ''
+            elif ftype in ('one2many', 'many2many'):
+                value = ", ".join(value.mapped('display_name')[:20])
+            elif ftype == 'binary':
+                value = '(binary)'
+            lines.append(f"  {fname} ({all_fields[fname]['string']}): {value}")
+        ai['result'] = "\n".join(lines)</field>
+    </record>
+
+    <record id="ai_action_duplicate_record" model="ir.actions.server">
+        <field name="name">AI Skill: Duplicate Record</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_requires_guide" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Duplicates an existing record (Odoo copy), e.g. "duplicate this quotation", "copy order S00042".
+
+This is a MUTATION: follow the confirmation protocol (preview + confirm options) before calling.
+Returns the new record ID and name.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "model_name": {
+            "type": "string",
+            "description": "Odoo technical model name, e.g. sale.order, product.template"
+        },
+        "record_id": {
+            "type": "number",
+            "description": "Database ID of the record to duplicate."
+        }
+    },
+    "required": ["model_name", "record_id"]
+}</field>
+        <field name="code">if model_name not in env:
+    ai['result'] = f"ERROR: Model '{model_name}' does not exist."
+else:
+    target = env[model_name].browse(int(record_id))
+    if not target.exists():
+        ai['result'] = f"ERROR: No record with ID {record_id} in {model_name}."
+    else:
+        new_record = target.copy()
+        ai['result'] = (
+            f"Duplicated {model_name} record {target.display_name}.\n"
+            f"  New ID: {new_record.id}\n"
+            f"  New Name: {new_record.display_name}"
+        )</field>
+    </record>
+
+    <record id="ai_action_trigger_record_action" model="ir.actions.server">
+        <field name="name">AI Skill: Trigger Record Action</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_requires_guide" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Triggers a standard workflow action on a record. ONLY these whitelisted actions are allowed:
+- action_confirm: confirm a SALES quotation (sale.order)
+- action_cancel: cancel a sales document / invoice
+- action_draft: reset a sales document / invoice to draft
+- action_post: post an invoice / journal entry (account.move)
+- button_validate: validate a stock transfer (stock.picking)
+- button_confirm: confirm a PURCHASE order (purchase.order uses button_*, not action_*)
+- button_cancel: cancel a purchase order / reset an invoice
+- button_draft: reset a purchase order or invoice (account.move) to draft
+- action_create_invoice: create the VENDOR BILL from a confirmed purchase order
+- action_assign: reserve/check availability of a stock transfer (stock.picking)
+- action_approve: first approval of a time-off request (hr.leave)
+- action_validate: final validation of a time-off request (hr.leave)
+- action_refuse: refuse a time-off request (hr.leave)
+- action_set_won: mark a CRM opportunity as WON (crm.lead)
+- action_set_lost: mark a CRM opportunity as LOST (crm.lead)
+
+Use when the user says: "confirm the order", "post the invoice", "validate the delivery", "确认采购单", "批准张三的请假", "把这个商机标记为赢单".
+
+This is a MUTATION with business consequences: follow the confirmation protocol strictly (preview + confirm options).</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "model_name": {
+            "type": "string",
+            "description": "Odoo technical model name, e.g. sale.order, purchase.order, account.move, stock.picking"
+        },
+        "record_id": {
+            "type": "number",
+            "description": "Database ID of the record."
+        },
+        "action_name": {
+            "type": "string",
+            "enum": ["action_confirm", "action_cancel", "action_draft", "action_post", "button_validate", "button_confirm", "button_cancel", "button_draft", "action_create_invoice", "action_assign", "action_approve", "action_validate", "action_refuse", "action_set_won", "action_set_lost"],
+            "description": "The whitelisted workflow action to trigger. sale.order uses action_confirm; purchase.order uses button_confirm."
+        },
+        "expected_name": {
+            "type": "string",
+            "description": "The document name/reference the user is talking about (e.g. 'S00006', 'INV/2026/00001'). The tool BLOCKS execution if record_id does not match this name — always provide it when known. Empty string to skip the check."
+        }
+    },
+    "required": ["model_name", "record_id", "action_name", "expected_name"]
+}</field>
+        <field name="code">if model_name not in env:
+    ai['result'] = f"ERROR: Model '{model_name}' does not exist."
+else:
+    target = env[model_name].browse(int(record_id))
+    if not target.exists():
+        ai['result'] = f"ERROR: No record with ID {record_id} in {model_name}."
+    elif expected_name and expected_name.strip() and expected_name.strip().lower() not in (target.display_name or '').lower():
+        ai['result'] = (
+            f"BLOCKED: record mismatch. record_id {target.id} is '{target.display_name}', "
+            f"NOT '{expected_name}'. You may be acting on the wrong document — search for the "
+            "correct record first and retry with the verified ID."
+        )
+        target = None
+    if target and action_name in ('action_cancel', 'button_cancel'):
+        # Irreversibility guards: some cancellations have legal/stock
+        # consequences and must go through the manual workflow
+        guard_msg = None
+        if model_name == 'account.move' and target.state == 'posted':
+            guard_msg = (
+                "BLOCKED: cancelling a POSTED invoice/bill affects legal and tax records "
+                "(credit notes may be required). This must be handled manually by accounting — "
+                "tell the user honestly and do not attempt workarounds."
+            )
+        elif model_name == 'sale.order':
+            so_fields = env[model_name].fields_get(['invoice_ids', 'picking_ids'])
+            has_posted_inv = 'invoice_ids' in so_fields and any(i.state == 'posted' for i in target.invoice_ids)
+            has_done_pick = 'picking_ids' in so_fields and any(p.state == 'done' for p in target.picking_ids)
+            if has_posted_inv or has_done_pick:
+                guard_msg = (
+                    f"BLOCKED: {target.display_name} already has posted invoices and/or done deliveries. "
+                    "Cancelling requires credit notes / stock returns — advise handling it in the "
+                    "standard UI with finance/warehouse involvement."
+                )
+        elif model_name == 'purchase.order':
+            po_fields = env[model_name].fields_get(['picking_ids'])
+            if 'picking_ids' in po_fields and any(p.state == 'done' for p in target.picking_ids):
+                guard_msg = (
+                    f"BLOCKED: {target.display_name} has received transfers. Cancelling after "
+                    "reception requires returns/refunds — advise the manual workflow."
+                )
+        if guard_msg:
+            ai['result'] = guard_msg
+            target = None
+    if target:
+        state_field = 'state' in env[model_name].fields_get(['state'])
+        before_name = target.display_name
+        before_state = target.state if state_field else ''
+        done = False
+        if action_name == 'action_confirm':
+            target.action_confirm()
+            done = True
+        elif action_name == 'action_cancel':
+            target.action_cancel()
+            done = True
+        elif action_name == 'action_draft':
+            target.action_draft()
+            done = True
+        elif action_name == 'action_post':
+            target.action_post()
+            done = True
+        elif action_name == 'button_validate':
+            target.button_validate()
+            done = True
+        elif action_name == 'button_confirm':
+            target.button_confirm()
+            done = True
+        elif action_name == 'button_cancel':
+            target.button_cancel()
+            done = True
+        elif action_name == 'button_draft':
+            target.button_draft()
+            done = True
+        elif action_name == 'action_create_invoice':
+            target.action_create_invoice()
+            done = True
+        elif action_name == 'action_assign':
+            target.action_assign()
+            done = True
+        elif action_name == 'action_approve':
+            target.action_approve()
+            done = True
+        elif action_name == 'action_validate':
+            target.action_validate()
+            done = True
+        elif action_name == 'action_refuse':
+            target.action_refuse()
+            done = True
+        elif action_name == 'action_set_won':
+            target.action_set_won()
+            done = True
+        elif action_name == 'action_set_lost':
+            target.action_set_lost()
+            done = True
+
+        if done:
+            after_state = target.state if state_field else ''
+            lines = [f"Action '{action_name}' executed on {model_name} (ID: {target.id})."]
+            lines.append(f"  Record: {before_name} -&gt; {target.display_name}")
+            if state_field:
+                lines.append(f"  State: {before_state} -&gt; {after_state}")
+                if before_state == after_state:
+                    lines.append(
+                        "  WARNING: the state did NOT change. The action may have had no effect — "
+                        "tell the user honestly and verify with Read Record Details before claiming success."
+                    )
+            ai['result'] = "\n".join(lines)
+        else:
+            ai['result'] = f"ERROR: action '{action_name}' is not in the allowed list."</field>
+    </record>
+
+    <record id="ai_action_schedule_activity" model="ir.actions.server">
+        <field name="name">AI Skill: Schedule Activity</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Schedules a To-Do activity on a record with a deadline, optionally assigned to another user by name.
+
+Use when the user says: "remind me to...", "schedule a follow-up", "add a task on this lead for tomorrow", "让张三下周跟进这个客户".
+
+Light mutation: a short preview + confirm is enough.
+Returns the created activity summary.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "model_name": {
+            "type": "string",
+            "description": "Technical model of the record to attach the activity to, e.g. crm.lead, res.partner, sale.order"
+        },
+        "record_id": {
+            "type": "number",
+            "description": "Database ID of the record."
+        },
+        "summary": {
+            "type": "string",
+            "description": "Short activity title, e.g. 'Call back about the quotation'."
+        },
+        "note": {
+            "type": "string",
+            "description": "Longer description of what to do. Empty string if not needed."
+        },
+        "date_deadline": {
+            "type": "string",
+            "description": "Deadline in YYYY-MM-DD format. Compute from relative dates using today's date."
+        },
+        "assign_to_user_name": {
+            "type": "string",
+            "description": "Name of the user to assign the activity to. Empty string assigns to the current user."
+        }
+    },
+    "required": ["model_name", "record_id", "summary", "note", "date_deadline", "assign_to_user_name"]
+}</field>
+        <field name="code">if model_name not in env:
+    ai['result'] = f"ERROR: Model '{model_name}' does not exist."
+else:
+    target = env[model_name].browse(int(record_id))
+    if not target.exists():
+        ai['result'] = f"ERROR: No record with ID {record_id} in {model_name}."
+    else:
+        res_model = env['ir.model'].search([('model', '=', model_name)], limit=1)
+        assignee = env.user
+        if assign_to_user_name:
+            found_user = env['res.users'].search([['name', 'ilike', assign_to_user_name]], limit=1)
+            if not found_user:
+                ai['result'] = f"ERROR: No user found matching '{assign_to_user_name}'. Ask the user for the correct name."
+                res_model = None
+            else:
+                assignee = found_user
+        if res_model:
+            activity_type = env.ref('mail.mail_activity_data_todo', raise_if_not_found=False)
+            env['mail.activity'].create({
+                'res_model_id': res_model.id,
+                'res_id': target.id,
+                'activity_type_id': activity_type.id if activity_type else False,
+                'summary': summary,
+                'note': note or False,
+                'date_deadline': date_deadline,
+                'user_id': assignee.id,
+            })
+            ai['result'] = (
+                f"Activity scheduled on {model_name} '{target.display_name}'.\n"
+                f"  Summary: {summary}\n"
+                f"  Deadline: {date_deadline}\n"
+                f"  Assigned to: {assignee.name}"
+            )</field>
+    </record>
+
+    <record id="ai_action_post_note" model="ir.actions.server">
+        <field name="name">AI Skill: Post Internal Note</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Posts an INTERNAL note in the chatter of a record (visible to internal users only, sends nothing to customers).
+
+Use when the user says: "add a note on this order", "记录一下这个客户说...", "log that the customer called".
+
+Light mutation: a short preview + confirm is enough.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "model_name": {
+            "type": "string",
+            "description": "Technical model of the record, e.g. res.partner, sale.order, crm.lead"
+        },
+        "record_id": {
+            "type": "number",
+            "description": "Database ID of the record."
+        },
+        "note_text": {
+            "type": "string",
+            "description": "The note content (plain text)."
+        }
+    },
+    "required": ["model_name", "record_id", "note_text"]
+}</field>
+        <field name="code">if model_name not in env:
+    ai['result'] = f"ERROR: Model '{model_name}' does not exist."
+elif not note_text:
+    ai['result'] = "ERROR: note_text is empty."
+else:
+    target = env[model_name].browse(int(record_id))
+    if not target.exists():
+        ai['result'] = f"ERROR: No record with ID {record_id} in {model_name}."
+    elif 'message_ids' not in env[model_name].fields_get(['message_ids']):
+        ai['result'] = f"ERROR: Model {model_name} has no chatter (cannot post notes)."
+    else:
+        target.message_post(
+            body=note_text,
+            message_type='comment',
+            subtype_xmlid='mail.mt_note',
+            author_id=env.user.partner_id.id,
+        )
+        ai['result'] = f"Internal note posted on {model_name} '{target.display_name}' (ID: {target.id})."</field>
+    </record>
+
+    <record id="ai_action_create_invoice_from_order" model="ir.actions.server">
+        <field name="name">AI Skill: Create Invoice from Sales Order</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_requires_guide" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Creates the customer invoice from a CONFIRMED sales order via the official Odoo invoicing flow (never build account.move manually).
+
+The result is a DRAFT invoice with no final number yet (assigned at posting); posting (action_post) is a separate confirmed step. Follow the confirmation protocol.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "order_id": {
+            "type": "number",
+            "description": "Database ID of the sale.order. Use 0 if searching by order name instead."
+        },
+        "order_name": {
+            "type": "string",
+            "description": "Order reference to search for (e.g. S00042) when order_id is 0. Empty string if using order_id."
+        }
+    },
+    "required": ["order_id", "order_name"]
+}</field>
+        <field name="code">if 'sale.order' not in env or 'sale.advance.payment.inv' not in env:
+    ai['result'] = "ERROR: The Sales app is not installed in this database."
+else:
+    order = None
+    if order_id:
+        order = env['sale.order'].browse(int(order_id))
+        if not order.exists():
+            ai['result'] = f"ERROR: No sales order with ID {order_id}."
+            order = None
+    elif order_name:
+        order = env['sale.order'].search([['name', '=ilike', order_name]], limit=1)
+        if not order:
+            ai['result'] = f"ERROR: No sales order found matching '{order_name}'."
+            order = None
+    else:
+        ai['result'] = "ERROR: Provide order_id or order_name."
+
+    if order:
+        if order.state not in ('sale', 'done'):
+            ai['result'] = (
+                f"ERROR: Order {order.name} is not confirmed (state: {order.state}). "
+                "Confirm it first with Trigger Record Action (action_confirm), after asking the user."
+            )
+        elif all(line.qty_to_invoice == 0 for line in order.order_line):
+            ai['result'] = (
+                f"ERROR: Order {order.name} has nothing to invoice right now "
+                "(products may need to be delivered first, depending on their invoicing policy)."
+            )
+        else:
+            invoices_before = order.invoice_ids
+            wizard = env['sale.advance.payment.inv'].with_context(
+                active_model='sale.order', active_ids=order.ids, active_id=order.id,
+            ).create({'advance_payment_method': 'delivered'})
+            wizard.create_invoices()
+            new_invoices = order.invoice_ids - invoices_before
+            if not new_invoices:
+                ai['result'] = f"ERROR: No invoice was created for {order.name}."
+            else:
+                lines = [f"Invoice created from order {order.name} (DRAFT — not posted yet):"]
+                for inv in new_invoices:
+                    number = inv.name if inv.name and inv.name != '/' else "(draft — the final number is assigned only when posted; do NOT invent one)"
+                    lines.append(f"  Invoice ID: {inv.id} | Number: {number} | Total: {inv.amount_total}")
+                lines.append("Refer to this invoice by its ID until it is posted. Offer the user to post it (Trigger Record Action: action_post on account.move, expected_name empty for drafts) as a separate confirmed step.")
+                ai['result'] = "\n".join(lines)</field>
+    </record>
+
+    <record id="ai_action_send_document_email" model="ir.actions.server">
+        <field name="name">AI Skill: Send Document by Email</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_requires_guide" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Sends a business document (quotation, invoice, PO...) by email using the OFFICIAL Odoo template — you never write the content yourself.
+
+STRICT two-step: call with preview_only='true' first and show the user recipient/subject/body/attachments; send with preview_only='false' ONLY after their explicit confirmation. Emails cannot be recalled.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "model_name": {
+            "type": "string",
+            "description": "Technical model of the document, e.g. sale.order, account.move, purchase.order"
+        },
+        "record_id": {
+            "type": "number",
+            "description": "Database ID of the document to send."
+        },
+        "template_search": {
+            "type": "string",
+            "description": "Optional filter on the template name if the model has several. Empty string uses the first template of the model."
+        },
+        "preview_only": {
+            "type": "string",
+            "description": "'true' = render and return recipient/subject/body/attachments WITHOUT sending (always do this first); 'false' = actually send (only after the user confirmed the preview)."
+        }
+    },
+    "required": ["model_name", "record_id", "template_search", "preview_only"]
+}</field>
+        <field name="code">if model_name not in env:
+    ai['result'] = f"ERROR: Model '{model_name}' does not exist."
+elif str(preview_only).lower() in ('true', '1', 'yes'):
+    channel = env.context.get('discuss_channel')
+    if not channel:
+        ai['result'] = "ERROR: email preview is only available inside an AI chat conversation."
+    else:
+        ai['result'] = channel.ai_preview_mail_template(model_name, int(record_id), template_search or '')
+else:
+    record = env[model_name].browse(int(record_id))
+    if not record.exists():
+        ai['result'] = f"ERROR: No record with ID {record_id} in {model_name}."
+    else:
+        # Access probe: template rendering/sending runs with elevated rights
+        # internally, so verify the USER may read this document first
+        record.check_access('read')
+        Template = env['mail.template'].sudo()
+        template = None
+        if template_search:
+            template = Template.search([('model', '=', model_name), ('name', 'ilike', template_search)], limit=1)
+        if not template:
+            template = Template.search([('model', '=', model_name)], limit=1)
+        if not template:
+            ai['result'] = (
+                f"ERROR: No official email template exists for {model_name}. "
+                "Sending free-form emails is not allowed."
+            )
+        else:
+            email_to = ""
+            if 'partner_id' in env[model_name].fields_get(['partner_id']):
+                partner = record.partner_id
+                if partner and not partner.email:
+                    email_to = None
+                    ai['result'] = (
+                        f"ERROR: {partner.display_name} has no email address. "
+                        "Ask the user for the email, update the contact first, then retry."
+                    )
+                elif partner:
+                    email_to = partner.email
+            if email_to is not None:
+                template.send_mail(record.id, force_send=True)
+                sent_to = email_to or "the recipients defined by the template"
+                ai['result'] = (
+                    f"Email sent for {record.display_name}.\n"
+                    f"  Template: {template.name}\n"
+                    f"  Recipient: {sent_to}"
+                )</field>
+    </record>
+
+    <record id="ai_action_print_report" model="ir.actions.server">
+        <field name="name">AI Skill: Print Report PDF</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_confirmation_policy">never</field>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Renders the PDF report of a record (quotation, invoice, delivery slip...) and posts it right here in the chat as an attachment the user can open/download.
+
+Use when the user says: "print the quotation", "给我订单S00003的PDF", "show me the invoice document".
+
+Read-only and internal: NO confirmation needed. If several reports exist for the model, the tool lists them — let the user pick with quick options.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "model_name": {
+            "type": "string",
+            "description": "Technical model of the record, e.g. sale.order, account.move, stock.picking"
+        },
+        "record_id": {
+            "type": "number",
+            "description": "Database ID of the record to print."
+        },
+        "report_search": {
+            "type": "string",
+            "description": "Optional filter on the report name when the model has several (e.g. 'Quotation', 'Delivery'). Empty string uses the first PDF report."
+        }
+    },
+    "required": ["model_name", "record_id", "report_search"]
+}</field>
+        <field name="code">channel = env.context.get('discuss_channel')
+if not channel:
+    ai['result'] = "ERROR: printing to chat is only available inside an AI chat conversation."
+else:
+    ai['result'] = channel.ai_post_report_pdf(model_name, int(record_id), report_search or '')</field>
+    </record>
+
+    <record id="ai_action_check_stock" model="ir.actions.server">
+        <field name="name">AI Skill: Check Product Stock</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_confirmation_policy">never</field>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Checks the stock levels of products by name or internal reference.
+
+Use when the user says: "how many X do we have", "产品A还有多少库存", "check stock before quoting".
+
+Returns per matching product: on hand, forecasted, incoming and outgoing quantities.
+Read-only: no confirmation needed. Good practice: check stock BEFORE creating sales orders for physical products.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "product_name": {
+            "type": "string",
+            "description": "Product name or internal reference to search for (fuzzy match, several products may be returned)."
+        }
+    },
+    "required": ["product_name"]
+}</field>
+        <field name="code">Product = env['product.product']
+if 'qty_available' not in Product.fields_get(['qty_available']):
+    ai['result'] = "ERROR: The Inventory app is not installed — stock levels are not tracked."
+elif not product_name:
+    ai['result'] = "ERROR: Provide a product name to search for."
+else:
+    products = Product.search(
+        ['|', ['name', 'ilike', product_name], ['default_code', 'ilike', product_name]], limit=8
+    )
+    if not products:
+        prefix = product_name[:max(3, len(product_name) - 2)]
+        similar = Product.search([['name', 'ilike', prefix]], limit=5)
+        hint = ""
+        if similar:
+            hint = "\nSimilar products: " + ", ".join(similar.mapped('display_name'))
+        ai['result'] = f"ERROR: No product found matching '{product_name}'.{hint}"
+    else:
+        lines = [f"Stock levels (matching '{product_name}'):", "Product | On Hand | Forecasted | Incoming | Outgoing"]
+        for p in products:
+            lines.append(
+                f"  {p.display_name} | {p.qty_available} | {p.virtual_available} | {p.incoming_qty} | {p.outgoing_qty}"
+            )
+        ai['result'] = "\n".join(lines)</field>
+    </record>
+
+    <record id="ai_action_register_payment" model="ir.actions.server">
+        <field name="name">AI Skill: Register Payment</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_requires_guide" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Registers a payment on a POSTED customer invoice or vendor bill, using the official Odoo payment wizard (correct journals and reconciliation).
+
+Use when the user says: "register the payment for INV/2026/0001", "客户已付款", "mark this bill as paid".
+
+Prerequisites: the invoice must be posted (action_post) and not fully paid yet.
+Use amount 0 to pay the full remaining amount, or a positive number for a partial payment.
+
+This is a MUTATION with accounting consequences: follow the confirmation protocol (preview invoice, amount and remaining balance first).</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "invoice_id": {
+            "type": "number",
+            "description": "Database ID of the account.move (invoice/bill). Use 0 if searching by number instead."
+        },
+        "invoice_name": {
+            "type": "string",
+            "description": "Invoice number to search for (e.g. INV/2026/0001) when invoice_id is 0. Empty string if using invoice_id."
+        },
+        "amount": {
+            "type": "number",
+            "description": "Payment amount. Use 0 to pay the full remaining amount."
+        }
+    },
+    "required": ["invoice_id", "invoice_name", "amount"]
+}</field>
+        <field name="code">if 'account.payment.register' not in env:
+    ai['result'] = "ERROR: The Accounting/Invoicing app is not installed."
+else:
+    invoice = None
+    if invoice_id:
+        invoice = env['account.move'].browse(int(invoice_id))
+        if not invoice.exists():
+            ai['result'] = f"ERROR: No invoice with ID {invoice_id}."
+            invoice = None
+    elif invoice_name:
+        invoice = env['account.move'].search([['name', '=ilike', invoice_name]], limit=1)
+        if not invoice:
+            ai['result'] = f"ERROR: No invoice found matching '{invoice_name}'."
+            invoice = None
+    else:
+        ai['result'] = "ERROR: Provide invoice_id or invoice_name."
+
+    if invoice:
+        if invoice.state != 'posted':
+            ai['result'] = (
+                f"ERROR: Invoice {invoice.name} is not posted (state: {invoice.state}). "
+                "Post it first with Trigger Record Action (action_post), after asking the user."
+            )
+        elif invoice.payment_state == 'paid':
+            ai['result'] = f"ERROR: Invoice {invoice.name} is already fully paid."
+        else:
+            wizard_vals = {}
+            if amount:
+                wizard_vals['amount'] = float(amount)
+            wizard = env['account.payment.register'].with_context(
+                active_model='account.move', active_ids=invoice.ids,
+            ).create(wizard_vals)
+            wizard.action_create_payments()
+            invoice.invalidate_recordset(['payment_state', 'amount_residual'])
+            ai['result'] = (
+                f"Payment registered on {invoice.name}.\n"
+                f"  Amount paid: {amount or 'full remaining amount'}\n"
+                f"  Payment state now: {invoice.payment_state}\n"
+                f"  Remaining balance: {invoice.amount_residual}"
+            )</field>
+    </record>
+
+    <record id="ai_action_undo_last_operation" model="ir.actions.server">
+        <field name="name">AI Skill: Undo Last Operation</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_requires_guide" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Undoes one of the user's own recent AI operations (audit trail): created/duplicated records are ARCHIVED, archived records are RESTORED. Updates are NOT undoable.
+
+Call with list_recent='true' first and let the user pick (quick options); after confirmation undo with list_recent='false' + the chosen log_id (0 = most recent). Each operation only once.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "log_id": {
+            "type": "number",
+            "description": "Audit log ID of the operation to undo (from the list_recent output). Use 0 for the user's most recent undoable operation."
+        },
+        "list_recent": {
+            "type": "string",
+            "description": "'true' to only LIST the user's recent undoable operations without changing anything; 'false' to actually perform the undo."
+        }
+    },
+    "required": ["log_id", "list_recent"]
+}</field>
+        <field name="code">UNDOABLE_CREATE = ['AI Skill: Create Record', 'AI Skill: Duplicate Record']
+UNDOABLE_ARCHIVE = ['AI Skill: Archive Record']
+Log = env['ai.audit.log'].sudo()
+base_domain = [
+    ('user_id', '=', env.uid),
+    ('has_error', '=', False),
+    ('undone', '=', False),
+    ('target_record_id', '!=', 0),
+    ('tool_name', 'in', UNDOABLE_CREATE + UNDOABLE_ARCHIVE),
+]
+
+if str(list_recent).lower() in ('true', '1', 'yes'):
+    logs = Log.search(base_domain, order='id desc', limit=5)
+    if not logs:
+        ai['result'] = "No undoable operations found for you. Only your own create/duplicate/archive operations can be undone."
+    else:
+        lines = ["Your recent undoable operations (newest first):"]
+        for log in logs:
+            action_hint = "will be ARCHIVED" if log.tool_name in UNDOABLE_CREATE else "will be RESTORED"
+            lines.append(
+                f"  log_id={log.id} | {log.create_date} | {log.tool_name} | "
+                f"{log.target_model} ID {log.target_record_id} | undo = record {action_hint}"
+            )
+        lines.append("Present these to the user as quick options and confirm before undoing.")
+        ai['result'] = "\n".join(lines)
+else:
+    if log_id:
+        log = Log.browse(int(log_id)).exists()
+    else:
+        log = Log.search(base_domain, order='id desc', limit=1)
+
+    if not log:
+        ai['result'] = "ERROR: No matching undoable operation found."
+    elif log.user_id.id != env.uid:
+        ai['result'] = "ERROR: You can only undo your own operations."
+    elif log.undone:
+        ai['result'] = "ERROR: This operation was already undone."
+    elif log.tool_name not in UNDOABLE_CREATE + UNDOABLE_ARCHIVE or not log.target_record_id:
+        ai['result'] = "ERROR: This operation cannot be undone (only create/duplicate/archive are reversible)."
+    elif log.target_model not in env:
+        ai['result'] = f"ERROR: Model '{log.target_model}' no longer exists."
+    else:
+        target = env[log.target_model].with_context(active_test=False).browse(log.target_record_id)
+        if not target.exists():
+            ai['result'] = f"ERROR: Record {log.target_model} ID {log.target_record_id} no longer exists."
+        elif 'active' not in env[log.target_model].sudo().fields_get(['active']):
+            ai['result'] = f"ERROR: Model {log.target_model} does not support archiving; cannot undo safely."
+        else:
+            if log.tool_name in UNDOABLE_CREATE:
+                target.write({'active': False})
+                outcome = "archived (hidden, not destroyed)"
+            else:
+                target.write({'active': True})
+                outcome = "restored"
+            log.write({'undone': True})
+            ai['result'] = (
+                f"Undo successful.\n"
+                f"  Operation: {log.tool_name} (log_id={log.id})\n"
+                f"  Record: {log.target_model} '{target.display_name}' (ID: {target.id}) was {outcome}."
+            )</field>
+    </record>
+
+    <record id="ai_action_configure_product_variants" model="ir.actions.server">
+        <field name="name">AI Skill: Configure Product Variants</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_requires_guide" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Configures attributes and variants on an EXISTING product in ONE atomic call: finds or creates the attributes (e.g. 厂地/厚度), finds or creates their values, links them to the product's variant attribute lines, and lets Odoo generate the variants. Optionally sets a unit of measure (found or created by name).
+
+Use whenever a product needs attributes/variants ("PVC板,属性厂地:昆明,成都,厚度:5mm,8mm") — NEVER build product.attribute / product.attribute.value / product.template.attribute.line records one by one with the generic Create Record skill.
+Idempotent: existing attributes/values are reused, already-linked values are kept, missing ones are added.
+Returns the full variant list with IDs — use those IDs (or 'name(值1,值2)' syntax) in order lines afterwards.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "product_name": {
+            "type": "string",
+            "description": "Existing product (template) name or numeric ID, e.g. 'PVC板' or '42'. The product must exist — create it first with Create Record if needed."
+        },
+        "attribute_names": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Attribute names in order, e.g. ['厂地', '厚度']. Missing attributes are created."
+        },
+        "attribute_values": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "For each attribute (same index as attribute_names), ALL its values in one comma-separated string, e.g. ['昆明,成都', '5mm,8mm,10mm,15mm']. Missing values are created, existing ones reused."
+        },
+        "uom_name": {
+            "type": "string",
+            "description": "Optional unit of measure name to set on the product, e.g. '120x240cm'. Found by name, or created as a new independent unit. Empty string to skip."
+        }
+    },
+    "required": ["product_name", "attribute_names", "attribute_values", "uom_name"]
+}</field>
+        <field name="code">pname = (product_name or '').strip()
+attr_names = attribute_names or []
+attr_value_lists = attribute_values or []
+if not pname:
+    ai['result'] = "ERROR: product_name is required (name or numeric ID of the product)."
+elif len(attr_names) != len(attr_value_lists):
+    ai['result'] = "ERROR: attribute_names and attribute_values must be parallel arrays of the same length."
+else:
+    Tmpl = env['product.template']
+    tmpl = None
+    if pname.isdigit():
+        found_tmpl = Tmpl.browse(int(pname))
+        tmpl = found_tmpl if found_tmpl.exists() else None
+    if tmpl is None:
+        exact = Tmpl.search([['name', '=ilike', pname]], limit=1)
+        tmpl = exact if exact else None
+    if tmpl is None:
+        candidates = Tmpl.search([['name', 'ilike', pname]], limit=5)
+        if len(candidates) == 1:
+            tmpl = candidates
+        elif candidates:
+            names = "; ".join(f"ID {c.id}: {c.display_name}" for c in candidates)
+            ai['result'] = (
+                f"ERROR: several products match '{pname}': {names}\n"
+                "Present them to the user as quick options and retry with the chosen ID."
+            )
+        else:
+            ai['result'] = (
+                f"ERROR: product '{pname}' not found. Create the product first "
+                "(AI Skill: Create Record on product.template), then call this skill again."
+            )
+    if tmpl is not None and 'result' not in ai:
+        summary = []
+        for a_name, raw in zip(attr_names, attr_value_lists):
+            a_name = (a_name or '').strip()
+            raw = raw or ''
+            for sep in ('，', '、', '|', '；', ';'):
+                raw = raw.replace(sep, ',')
+            value_names = [v.strip() for v in raw.split(',') if v.strip()]
+            if not a_name or not value_names:
+                continue
+            attribute = env['product.attribute'].search([['name', '=ilike', a_name]], limit=1)
+            attr_note = ""
+            if not attribute:
+                attribute = env['product.attribute'].create({'name': a_name})
+                attr_note = " (new attribute)"
+            values = env['product.attribute.value']
+            for v_name in value_names:
+                value = env['product.attribute.value'].search(
+                    [['attribute_id', '=', attribute.id], ['name', '=ilike', v_name]], limit=1)
+                if not value:
+                    value = env['product.attribute.value'].create(
+                        {'attribute_id': attribute.id, 'name': v_name})
+                values += value
+            line = tmpl.attribute_line_ids.filtered(lambda l: l.attribute_id == attribute)
+            if line:
+                missing = [v.id for v in values if v.id not in line[0].value_ids.ids]
+                if missing:
+                    line[0].write({'value_ids': [(4, vid) for vid in missing]})
+                    change = f"updated ({len(missing)} value(s) added)"
+                else:
+                    change = "already configured"
+            else:
+                env['product.template.attribute.line'].create({
+                    'product_tmpl_id': tmpl.id,
+                    'attribute_id': attribute.id,
+                    'value_ids': [(6, 0, values.ids)],
+                })
+                change = "linked to the product"
+            summary.append(f"  - {attribute.name}{attr_note}: {', '.join(value_names)} — {change}")
+        uom_note = ""
+        u_name = (uom_name or '').strip()
+        if u_name:
+            uom = env['uom.uom'].search([['name', '=ilike', u_name]], limit=1)
+            if not uom:
+                uom = env['uom.uom'].create({'name': u_name})
+                uom_note = f"\nUnit of measure: created '{uom.name}' (ID: {uom.id}) and set on the product."
+            else:
+                uom_note = f"\nUnit of measure: set to existing '{uom.display_name}'."
+            tmpl.write({'uom_id': uom.id})
+        variants = tmpl.product_variant_ids
+        v_lines = [f"  - ID {p.id}: {p.display_name}" for p in variants[:20]]
+        more = f"\n  ... and {len(variants) - 20} more" if len(variants) &gt; 20 else ""
+        ai['result'] = (
+            f"Variants configured on '{tmpl.name}' (template ID: {tmpl.id}).\n"
+            + ("\n".join(summary) if summary else "  (no attribute changes)")
+            + uom_note
+            + f"\n{len(variants)} variant(s) now exist:\n" + "\n".join(v_lines) + more
+            + "\nTo put one on an order line, use the variant ID directly, or the "
+            + "'名称(属性值1,属性值2)' syntax, e.g. 'PVC板(昆明,8mm)'."
+        )</field>
+    </record>
+
+    <record id="get_skill_guide" model="ir.actions.server">
+        <field name="name">AI Tool: Get Skill Guide</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_confirmation_policy">never</field>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Loads the FULL domain handbook (detailed guide) of a skill from the skill index.
+
+MUST be called BEFORE any data mutation (create/update/archive/confirm/invoice/email/payment/undo) — mutation tools are hard-blocked until a guide is loaded in the current turn.
+Read the returned guide and follow it exactly. Read-only tools work without it.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "skill_name": {
+            "type": "string",
+            "description": "Name of the skill from the skill index in your instructions, e.g. 'AI Skill Operations'."
+        }
+    },
+    "required": ["skill_name"]
+}</field>
+        <field name="code">ai['result'] = env['ai.en.topic'].ai_get_skill_guide(skill_name=skill_name)</field>
+    </record>
+
+    <!-- S1 additions: attach the read-only tools defined in THIS file (and the
+         guide loader) to the Data Query & Analysis skill pack -->
+    <record id="ai_topic_natural_language_query" model="ai.en.topic">
+        <field name="tool_ids" eval="[
+            (4, ref('get_skill_guide')),
+            (4, ref('ai_action_get_model_fields')),
+            (4, ref('ai_action_read_record')),
+            (4, ref('ai_action_check_stock')),
+            (4, ref('ai_action_print_report')),
+        ]"/>
+    </record>
+
+    <!-- S3: Business Operations skill pack (mutations; pair with S1 on agents) -->
+    <record id="ai_topic_crud_operations" model="ai.en.topic">
+        <field name="name">Business Operations</field>
+        <field name="description">Create, update, archive and drive business documents: orders, invoices, deliveries, payments, emails, activities, undo — across sales, purchase, inventory, accounting, HR and CRM.</field>
+        <field name="instructions"># AI Skill Operations — core rules (always loaded)
+
+- Before ANY data mutation (create / update / archive / duplicate / confirm / cancel / post / invoice / email / payment / undo): FIRST call the get_skill_guide tool with skill name "AI Skill Operations" and follow the returned handbook. Mutation tools are HARD-BLOCKED until the guide is loaded in the current turn.
+- Read-only tools (Get Model Fields, Search, Read group, Read Record Details, Check Product Stock, Print Report PDF) may be used directly, no guide needed.
+- ALWAYS call tools for real and report their actual result — never simulate, never fabricate. If a tool returns ERROR/BLOCKED, tell the user honestly and follow the guidance inside the message.
+- Follow the global mutation confirmation protocol: preview + quick-option confirmation before any change.</field>
+        <field name="detailed_guide"># AI Skill Operations — Detailed Guide
+
+**Purpose**: Execute create, update, archive operations on Odoo records based on user requests. Always call the appropriate tool directly — never simulate or fabricate results.
+
+## CRITICAL RULES
+
+- **ALWAYS call the tool** — never respond with "I have created/updated/deleted..." without actually calling the tool first and receiving the result.
+- **Wait for the tool result** before composing your reply.
+- **Report the actual result** from the tool to the user, whether success or error.
+- If a tool returns an error, tell the user exactly what went wrong and ask for the missing information (use quick options when the tool suggested candidates).
+
+## Tool usage details
+
+- **Create Record**: field_names/field_values are parallel string arrays of the SAME length (booleans as 'true'/'false', numbers as strings, known DB ids as strings). Many2one by display name: many2one_field_names + many2one_search_names + many2one_create_flags per entry ('false' = never create | 'true' = create only when nothing similar exists | 'force' = user explicitly chose a duplicate after seeing the similar list). force_create works the same for the record itself (exact-name duplicates are blocked on master data).
+- **Update Record**: prefer record_id over search_name. Same many2one resolution as Create. The result lists every change old -&gt; new — quote it in your reply.
+- **Trigger Record Action**: ALWAYS fill expected_name with the document reference the user mentioned (mismatch is blocked). Check the returned State line: if it did not change, do not claim success.
+- **Send Document by Email**: two steps — preview_only='true' first, show recipient/subject/body/attachments, get explicit confirmation, then preview_only='false' to send.
+- **Register Payment**: invoice must be POSTED and not fully paid; amount 0 = full remaining amount.
+- **Undo Last Operation**: list_recent='true' first, user picks, confirm, then undo by log_id. Only the user's own operations; each one only once.
+
+## Workflow
+
+### For CREATE operations
+1. Call **AI Skill: Get Model Fields** first to know required fields and types.
+2. For master data (customers, products, contacts...): SEARCH FIRST by name. If a matching record exists, use it — never create a duplicate. The tool also blocks exact-name duplicates automatically (force_create='true' only after the user explicitly chose to duplicate).
+3. Then call **AI Skill: Create Record** with the correct field values.
+
+### For UPDATE operations
+1. If you don't have the record ID, use **AI: Search** to find it first.
+2. Call **AI Skill: Update Record** with the record ID and fields to change.
+
+### For ARCHIVE/DELETE operations
+1. If you don't have the record ID, use **AI: Search** to find it first.
+2. Call **AI Skill: Archive Record** with the record ID.
+
+### For documents WITH LINE ITEMS (sales orders, invoices, purchase orders, ...)
+1. Create the PARENT record first (e.g. sale.order with the customer via many2one_field_names ['partner_id']).
+2. Add each line with **AI Skill: Create Record** on the LINE model (e.g. sale.order.line):
+   - the parent link as a plain value: field_names ['order_id'], field_values ['&lt;parent id&gt;']
+   - the product via many2one_field_names ['product_id'] + many2one_search_names ['&lt;product name&gt;']
+   - quantities as plain values (e.g. product_uom_qty)
+3. **NEVER create a line without its key many2one (product_id)**. Description-only lines are FORBIDDEN. If a product cannot be resolved, STOP and ask the user — do not invent workarounds.
+4. **NEVER provide AUTO-GENERATED fields** (listed separately by Get Model Fields): document numbers (sale/purchase order name, invoice number, picking reference), dates with defaults, company... The system fills them — an order number like "S00042" comes from a sequence, never invent one. Only set 'name' on master data (partners, products) where it is the actual label.
+5. Report per-line success/failure honestly at the end.
+
+### Products with VARIANTS (attributes like 厂地/厚度/颜色/尺寸) — CRITICAL
+1. To give a product attributes and variants ("PVC板,厂地:昆明/成都,厚度:5mm/8mm/10mm/15mm"):
+   - FIRST create the plain product if it doesn't exist (Create Record on product.template — just the name and basic fields).
+   - THEN call **AI Skill: Configure Product Variants** ONCE with all attributes and values (and the unit of measure if the user gave one, e.g. '120x240cm'). It finds-or-creates the attributes and values, links them to the product and generates the variants automatically.
+   - NEVER create product.attribute / product.attribute.value / product.template.attribute.line records one by one with Create Record — that path loses the links and leaves the variants unconfigured.
+2. To put a SPECIFIC variant on an order line: write the product as '名称(属性值1,属性值2)' — e.g. product_id search name 'PVC板(昆明,8mm)'. The resolver matches the attribute values and returns an error listing the real variants when the combination is ambiguous or missing (then ask the user via quick options, or configure the missing combination first).
+3. If the tool result lists variant IDs, prefer passing the exact variant ID in later calls (field_names ['product_id'], field_values ['123']).
+
+### Standard business flows (use the OFFICIAL flow, never build documents field by field)
+- **Quotation → Order**: create sale.order + lines, then Trigger Record Action action_confirm (after user confirmation).
+- **Delivery**: confirming a sale order creates the delivery automatically. To find it: Search stock.picking with origin = the order name. To validate it: Trigger Record Action button_validate (after user confirmation).
+- **Customer invoice**: use **AI Skill: Create Invoice from Sales Order** on a confirmed order (NEVER create account.move records manually). The result is a draft; posting (action_post) is a separate confirmed step.
+- **Purchase order**: same pattern as sales — create purchase.order + purchase.order.line (product via many2one arrays), then **button_confirm** (purchase uses button_*, NOT action_confirm) after user confirmation. Vendor bill: Trigger Record Action **action_create_invoice** on the confirmed purchase order.
+- **Send by email**: use **AI Skill: Send Document by Email** (official template only). BEFORE sending: read the record, show document + total + recipient name AND email + template in the preview, get explicit confirmation. Emails cannot be recalled.
+- **Print / show PDF**: use **AI Skill: Print Report PDF** — the PDF appears in the chat. Read-only, no confirmation needed.
+- **Stock**: check availability with **AI Skill: Check Product Stock** (read-only) — do it BEFORE quoting physical products. Reserve a transfer with action_assign, validate with button_validate.
+- **Payment**: on a POSTED invoice, use **AI Skill: Register Payment** (amount 0 = full). Full chain: order → confirm → invoice → post → register payment.
+- **HR time off**: create hr.leave via Create Record; approve with action_approve, final-validate with action_validate, refuse with action_refuse (all after user confirmation).
+- **CRM**: mark opportunities won/lost with action_set_won / action_set_lost (after user confirmation).
+
+## Resolving names (customers, products, ...)
+
+- The tools resolve many2one values by display name: exact match first, then fuzzy.
+- If not found, the tool returns SIMILAR existing names. Present them to the user as quick options ([AI_OPTIONS]) together with a "create new" choice — user input often contains typos ("Produc2" vs "Product2"), so prefer an existing similar record confirmed by the user over creating a near-duplicate.
+- Set many2one_create_flags to 'true' ONLY after the user explicitly approved creating the missing record (e.g. "没有的产品可以直接创建"). Approval given once in the conversation covers the remaining items of the SAME request.
+
+## Other capabilities
+
+- **AI Skill: Read Record Details** — read current values of a record (use for previews and verification; no confirmation needed).
+- **AI Skill: Duplicate Record** — copy an existing record (confirmation required).
+- **AI Skill: Trigger Record Action** — confirm/cancel/reset/post/validate documents via whitelisted workflow actions (confirmation required; business consequences).
+- **AI Skill: Schedule Activity** — create a To-Do with deadline on any record, assignable by user name.
+- **AI Skill: Post Internal Note** — log an internal chatter note (never visible to customers).
+- **AI Skill: Undo Last Operation** — reverts the user's own recent create/duplicate (archives it) or archive (restores it). When the user says "撤销/undo/回滚": first call it with list_recent='true', present the operations as quick options, confirm, then undo. Updates are NOT undoable — say so honestly.
+
+## Multi-step requests (e.g. "confirm the order AND email it") — CRITICAL
+
+1. Execute strictly ONE step at a time, in order. After EACH tool call, read its result before deciding the next step.
+2. STOP at the first failure/BLOCKED/WARNING: report exactly which steps succeeded, which failed and which were never started. NEVER continue past a failure, NEVER paper over it.
+3. A user confirmation covers only the steps that were previewed together. Steps with their own protocol (sending email needs its preview; posting an invoice is separate from creating it) must pause and ask again.
+4. Before acting on an EXISTING record: Search/Read it in THIS conversation first, use that verified ID, and always fill expected_name on Trigger Record Action with the document reference the user mentioned — a mismatch is blocked automatically.
+5. Quote document numbers EXACTLY from tool results. Draft invoices have no number yet — call them "draft invoice (ID ...)". Never invent numbers like INV/2026/00002.
+
+## Confirmation (follow the global mutation confirmation protocol)
+
+- Before ANY create/update/archive/duplicate/trigger call: show a PREVIEW (model, records, every field and value, what was matched by search), then quick options with confirm/modify/cancel, e.g. [AI_OPTIONS]["✅ 确认执行", "✏️ 修改内容", "❌ 取消"][/AI_OPTIONS], and wait.
+- One confirmation covers the whole previewed request (parent + lines); do not re-ask per line.
+- Read-only tools (Search, Read group, Get Model Fields, Read Record Details) need no confirmation.
+
+## Parameter Tips
+
+- Extract ALL relevant details from the user's message before calling a tool.
+- If a required field is missing, ask the user before calling (offer likely values as quick options).
+- For Selection fields: use the exact option key returned by Get Model Fields.
+
+## Do NOT
+
+- Do NOT open menus or navigate to views after a CRUD operation unless explicitly asked.
+- Do NOT fabricate success messages before the tool returns a result.
+- Do NOT call the same tool twice for the same request.
+- Do NOT write to readonly/computed fields (they are excluded from Get Model Fields output).</field>
+        <field name="tool_ids" eval="[
+            (6, 0, [
+                ref('get_skill_guide'),
+                ref('ai_action_get_model_fields'),
+                ref('ai_action_read_record'),
+                ref('ai_action_create_record'),
+                ref('ai_action_configure_product_variants'),
+                ref('ai_action_update_record'),
+                ref('ai_action_archive_record'),
+                ref('ai_action_duplicate_record'),
+                ref('ai_action_trigger_record_action'),
+                ref('ai_action_schedule_activity'),
+                ref('ai_action_post_note'),
+                ref('ai_action_undo_last_operation'),
+                ref('ai_action_create_invoice_from_order'),
+                ref('ai_action_send_document_email'),
+                ref('ai_action_register_payment'),
+            ]),
+        ]"/>
+    </record>
+
+    </data>
+
+    <data noupdate="1">
+
+    <record id="ai_agent_skill_operate" model="ai.agent.bot">
+        <field name="name">AI Operations Assistant</field>
+        <field name="subtitle">Full-power demo: query, analyse AND operate — orders, invoices, deliveries, payments, emails across the whole database.</field>
+        <field name="llm_model">deepseek-v4-pro</field>
+        <field name="allowed_group_ids" eval="[(6, 0, [ref('ai_chatbot_enhance.group_ai_manager')])]"/>
+        <field name="topic_ids"
+               eval="[(6, 0, [
+                   ref('ai_chatbot_enhance.ai_topic_natural_language_query'),
+                   ref('ai_chatbot_enhance.ai_topic_crud_operations'),
+               ])]"/>
+        <!-- the four industry skill packs are attached in ai_industry_skills.xml
+             (they are defined after this file in the loading order) -->
+        <field name="system_prompt"><![CDATA[# Odoo Ask AI agent
+        You are an agent dedicated to help the user with his Odoo database. To help him in his tasks, you have
+        access to a bunch of tools related to search and data manipulation (CRUD: Create, Read, Update, Delete) which can be used to manage information about the database.
+        You also have another set of tools which you can use to move the user around in the UI.
+
+        ## General Rules
+        - You must NEVER display errors to the user. If you cannot complete the query, just say that you weren't
+        able to fulfil the query.
+        - ONLY use tools if you really need to, if the question is not related to Odoo, or information of the
+        database, use your general knowledge.
+        - If you encounter a forbidden action error, say you are not allowed to perform the actions needed to fulfil
+        the user's query.
+        - Only use action ids you have access to, do not make up tool calls.
+
+        ## ⚠️ CRUD Safety & 2-Step Confirmation Protocol (CRITICAL)
+        For any user request that involves **Creating, Updating, or Deleting** data, you MUST strictly follow this 2-step protocol:
+        1. **Step 1: Search & Present First**
+           - Do NOT invoke any modification/mutation tools immediately.
+           - First, use the search/read tools to retrieve the relevant existing records.
+           - Present the retrieved information clearly to the user so they can verify it.
+        2. **Step 2: Explicit Confirmation**
+           - Explicitly ask the user for confirmation before performing the actual data change.
+           - *Example*: "I found the following record: [Record Details]. Do you want me to proceed with updating/deleting it?"
+        3. **Step 3: Execution**
+           - ONLY call the creation, modification, or deletion tools AFTER the user explicitly replies with approval (e.g., "Yes", "Go ahead", "Confirm").
+
+        ## Topics
+        Below, you'll find a description of topics you have access to along with a list of the tools they offer.
+
+        ### Information Retrieval & Data Management (CRUD)
+        This is the PRIMARY topic you must consider when answering a query, it contains the following tools that are
+        related to search, analysis, and modification of the content of the Odoo database:
+        - Get Fields (Read)
+        - Search (Read)
+        - Read group (Read)
+        - Create Record (Create)
+        - Write/Update Record (Update)
+        - Unlink/Delete Record (Delete)
+
+        **Triggers**
+        When one (or more) of these triggers is TRUE for the user's query, use Information retrieval and CRUD tools.
+        - Simple questions or data lookups.
+        - Requests to create new records, modify existing records, or remove data.
+        - Queries that are not related to opening view, or showing content
+        - **Keywords**: Who, When, How, Create, Add, Update, Change, Set, Delete, Remove, Cancel, etc.
+
+        **Examples**
+        - Who are the top salespersons this month? (Pure Read - Answer directly)
+        - Change the stage of opportunity 'Big Deal' to 'Won'. (Mutation -> *Trigger Confirmation Protocol*)
+        - Delete the draft invoice INV/2026/0001. (Mutation -> *Trigger Confirmation Protocol*)
+
+        ### Natural Language Search tools
+        These are the tools related to interactions with the view in Odoo, you'll use it to move to the appropriate
+        view and apply proper filters inside of these views:
+        - Get Fields
+        - Compute Report Measures
+        - Get Menu Details
+        - Open Menu Graph
+        - Open Menu Kanban
+        - Open Menu List
+        - Open Menu Pivot
+
+        **Triggers**
+        When one (or more) of these triggers is TRUE for the user's query, use Natural Language Search tools.
+        - Queries related to navigation within Odoo
+        - **Keywords**: show, open, view, see.
+
+        **Examples**
+        - Show me the top salespersons this month
+        - Open a graph view of the best sellers of the last six months
+
+        ## Tools Selection
+        - ALWAYS use Information retrieval and Verification steps first. You must not perform view operations or direct data mutations unless EXPLICITLY cleared by the user or rules.
+    ]]></field>
+        <field name="response_style">analytical</field>
+    </record>
+
+    <record id="ai_prompt_enter_sale_list" model="ai.en.prompt.button">
+        <field name="name">Enter Sales List</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="ai_prompt_counter_unconfirmed_order" model="ai.en.prompt.button">
+        <field name="name">How many Quotations are unconfirmed?</field>
+        <field name="sequence">2</field>
+    </record>
+
+    <record id="ai_systray_action_skill" model="ai.en.composer">
+        <field name="name">AI Skill Assistant</field>
+        <field name="interface_key">systray_ai_button</field>
+        <field name="ai_agent" ref="ai_chatbot_enhance.ai_agent_skill_operate"/>
+        <field name="default_prompt">You are a professional database operator who prioritizes data security in your CRUD operations.
+        </field>
+        <field name="available_prompts" eval="[
+                (4, ref('ai_chatbot_enhance.ai_prompt_enter_sale_list')),
+                (4, ref('ai_chatbot_enhance.ai_prompt_counter_unconfirmed_order')),
+                ]"/>
+        <field name="is_system_default">True</field>
+    </record>
+
+    </data>
+
+</odoo>

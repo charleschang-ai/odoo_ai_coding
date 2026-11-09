@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ai_code_node_system,access_ai_code_node_system,model_ai_code_node,base.group_system,1,1,1,1
+access_ai_code_node_manager,access_ai_code_node_manager,model_ai_code_node,ai_chatbot_enhance.group_ai_manager,1,0,0,0
+access_ai_code_edge_system,access_ai_code_edge_system,model_ai_code_edge,base.group_system,1,1,1,1
+access_ai_code_edge_manager,access_ai_code_edge_manager,model_ai_code_edge,ai_chatbot_enhance.group_ai_manager,1,0,0,0
+access_ai_code_graph_builder_system,access_ai_code_graph_builder_system,model_ai_code_graph_builder,base.group_system,1,1,1,1

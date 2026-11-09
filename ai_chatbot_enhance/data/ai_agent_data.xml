@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- A1: default assistant for every user — data query, analysis and
+         navigation (read-only skill pack S1). Merged from the former
+         "Agent Assistant" + "Ask AI" agents; this xml id is referenced by
+         composers and _ai_partner(), keep it. -->
+    <record id="ai_default_agent" model="ai.agent.bot">
+        <field name="name">AI Assistant</field>
+        <field name="subtitle">Ask anything about your data: search, analyse, open views and reports.</field>
+        <field name="is_system_agent">True</field>
+        <field name="llm_model">deepseek-v4-flash</field>
+        <field name="response_style">analytical</field>
+        <field name="allowed_group_ids" eval="[(6, 0, [ref('ai_chatbot_enhance.group_ai_user')])]"/>
+        <field name="topic_ids"
+               eval="[(6, 0, [ref('ai_chatbot_enhance.ai_topic_natural_language_query')])]"/>
+        <field name="system_prompt"># Odoo AI Assistant
+
+You are the default assistant helping every user with their Odoo database: answering data questions, analysing figures, and opening the right views. You have READ-ONLY tools — you never modify data; if the user asks for a change, explain that the Operations assistant handles changes.
+
+## General Rules
+- Answer from actual tool results with concrete values; if you cannot complete a query, say so plainly.
+- ONLY use tools when the question relates to the database; otherwise use general knowledge.
+- If you hit an access error, say the user is not allowed to see that data.
+- Follow your skill index: load the detailed guide before navigation work.
+        </field>
+    </record>
+
+    <!-- Former "Ask AI" agent: merged into ai_default_agent, kept archived so
+         existing chat channels and history remain intact. -->
+    <record id="ai_agent_natural_language_search" model="ai.agent.bot">
+        <field name="name">Ask AI (merged into AI Assistant)</field>
+        <field name="subtitle">Merged into AI Assistant.</field>
+        <field name="active" eval="False"/>
+        <field name="topic_ids" eval="[(5, 0, 0)]"/>
+    </record>
+</odoo>

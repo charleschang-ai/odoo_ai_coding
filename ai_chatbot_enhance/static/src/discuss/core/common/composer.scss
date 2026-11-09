@@ -1,0 +1,200 @@
+// ========== 整体输入区域容器：微光玻璃基底 ==========
+.o-mail-Composer {
+    grid-template-areas:
+        "sidebar-header core-header"
+        "sidebar-main core-main"
+        "sidebar-footer core-footer";
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto 1fr auto;
+
+    &.o-hasSelfAvatar {
+        grid-template-columns: $o-mail-Message-sidebarWidth 1fr;
+    }
+
+    .o-mail-Composer-sidebarMain {
+        padding-top: 0.4375rem;
+        width: 48px;
+    }
+
+    .o-mail-Composer-coreHeader {
+        grid-area: core-header;
+    }
+
+    .o-mail-Composer-coreMain {
+        grid-area: core-main;
+    }
+
+    .o-mail-Composer-sidebarMain {
+        grid-area: sidebar-main;
+    }
+
+    .o-mail-Composer-footer {
+        grid-area: core-footer;
+    }
+
+    &.o-chatWindow .o-mail-Composer-mainActions {
+        margin-top: map-get($spacers, 1) / 2;
+    }
+
+    &:not(.o-focused) {
+        .o-mail-Composer-input::placeholder {
+            opacity: 50%;
+        }
+
+        .o-mail-Composer-actions button:not(:hover):not(.o-active):not(.show) {
+            opacity: 25%;
+        }
+    }
+}
+
+// ========== 操作按钮区：霓虹质感 ==========
+.o-mail-Composer-actions {
+    button {
+        opacity: 65%;
+        transition: all 0.2s ease;
+        color: #2c7da0;
+        text-shadow: 0 0 1px rgba(0, 200, 255, 0.3);
+
+        @media (hover: hover) {
+            &:hover {
+                opacity: 100%;
+                color: #00aaff;
+                text-shadow: 0 0 4px cyan;
+                backdrop-filter: brightness(0.98);
+                transform: scale(1.02);      /* 仅悬浮时微缩放，不影响布局 */
+                .o-mail-Message.o-editing & {
+                    background-color: rgba(0, 150, 255, 0.1);
+                }
+            }
+        }
+        &:disabled {
+            --btn-active-color: var(--btn-disabled-color);
+            --btn-hover-color: var(--btn-disabled-color);
+            opacity: 25%;
+        }
+        // 发送按钮：极光渐变 + 脉冲光晕
+        &.o-mail-Composer-send.btn-link:not(:disabled) {
+            background: linear-gradient(135deg, #3a7bd5, #00d2ff) !important;
+            background-color: transparent !important;
+            opacity: 100% !important;
+            box-shadow: 0 2px 8px rgba(0, 200, 255, 0.4);
+            transition: all 0.2s;
+
+            &:hover {
+                background: linear-gradient(135deg, #2c6dc0, #00b8f0) !important;
+                box-shadow: 0 0 12px cyan;
+                transform: scale(1.03);
+            }
+
+            &:focus-visible {
+                outline: 2px solid cyan;
+            }
+
+            i.fa-paper-plane-o {
+                color: #FFF;
+                transform: translate(-1px);
+                scale: 0.85;
+                filter: drop-shadow(0 0 2px rgba(255,255,255,0.5));
+            }
+        }
+        &.rounded-circle {
+            aspect-ratio: 1;
+        }
+    }
+}
+
+// ========== 背景容器：毛玻璃 + 流光边框 ==========
+.o-mail-Composer-bg {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 255, 0.96)) !important;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(0, 180, 255, 0.3);
+    border-radius: 28px;           /* 仅视觉圆润，原值无则新增，不影响布局（圆角不影响尺寸） */
+    box-shadow: 0 6px 14px rgba(0, 120, 255, 0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+    --border-opacity: 0.6;
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+// ========== 输入框样式：清爽科技感 ==========
+.o-mail-Composer-inputStyle {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: (map-get($spacers, 2) + map-get($spacers, 3)) / 2;
+    padding-right: (map-get($spacers, 2) + map-get($spacers, 3)) / 2;
+    line-height: 1.42857143 !important;
+
+    .o-mail-Composer.o-chatWindow & {
+        padding-top: 7px;
+        padding-bottom: 7px;
+    }
+
+    .o-mail-Composer.o-editing & {
+        padding-left: map-get($spacers, 2);
+        padding-right: map-get($spacers, 2);
+    }
+}
+
+// 输入框区域
+.o-mail-Composer-input {
+    font-family: "text-emoji", $font-family-base;
+    max-height: Min(100px, 60vh);
+    resize: none;
+    background: transparent;
+    border: none;
+    color: #1a2a3f;
+    caret-color: #00aaff;
+
+    &:focus {
+        outline: none;
+        color: #0a1c2f;
+    }
+
+    .o-mail-Composer.o-chatWindow & {
+        @media (min-height: 325px) {
+            max-height: Min(550px, 70vh);
+        }
+    }
+
+    .o-mail-Composer.o-discussApp & {
+        @media (min-height: 425px) {
+            max-height: 50vh;
+        }
+    }
+
+    .o-mail-Composer.o-extended & {
+        max-height: Min(400px, 30vh);
+    }
+
+    &::placeholder {
+        opacity: 70%;
+        color: #6c8db0;
+        @include text-truncate();
+    }
+}
+
+// 头像容器（布局不变，仅颜色微调）
+.o-mail-Composer-avatar {
+    --Avatar-size: #{$o-mail-Avatar-size};
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+// 隐藏的假元素
+.o-mail-Composer-fake {
+    height: 0;
+    left: -10000px;
+    top: -10000px;
+    visibility: hidden;
+}
+
+// 输入框聚焦时的高亮效果
+.o-mail-Composer-bg {
+    &:has(textarea:focus) {
+        --border-opacity: 0.8;
+        border-color: rgba(0, 210, 255, 0.8) !important;
+        box-shadow: 0 0 0 2px rgba(0, 180, 255, 0.2), 0 6px 16px rgba(0, 120, 255, 0.15);
+    }
+}
+
+// 建议用户名的样式（紧凑）
+.o-mail-Composer-suggestionPartner-name.o-has-email {
+    max-width: 70%;
+}

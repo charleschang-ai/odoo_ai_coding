@@ -1,0 +1,100 @@
+.o_support_question_block {
+    .o_support_question_label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--o-main-text-color, #374151);
+    }
+
+    // Edit mode: a roomy, readable textarea
+    .o_support_question textarea {
+        min-height: 130px;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        padding: 12px 14px;
+        border: 1px solid var(--o-input-border-color, #ced4da);
+        border-radius: 8px;
+        background-color: var(--o-view-background-color, #fff);
+        resize: vertical;
+
+        &:focus {
+            border-color: var(--o-brand-primary, #714b67);
+            box-shadow: 0 0 0 2px rgba(113, 75, 103, 0.15);
+        }
+    }
+
+    // Read-only mode (after the chat has started): a clear framed box
+    .o_support_question.o_field_text {
+        display: block;
+        min-height: 60px;
+        padding: 12px 14px;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        border-radius: 8px;
+        background-color: var(--o-gray-100, #f8f9fa);
+        border: 1px solid var(--o-gray-200, #e9ecef);
+    }
+}
+
+// Conversation shown as a stacked chat log (full-width cards) instead of a
+// cramped 4-column table.
+.o_support_conversation {
+    // Force one full-width card per row (override the kanban grid).
+    .o_kanban_renderer {
+        display: block !important;
+    }
+    .o_kanban_record {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 0 8px 0 !important;
+    }
+
+    .o_support_msg {
+        width: 100%;
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--o-gray-200, #e9ecef);
+        background-color: var(--o-view-background-color, #fff);
+    }
+    // Subtle tint to tell the two sides apart
+    .o_support_msg_user {
+        background-color: var(--o-gray-100, #f8f9fa);
+    }
+
+    .o_support_msg_head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+    }
+    .o_support_msg_author {
+        font-weight: 600;
+    }
+    .o_support_msg_date {
+        margin-left: auto;
+        white-space: nowrap;
+    }
+
+    .o_support_msg_body {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        word-break: break-word;
+
+        p { margin-bottom: 0.4rem; }
+        h1, h2, h3, h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0.7rem 0 0.3rem;
+        }
+        ul, ol { margin: 0.2rem 0 0.4rem 1.2rem; }
+        table { width: auto; margin: 0.4rem 0; }
+        pre {
+            white-space: pre-wrap;
+            background-color: var(--o-gray-100, #f8f9fa);
+            padding: 8px 10px;
+            border-radius: 6px;
+        }
+    }
+}

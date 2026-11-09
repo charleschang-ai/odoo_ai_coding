@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="ai_chat_platform.Thread">
+    <div class="o_aip_msgs_wrap">
+        <div class="o_aip_msgs" t-ref="scroller" t-on-scroll="onScroll">
+            <div class="o_aip_container">
+            <t t-if="props.loading">
+                <div class="o_aip_empty">
+                    <div class="o_aip_empty_icon"><i class="fa fa-circle-o-notch fa-spin"/></div>
+                    <div>Loading conversation…</div>
+                </div>
+            </t>
+            <t t-elif="(!props.thread or messages.length === 0) and !props.busy">
+                <div class="o_aip_empty">
+                    <div class="o_aip_empty_icon"><i class="fa fa-comments-o"/></div>
+                    <div class="o_aip_empty_title">How can I help you today?</div>
+                    <div class="o_aip_empty_sub">Ask anything — you can also upload files for the AI to analyze.</div>
+                    <t t-if="props.suggestions.length">
+                        <div class="o_aip_sugg_grid">
+                            <a t-foreach="props.suggestions" t-as="sug" t-key="sug_index"
+                               class="o_aip_sugchip"
+                               t-on-click="() => props.onSuggestion(sug)"
+                               t-esc="sug"/>
+                        </div>
+                    </t>
+                </div>
+            </t>
+            <t t-else="">
+                <t t-foreach="timeline" t-as="item" t-key="item.key">
+                    <div t-if="item.type === 'day'" class="o_aip_day">
+                        <span t-esc="item.label"/>
+                    </div>
+                    <div t-else=""
+                         class="o_aip_msg"
+                         t-att-class="item.msg.isSelfAuthored ? 'o_aip_msg--user' : 'o_aip_msg--assistant'">
+                        <div class="o_aip_who">
+                            <t t-esc="authorName(item.msg)"/>
+                            <span class="o_aip_msg_time" t-esc="msgTime(item.msg)"/>
+                        </div>
+                        <div class="o_aip_bubble">
+                            <t t-out="item.msg.body"/>
+                            <div t-if="item.msg.attachment_ids.length" class="o_aip_atts">
+                                <t t-foreach="item.msg.attachment_ids" t-as="att" t-key="att.id">
+                                    <audio t-if="isAudio(att)" controls="controls"
+                                           class="o_aip_audio" t-att-src="audioUrl(att)"/>
+                                    <button t-else="" class="o_aip_att"
+                                            t-att-title="'Preview ' + att.name"
+                                            t-on-click="() => props.onPreview(att)">
+                                        <i class="fa fa-paperclip me-1"/><t t-esc="att.name"/>
+                                    </button>
+                                </t>
+                            </div>
+                        </div>
+                        <div t-if="!item.msg.isSelfAuthored" class="o_aip_msg_actions">
+                            <button t-on-click="() => this.copyMessage(item.msg)">
+                                <i class="fa fa-clone me-1"/><t t-esc="state.copiedId === item.msg.id ? 'Copied' : 'Copy'"/>
+                            </button>
+                            <button t-if="isLastAssistant(item.msg) and !props.busy"
+                                    t-on-click="() => props.onRegenerate()">
+                                <i class="fa fa-refresh me-1"/>Regenerate
+                            </button>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- AI quick-reply option cards -->
+                <div t-if="quickOptions.length and !props.busy" class="o_aip_options">
+                    <button t-foreach="quickOptions" t-as="opt" t-key="opt_index"
+                            class="o_aip_opt"
+                            t-att-class="'o_aip_opt--' + opt.kind"
+                            t-on-click="() => this.onOptionClick(opt)"
+                            t-esc="opt.text"/>
+                </div>
+
+                <!-- AI form card -->
+                <div t-if="quickForm and !props.busy" class="o_aip_qform">
+                    <div t-if="quickForm.title" class="o_aip_qform_title" t-esc="quickForm.title"/>
+                    <div t-foreach="quickForm.fields" t-as="field" t-key="field_index" class="o_aip_qform_row">
+                        <label t-esc="field.label"/>
+                        <select t-if="field.type === 'select'"
+                                t-on-change="(ev) => this.onFormInput(field, ev)">
+                            <option value="">Select…</option>
+                            <option t-foreach="field.options or []" t-as="opt" t-key="opt_index"
+                                    t-att-value="opt"
+                                    t-att-selected="formValue(field) === opt ? 'selected' : undefined"
+                                    t-esc="opt"/>
+                        </select>
+                        <input t-else=""
+                               t-att-type="field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : 'text'"
+                               t-att-value="formValue(field)"
+                               t-on-input="(ev) => this.onFormInput(field, ev)"/>
+                    </div>
+                    <button class="o_aip_qform_submit" t-on-click="submitForm"
+                            t-esc="quickForm.submit_label or 'Submit'"/>
+                </div>
+
+                <!-- AI thinking indicator -->
+                <div t-if="props.busy" class="o_aip_msg o_aip_msg--assistant">
+                    <div class="o_aip_who" t-esc="props.agentName"/>
+                    <div class="o_aip_bubble o_aip_typing">
+                        <span/><span/><span/>
+                    </div>
+                </div>
+            </t>
+            </div>
+        </div>
+        <button t-if="state.showJump" class="o_aip_jump" t-on-click="jumpToBottom" title="Jump to latest">
+            <i class="fa fa-arrow-down"/>
+        </button>
+    </div>
+</t>
+
+</templates>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="ai_provider_openai" model="ai.provider">
+            <field name="name">OpenAI (ChatGPT)</field>
+            <field name="provider_code">openai</field>
+            <field name="base_url">https://api.openai.com/v1</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="ai_provider_google" model="ai.provider">
+            <field name="name">Google Gemini</field>
+            <field name="provider_code">google</field>
+            <field name="base_url">https://generativelanguage.googleapis.com</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="ai_provider_deepseek" model="ai.provider">
+            <field name="name">DeepSeek</field>
+            <field name="provider_code">deepseek</field>
+            <field name="base_url">https://api.deepseek.com/v1</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="ai_provider_kimi" model="ai.provider">
+            <field name="name">Kimi (Moonshot)</field>
+            <field name="provider_code">custom</field>
+            <!-- Moonshot open platform (key sk-...). A platform.kimi.com key
+                 (sk-kimi-...) is served by https://api.kimi.com/coding/v1 -->
+            <field name="base_url">https://api.moonshot.cn/v1</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="ai_provider_qwen" model="ai.provider">
+            <field name="name">Alibaba Qwen</field>
+            <field name="provider_code">custom</field>
+            <field name="base_url">https://dashscope.aliyuncs.com/compatible-mode/v1</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="ai_provider_claude_code" model="ai.provider">
+            <field name="name">Claude Code (Anthropic Developer API)</field>
+            <field name="provider_code">custom</field>
+            <field name="base_url">https://api.anthropic.com/v1</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="ai_provider_codex" model="ai.provider">
+            <field name="name">OpenAI Codex (Legacy / Private Proxy)</field>
+            <field name="provider_code">openai</field>
+            <field name="base_url">https://api.openai.com/v1</field>
+            <field name="active">True</field>
+        </record>
+
+    </data>
+</odoo>

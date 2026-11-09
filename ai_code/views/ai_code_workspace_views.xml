@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Dedicated coding workspace: a full-page chat that EXTENDS the AI
+         Platform page without modifying it (own client action + template). -->
+    <record id="action_ai_code_workspace" model="ir.actions.client">
+        <field name="name">Coding Workspace</field>
+        <field name="tag">ai_code.workspace</field>
+    </record>
+
+</odoo>

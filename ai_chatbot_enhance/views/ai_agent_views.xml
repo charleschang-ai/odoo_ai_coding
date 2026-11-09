@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ai_agent_view_kanban_custom" model="ir.ui.view">
+        <field name="name">ai.agent.bot.kanban</field>
+        <field name="model">ai.agent.bot</field>
+        <field name="arch" type="xml">
+            <kanban action="open_agent_chat"
+                    type="object"
+                    sample="1"
+                    class="o_ai_agent_kanban o_ai_agent_kanban_main">
+                <field name="sequence" widget="handle"/>
+                <field name="id"/>
+                <field name="name"/>
+                <field name="subtitle"/>
+                <field name="llm_model"/>
+                <field name="image_128"/>
+                <field name="active"/>
+                <field name="restrict_to_sources"/>
+                <field name="enable_web_search"/>
+                <templates>
+                    <style>
+                        .ak-model-badge::before {
+                        content: '';
+                        display: inline-block;
+                        width: 8px;
+                        height: 8px;
+                        border-radius: 50%;
+                        background: #7f77dd;
+                        margin-right: 5px;
+                        vertical-align: middle;
+                        }
+
+                        .ak-action::after {
+                        content: ' →';
+                        font-style: normal;
+                        }
+
+                    </style>
+                    <t t-name="menu">
+                        <div class="container o_kanban_card_manage_pane">
+                            <div class="o_kanban_card_manage_section">
+                                <a type="open" class="dropdown-item" role="menuitem">Configuration</a>
+                            </div>
+                        </div>
+                    </t>
+
+                    <t t-name="card">
+                        <div class="ak-card-inner d-flex flex-column h-100">
+
+                            <div class="ak-top d-flex align-items-start gap-3 px-3 pt-3 pb-2">
+                                <div class="ak-avatar flex-shrink-0">
+                                    <field name="image_128" widget="image" alt="Agent"/>
+                                </div>
+                                <div class="ak-meta overflow-hidden flex-grow-1">
+                                    <widget name="web_ribbon"
+                                            title="Archived"
+                                            bg_color="text-bg-danger"
+                                            invisible="active"/>
+                                    <h5 class="ak-name mb-1 text-truncate">
+                                        <field name="name"/>
+                                    </h5>
+
+                                    <div class="d-flex flex-column gap-1 mt-1">
+
+                                        <div>
+                                            <span class="badge text-bg-primary">
+                                                <field name="llm_model"/>
+                                            </span>
+                                        </div>
+
+                                        <div>
+                                            <span class="badge bg-warning text-primary border">
+                                                <i class="fa fa-sliders me-1" title="response_style"/>
+                                                <field name="response_style"/>
+                                            </span>
+                                        </div>
+
+                                        <div>
+                                            <span class="badge text-bg-success" invisible="restrict_to_sources">
+                                                <i class="fa fa-shield me-1" title="Restricted"/>Restricted
+                                            </span>
+                                            <span class="badge text-bg-secondary" invisible="not restrict_to_sources">
+                                                <i class="fa fa-shield me-1" title="All sources"/>All sources
+                                            </span>
+                                        </div>
+
+                                        <div>
+                                            <span class="badge text-bg-dark" invisible="enable_web_search">
+                                                <i class="fa fa-globe me-1" title="Web on"/>Web on
+                                            </span>
+                                            <span class="badge text-bg-dark" invisible="not enable_web_search">
+                                                <i class="fa fa-globe me-1" title="Web off"/>Web off
+                                            </span>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="ak-divider mx-3 my-0"/>
+                            <div class="ak-body px-3 py-2 flex-grow-1">
+                                <field name="subtitle" class="ak-subtitle text-success bg-light"/>
+                            </div>
+                            <div class="button ak-footer px-3 py-2 d-flex justify-content-end align-items-center">
+                                <field name="topic_ids"/>
+                                <button class="ak-action btn btn-outline-danger">Open chat</button>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="ai_agent_view_tree" model="ir.ui.view">
+        <field name="name">ai.agent.bot.list</field>
+        <field name="model">ai.agent.bot</field>
+        <field name="arch" type="xml">
+            <list string="Properties">
+                <field name="sequence" widget="handle"/>
+                <field name="name" string="Name"/>
+                <field name="subtitle"/>
+                <field name="llm_model"/>
+                <field name="topic_ids" widget="many2many_tags"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="ai_agent_view_form" model="ir.ui.view">
+        <field name="name">ai.agent.bot.form</field>
+        <field name="model">ai.agent.bot</field>
+        <field name="arch" type="xml">
+            <form>
+                <header class="d-flex flex-column gap-2">
+                    <button
+                            name="open_agent_chat"
+                            class="btn-primary"
+                            type="object"
+                            string="Open Chat">
+                    </button>
+                    <div invisible="sources_fully_processed" role="status"
+                         class="alert alert-warning mb-0 py-2 px-3 w-100 d-flex justify-content-center align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-clock-o me-2" title="Sources"/>
+                            <span>Processing your sources, it might take a few minutes...</span>
+                        </div>
+                        <button
+                                name="action_refresh_sources"
+                                class="btn btn-sm btn-link"
+                                type="object"
+                                groups="base.group_system">
+                            <span class="me-1">Refresh</span>
+                            <i class="fa fa-refresh me-1" title="Refresh"/>
+                        </button>
+                    </div>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title mb-4 d-flex align-items-center">
+                        <field name="image_128" widget="image" class="oe_avatar me-3"
+                               options="{'preview_image': 'image_128', 'size': [128, 128]}"/>
+                        <div class="flex-grow-1">
+                            <label for="name"/>
+                            <h1 class="mb-0">
+                                <field name="name" placeholder="e.g. SDR Advisor"/>
+                            </h1>
+                            <h4>
+                                <field name="subtitle" placeholder="e.g. Get tips to close more sales"/>
+                            </h4>
+                        </div>
+                    </div>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_token_usage" type="object" class="oe_stat_button"
+                                icon="fa-bolt" groups="ai_chatbot_enhance.group_ai_manager">
+                            <field name="token_usage_count" widget="statinfo" string="AI Turns"/>
+                        </button>
+                        <button name="action_view_token_usage" type="object" class="oe_stat_button"
+                                icon="fa-usd" groups="ai_chatbot_enhance.group_ai_manager">
+                            <field name="token_usage_cost" widget="statinfo" string="Cost ($)"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="llm_model" widget="selection"/>
+                            <field name="response_style" widget="radio" options="{'horizontal': true}"
+                                   invisible="llm_model in ('gpt-5', 'gpt-5-mini')"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="restrict_to_sources" widget="boolean_toggle"/>
+                        <field name="enable_web_search" widget="boolean_toggle"/>
+                        <field name="allowed_group_ids" widget="many2many_tags" groups="ai_chatbot_enhance.group_ai_manager"/>
+                        <field name="topic_ids" widget="many2many_tags" options="{'horizontal': true}"/>
+                        <field name="system_prompt"
+                               placeholder="e.g. You are a support operator, you can answer questions related to ..."/>
+                    </group>
+                    <notebook>
+                        <page string="Sources" name="ai_agent_sources">
+                            <field name="sources_ids">
+                                <list string="Sources" limit="10" editable="bottom" decoration-muted="not is_active">
+                                    <field name="type" width="25px" nolabel="1"/>
+                                    <field name="name"/>
+                                    <field name="is_active" widget="boolean_toggle"
+                                           readonly="status in ('processing', 'failed')"/>
+                                    <field name="write_date" optional="hide"/>
+                                    <field name="status"
+                                           decoration-success="status == 'indexed'"
+                                           decoration-info="status == 'processing'"
+                                           decoration-danger="status == 'failed'"/>
+                                    <field name="file_size" optional="hide"/>
+                                    <field name="error_details"/>
+                                    <field name="mimetype" column_invisible="True"/>
+                                    <field name="user_has_access"
+                                           column_invisible="True"/> <!-- Required by source_view_link widget-->
+                                    <button name="action_retry_failed_source" string="Retry" type="object"
+                                            class="btn btn-link float-start" icon="fa-refresh"
+                                            invisible="status != 'failed'"/>
+                                    <!--                                    <button name="action_reprocess_index" string="Reprocess" type="object" class="btn btn-link float-start o_ai_agent_reprocess_btn" icon="fa-refresh" invisible="status != 'indexed' or type == 'binary'"/>-->
+                                    <control>
+                                        <button
+                                                string="Add a source"
+                                                name="action_open_sources_dialog"
+                                                type="object"
+                                                class="btn-link"
+                                                context="{'agent_id': parent.id}"
+                                        />
+                                    </control>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="ai_agent_view_search" model="ir.ui.view">
+        <field name="name">ai.agent.bot.search</field>
+        <field name="model">ai.agent.bot</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Agent"
+                       filter_domain="['|', ('name','ilike',self), ('subtitle','ilike',self)]"/>
+                <field name="system_prompt"/>
+                <field name="topic_ids"/>
+                <field name="sources_ids"
+                       string="Sources"
+                       filter_domain="[
+                                       '|', '|',
+                                       ('sources_ids.name','ilike',self),
+                                       ('sources_ids.attachment_id.name','ilike',self),
+                                       ('sources_ids.url','ilike',self)]"/>
+                <filter name="filter_is_archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Model" name="model" domain="[]" context="{'group_by':'llm_model'}"/>
+                    <filter string="Topics" name="topics" domain="[]" context="{'group_by':'topic_ids'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="ai_agent_action" model="ir.actions.act_window">
+        <field name="name">Agents</field>
+        <field name="res_model">ai.agent.bot</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="ai_agent_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Agent!
+            </p>
+            <p>
+                Agents help you manage and organize your AI operations.
+            </p>
+        </field>
+    </record>
+</odoo>

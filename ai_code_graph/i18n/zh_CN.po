@@ -1,0 +1,1400 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* ai_code_graph
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-25 14:24+0000\n"
+"PO-Revision-Date: 2026-07-25 14:24+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "(button on"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "(capped at 300 — narrow the filters)"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "(incl. view buttons)"
+msgstr "（含视图按钮）"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "(live)"
+msgstr "（实时）"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "(load order)"
+msgstr "（加载顺序）"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "(server action"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "(what runs inside)"
+msgstr "（内部执行了什么）"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid ""
+"), or jump here from a\n"
+"                        model's Structure page."
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid ", indented = inherits)"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.constraint,message:ai_code_graph.constraint_ai_code_node_type_key_uniq
+msgid "A node with this type and technical key already exists."
+msgstr "相同类型和技术标识的节点已存在。"
+
+#. module: ai_code_graph
+#: model:ir.model,name:ai_code_graph.model_ai_code_graph_builder
+msgid "AI Code Graph Builder"
+msgstr "AI 代码图谱构建器"
+
+#. module: ai_code_graph
+#: model:ir.actions.server,name:ai_code_graph.ir_cron_code_graph_rebuild_ir_actions_server
+msgid "AI Code Graph: Rebuild Index"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Access & record rules"
+msgstr "访问权限与记录规则"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_node__node_type__action
+msgid "Action"
+msgstr "动作"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__action_targets_model
+msgid "Action opens model"
+msgstr "动作打开模型"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "All methods"
+msgstr "全部方法"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Back"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Call hierarchy"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Called by"
+msgstr "被谁调用"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Calls"
+msgstr "调用链"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Close"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.actions.client,name:ai_code_graph.action_ai_code_graph
+#: model:ir.ui.menu,name:ai_code_graph.menu_ai_studio_code_graph
+msgid "Code Graph"
+msgstr "代码图谱"
+
+#. module: ai_code_graph
+#: model:ir.model,name:ai_code_graph.model_ai_code_edge
+msgid "Code Graph Edge"
+msgstr "代码图谱边"
+
+#. module: ai_code_graph
+#: model:ir.model,name:ai_code_graph.model_ai_code_node
+msgid "Code Graph Node"
+msgstr "代码图谱节点"
+
+#. module: ai_code_graph
+#: model:ir.actions.server,name:ai_code_graph.code_graph_blast_radius
+msgid "Code Graph: Blast Radius"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.actions.server,name:ai_code_graph.code_graph_call_chain
+msgid "Code Graph: Call Chain"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.actions.server,name:ai_code_graph.code_graph_model_map
+msgid "Code Graph: Model Map"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-python
+#: code:addons/ai_code_graph/models/ai_code_graph_builder.py:0
+msgid ""
+"Code graph rebuilt: %(nodes)s nodes, %(edges)s edges (%(modules)s modules in"
+" deep scope)."
+msgstr "代码图谱已重建：%(nodes)s 个节点、%(edges)s 条边（深度扫描 %(modules)s 个模块）。"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__js_component_extends
+msgid "Component extends component"
+msgstr "组件继承组件"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__component_uses_template
+msgid "Component renders template"
+msgstr "组件渲染模板"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__compute_depends
+msgid "Compute depends on field"
+msgstr "计算依赖字段"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid ""
+"Core model — read live from the running registry. Call chains\n"
+"                            require deep indexing (config: ai_code_graph.extra_modules)."
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_edge__create_uid
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_edge__create_date
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,help:ai_code_graph.field_ai_code_node__is_skeleton
+msgid "Created only as the target of a relation; not deeply indexed itself."
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Custom / extension fields"
+msgstr "自定义 / 扩展字段"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Defined by"
+msgstr "定义于"
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__degree
+msgid "Degree"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,help:ai_code_graph.field_ai_code_node__in_degree
+msgid "Denormalized incoming edge count."
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,help:ai_code_graph.field_ai_code_node__out_degree
+msgid "Denormalized outgoing edge count."
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Depends on"
+msgstr "依赖"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Depth"
+msgstr "深度"
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_edge__display_name
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_graph_builder__display_name
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__display_name
+#: model:ir.model.fields,field_description:ai_code_graph.field_ir_model__display_name
+msgid "Display Name"
+msgstr "显示名称"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Down"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_edge__edge_type
+msgid "Edge Type"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.ui.menu,name:ai_code_graph.menu_ai_code_edge
+msgid "Edges"
+msgstr "边"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Edit"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Entry points"
+msgstr "入口"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Everyone (no group)"
+msgstr "所有人（未设组）"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Exported from the file"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Extension chain"
+msgstr "继承链"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_node__node_type__field
+msgid "Field"
+msgstr "字段"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__field_of
+msgid "Field of model"
+msgstr "模型的字段"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__field_comodel
+msgid "Field targets model"
+msgstr "字段指向模型"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Field type"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__file_path
+msgid "File Path"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Filter methods…"
+msgstr "过滤方法…"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Focus"
+msgstr "聚焦"
+
+#. module: ai_code_graph
+#: model_terms:ir.ui.view,arch_db:ai_code_graph.view_ai_code_node_search
+msgid "Fully Indexed"
+msgstr "完整索引"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Graph"
+msgstr "图谱"
+
+#. module: ai_code_graph
+#: model:ir.ui.menu,name:ai_code_graph.menu_ai_studio_code_graph_data
+msgid "Graph Data"
+msgstr "图谱数据"
+
+#. module: ai_code_graph
+#: model:ir.actions.act_window,name:ai_code_graph.action_ai_code_edge
+msgid "Graph Edges"
+msgstr "图谱边"
+
+#. module: ai_code_graph
+#: model:ir.actions.act_window,name:ai_code_graph.action_ai_code_node
+msgid "Graph Nodes"
+msgstr "图谱节点"
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_edge__id
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_graph_builder__id
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__id
+#: model:ir.model.fields,field_description:ai_code_graph.field_ir_model__id
+msgid "ID"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,help:ai_code_graph.field_ai_code_node__ref_id
+msgid "ID of the backing record."
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Implementations:"
+msgstr "实现位置："
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__in_degree
+msgid "In Degree"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__in_edge_ids
+msgid "Incoming Edges"
+msgstr "传入关系"
+
+#. module: ai_code_graph
+#: model_terms:ir.ui.view,arch_db:ai_code_graph.view_ai_code_node_form
+msgid "Incoming Relations"
+msgstr "传入关系"
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__is_skeleton
+msgid "Is Skeleton"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "JS"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_node__node_type__js_component
+msgid "JS Component"
+msgstr "JS 组件"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_node__node_type__js_function
+msgid "JS Function"
+msgstr "JS 函数"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_node__node_type__js_service
+msgid "JS Service"
+msgstr "JS 服务"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__js_patches
+msgid "JS patches component"
+msgstr "JS 补丁组件"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__js_registers
+msgid "JS registers in registry"
+msgstr "JS 注册到注册表"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_node__layer__js
+#: model_terms:ir.ui.view,arch_db:ai_code_graph.view_ai_code_node_search
+msgid "JavaScript"
+msgstr "JavaScript"
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_edge__write_uid
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_edge__write_date
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__layer
+#: model_terms:ir.ui.view,arch_db:ai_code_graph.view_ai_code_node_search
+msgid "Layer"
+msgstr "层"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Layers"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__line_no
+msgid "Line No"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Live"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Loading"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "MRO chain"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_node__node_type__menu
+msgid "Menu"
+msgstr "菜单"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__menu_opens_action
+msgid "Menu triggers action"
+msgstr "菜单触发动作"
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_edge__meta
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__meta
+msgid "Meta"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_node__node_type__method
+msgid "Method"
+msgstr "方法"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "Method '%s' is not in the index — only custom addons are deep-indexed."
+msgstr "方法 %s 不在索引中——只有自定义模块会被深度索引。"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__method_calls
+msgid "Method calls method"
+msgstr "方法调用方法"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__method_of
+msgid "Method of model"
+msgstr "模型的方法"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_node__node_type__model
+#: model_terms:ir.ui.view,arch_db:ai_code_graph.view_ai_code_node_search
+msgid "Model"
+msgstr "模型"
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__model_name
+msgid "Model Name"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__model_delegate
+msgid "Model delegates to (_inherits)"
+msgstr "委托继承（_inherits）"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__model_inherit
+msgid "Model inherits (new model)"
+msgstr "模型继承（新模型）"
+
+#. module: ai_code_graph
+#: model:ir.model,name:ai_code_graph.model_ir_model
+msgid "Models"
+msgstr "模型"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Models defined"
+msgstr "定义的模型"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Models extended"
+msgstr "扩展的模型"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_node__node_type__module
+#: model_terms:ir.ui.view,arch_db:ai_code_graph.view_ai_code_edge_search
+#: model_terms:ir.ui.view,arch_db:ai_code_graph.view_ai_code_node_search
+msgid "Module"
+msgstr "模块"
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_edge__module_name
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__module_name
+msgid "Module Name"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__module_depends
+msgid "Module depends on"
+msgstr "模块依赖"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__model_extend
+msgid "Module extends model in-place"
+msgstr "模块原地扩展模型"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__method_override
+msgid "Module overrides method"
+msgstr "模块覆写方法"
+
+#. module: ai_code_graph
+#: model:ir.model.fields,help:ai_code_graph.field_ai_code_edge__module_name
+msgid "Module that declares this relationship."
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,help:ai_code_graph.field_ai_code_node__module_name
+msgid "Module that defines this element."
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__name
+msgid "Name"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "No JavaScript indexed for this module."
+msgstr "该模块未索引到 JavaScript。"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid ""
+"No access rules — users cannot use this model at all\n"
+"                            (or it is accessed with sudo only)."
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "No cross-module method overrides found in the indexed scope."
+msgstr "索引范围内未发现跨模块的方法覆写。"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "No custom fields — all"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid ""
+"No indexed callers — it may be called from core code\n"
+"                            outside the indexed scope."
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid ""
+"No methods defined in the indexed scope — this model's code\n"
+"                            lives entirely in core modules."
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "No node found for '%s'. Try a rebuild or another search."
+msgstr "未找到“%s”对应的节点。请尝试重建索引或换个搜索词。"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "No resolved outgoing calls in the indexed scope."
+msgstr "索引范围内没有可解析的向下调用。"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "No views indexed."
+msgstr "未索引到视图。"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "No window actions target this model."
+msgstr "没有窗口动作指向此模型。"
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__node_type
+msgid "Node Type"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.ui.menu,name:ai_code_graph.menu_ai_code_node
+msgid "Nodes"
+msgstr "节点"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "None."
+msgstr "无。"
+
+#. module: ai_code_graph
+#: model:ir.model.fields,help:ai_code_graph.field_ai_code_node__ref_model
+msgid "Odoo model of the backing record (e.g. ir.model)."
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-python
+#: code:addons/ai_code_graph/models/ai_code_graph_builder.py:0
+msgid "Only system administrators can rebuild the code graph."
+msgstr "只有系统管理员才能重建代码图谱。"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Open"
+msgstr ""
+
+#. module: ai_code_graph
+#: model_terms:ir.actions.act_window,help:ai_code_graph.action_ai_code_node
+msgid ""
+"Open AI Studio &gt; Code Graph and click \"Rebuild Index\" to scan your "
+"codebase."
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:ai_code_graph.view_ai_code_node_form
+msgid "Open Record"
+msgstr "打开记录"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Open call hierarchy"
+msgstr "打开调用链"
+
+#. module: ai_code_graph
+#: model_terms:ir.ui.view,arch_db:ai_code_graph.view_model_form_code_graph
+msgid "Open the code graph centered on this model"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__out_degree
+msgid "Out Degree"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__out_edge_ids
+msgid "Outgoing Edges"
+msgstr "传出关系"
+
+#. module: ai_code_graph
+#: model_terms:ir.ui.view,arch_db:ai_code_graph.view_ai_code_node_form
+msgid "Outgoing Relations"
+msgstr "传出关系"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Outside the deep-indexed scope"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Overridden across modules"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Overridden methods"
+msgstr "覆写的方法"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Override order:"
+msgstr "覆写顺序:"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Overview"
+msgstr "总览"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Parents:"
+msgstr "父模型："
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Pick a method"
+msgstr "选择一个方法"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Pick a model or module"
+msgstr "选择一个模型或模块"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_node__layer__python
+#: model_terms:ir.ui.view,arch_db:ai_code_graph.view_ai_code_node_search
+msgid "Python"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_node__node_type__qweb_template
+msgid "QWeb Template"
+msgstr "QWeb 模板"
+
+#. module: ai_code_graph
+#: model:ir.actions.server,ai_tool_description:ai_code_graph.code_graph_call_chain
+msgid ""
+"Read-only call hierarchy of one Python method (like an IDE's Call Hierarchy):\n"
+"what it calls (downward, recursive) and what calls it (upward, including\n"
+"view buttons). Each entry shows module and file:line.\n"
+"\n"
+"Use when the user asks: \"what happens when method X runs?\",\n"
+"\"what does the confirm button do?\", \"who calls this method?\",\n"
+"\"trace the flow of ...\".\n"
+"\n"
+"Workflow tip: use 'Code Graph: Model Map' first to find method names,\n"
+"then this tool to trace the chain. Only custom addons are deep-indexed."
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.actions.server,ai_tool_description:ai_code_graph.code_graph_model_map
+msgid ""
+"Read-only code structure map of an Odoo model from the code graph index.\n"
+"Shows: which module defines the model, which modules extend it (runtime MRO order),\n"
+"field counts and custom fields, all views with their inheritance, window actions,\n"
+"and methods overridden across modules.\n"
+"\n"
+"Use when the user asks things like: \"which modules modify sale.order?\",\n"
+"\"where is this model defined?\", \"what views does this model have?\",\n"
+"\"which methods are overridden?\".\n"
+"\n"
+"Requires the code graph index to be built (AI Studio > Code Graph > Rebuild Index)."
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.actions.server,ai_tool_description:ai_code_graph.code_graph_blast_radius
+msgid ""
+"Read-only impact analysis of one field from the code graph index:\n"
+"which views display it, which computed fields depend on it, its relational\n"
+"target and compute dependencies.\n"
+"\n"
+"Use BEFORE modifying or removing a field, or when the user asks\n"
+"\"what happens if I change field X?\", \"where is this field used?\".\n"
+"\n"
+"Requires the code graph index to be built (AI Studio > Code Graph > Rebuild Index)."
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Rebuild"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Rebuild Index"
+msgstr "重建索引"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Record rules"
+msgstr "记录规则"
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__ref_id
+msgid "Ref"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__ref_model
+msgid "Ref Model"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Referenced only; outside the deep-indexed scope"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Registry"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,help:ai_code_graph.field_ai_code_node__model_name
+msgid "Related Odoo model, when applicable."
+msgstr ""
+
+#. module: ai_code_graph
+#: model_terms:ir.ui.view,arch_db:ai_code_graph.view_ai_code_edge_search
+msgid "Relation Type"
+msgstr "关系类型"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Required by:"
+msgstr "被依赖："
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Scan your custom addons to build the graph."
+msgstr "扫描自定义模块以构建图谱。"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Search a method above (e.g."
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Search models, methods, JS components…"
+msgstr "搜索模型、方法、JS 组件…"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_node__node_type__server_action
+msgid "Server Action"
+msgstr "服务器动作"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Server actions & AI skills"
+msgstr "服务器动作与 AI 技能"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_edge__source_id
+msgid "Source"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,help:ai_code_graph.field_ai_code_node__file_path
+msgid "Source file, relative to the module directory."
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,help:ai_code_graph.field_ai_code_node__technical_key
+msgid ""
+"Stable identifier inside its type, e.g. 'sale.order', "
+"'sale.order.partner_id', 'sale.view_order_form'."
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid ""
+"Static analysis cannot resolve these receivers\n"
+"                            (getattr, mapped, dynamic dispatch):"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Structure"
+msgstr "结构"
+
+#. module: ai_code_graph
+#: model_terms:ir.ui.view,arch_db:ai_code_graph.view_model_form_code_graph
+msgid "Structure Graph"
+msgstr "结构图"
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_edge__target_id
+msgid "Target"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields,field_description:ai_code_graph.field_ai_code_node__technical_key
+msgid "Technical Key"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__template_inherits
+msgid "Template inherits template"
+msgstr "模板继承模板"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+#: model_terms:ir.actions.act_window,help:ai_code_graph.action_ai_code_node
+msgid "The code graph index is empty"
+msgstr "代码图谱索引为空"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid ""
+"The index was built by an older version and contains no call data — click "
+"Rebuild Index once."
+msgstr "索引由旧版本构建，不含调用数据——点击一次“重建索引”即可。"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid ""
+"The index was built by an older version — rebuild it once to get the new "
+"data (methods, call chains)."
+msgstr "索引由旧版本构建——重建一次即可获得新数据（方法、调用链）。"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "This implementation calls super()"
+msgstr ""
+
+#. module: ai_code_graph
+#: model_terms:ir.ui.view,arch_db:ai_code_graph.view_ai_code_node_search
+msgid "Type"
+msgstr "类型"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid ""
+"Type a technical name in the search box above,\n"
+"                        e.g."
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Unresolved dynamic calls"
+msgstr "未解析的动态调用"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Up"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_node__node_type__view
+msgid "View"
+msgstr "视图"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__view_calls_method
+msgid "View button calls method"
+msgstr "视图按钮调用方法"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__view_uses_field
+msgid "View displays field"
+msgstr "视图显示字段"
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__view_inherits
+msgid "View inherits view"
+msgstr "视图继承视图"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "View mode"
+msgstr ""
+
+#. module: ai_code_graph
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_edge__edge_type__view_of_model
+msgid "View of model"
+msgstr "模型的视图"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "View type"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Views"
+msgstr "视图"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "Warning"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+#: model:ir.model.fields.selection,name:ai_code_graph.selection__ai_code_node__layer__xml
+#: model_terms:ir.ui.view,arch_db:ai_code_graph.view_ai_code_node_search
+msgid "XML"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "calls"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "compute depends on"
+msgstr "计算依赖"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "custom"
+msgstr "自定义"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "defines"
+msgstr "定义"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "delegates to (_inherits)"
+msgstr "委托继承（_inherits）"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "depends on"
+msgstr "依赖"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "displays field"
+msgstr "显示字段"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "edges"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "entry points"
+msgstr "入口"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "export"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "extends component"
+msgstr "继承组件"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "extends model"
+msgstr "扩展模型"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "field of"
+msgstr "字段属于"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "fields"
+msgstr "字段"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid ""
+"fields come\n"
+"                            from the defining module."
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "indexed)"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "inherits model"
+msgstr "继承模型"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "inherits template"
+msgstr "继承模板"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "inherits view"
+msgstr "继承视图"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "method of"
+msgstr "方法属于"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "methods"
+msgstr "方法"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "modules"
+msgstr "模块"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "nodes /"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "of"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "on"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "opens model"
+msgstr "打开模型"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "override"
+msgstr "覆写"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "overrides method"
+msgstr "覆写方法"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "patch"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "patches"
+msgstr "补丁"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "registers"
+msgstr "注册"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "renders template"
+msgstr "渲染模板"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "sale.order"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "sale.order.action_confirm"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "skeleton"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "super"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "targets model"
+msgstr "指向模型"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "total)"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "triggers action"
+msgstr "触发动作"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "via"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/js/code_graph_action.js:0
+msgid "view of"
+msgstr "视图属于"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "views"
+msgstr "视图"
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid "·not indexed"
+msgstr ""
+
+#. module: ai_code_graph
+#. odoo-javascript
+#: code:addons/ai_code_graph/static/src/xml/code_graph_templates.xml:0
+msgid ""
+"— or use the Structure Graph button\n"
+"                        on any model form."
+msgstr ""

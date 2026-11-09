@@ -1,0 +1,354 @@
+// The raw payloads embedded in the message body must never be visible;
+// the chosen option is rendered OUTSIDE the bubble (o_ai_choice_footnote)
+.o_ai_option_data,
+.o_ai_form_data,
+.o-mail-Message-body .o_ai_option_chosen {
+    display: none !important;
+}
+
+// Small footnote under the AI message bubble: which option the user picked
+.o_ai_choice_footnote {
+    margin: 2px 12px 6px 48px;
+    font-size: 0.75rem;
+    font-style: italic;
+    color: #9ca3af;
+
+    .fa-check-circle {
+        color: #10b981;
+        margin-right: 5px;
+    }
+}
+
+// ─── Inline input form card (collect several values in one round) ───
+.o_ai_form_card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 10px 12px 8px 48px;
+    max-width: 420px;
+    padding: 14px 16px;
+    background: #ffffff;
+    border: 1px solid rgba(147, 51, 234, 0.3);
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    animation: o-ai-option-in 0.25s ease both;
+}
+
+.o_ai_form_card_title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, #3b82f6, #9333ea);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    padding-bottom: 4px;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.o_ai_form_field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.o_ai_form_label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.o_ai_form_input {
+    width: 100%;
+    padding: 7px 12px;
+    font-size: 0.9rem;
+    color: #1f2937;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:focus {
+        border-color: #3b82f6;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+    }
+
+    &.o_ai_form_input--missing {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+    }
+}
+
+.o_ai_form_submit {
+    align-self: flex-end;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 2px;
+    padding: 8px 22px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(135deg, #3b82f6, #9333ea);
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+    transition: box-shadow 0.15s ease, transform 0.1s ease;
+
+    &:hover {
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+
+    &:active {
+        transform: scale(0.97);
+    }
+}
+
+// Small persistent footnote showing which option the user picked
+.o-mail-Message-body .o_ai_option_chosen {
+    display: block;
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.12);
+    font-size: 0.75rem;
+    font-style: italic;
+    color: #6b7280;
+
+    &::before {
+        content: "\f058"; // fa-check-circle
+        font-family: FontAwesome;
+        font-style: normal;
+        margin-right: 5px;
+        color: #10b981;
+    }
+}
+
+// ─── Quick-reply option cards: one per row, vertically stacked,
+//     rendered under the newest AI message in the thread ───
+.o_ai_option_buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    margin: 10px 12px 8px 48px; // left offset roughly aligns with message text (avatar gutter)
+    max-width: 420px;
+}
+
+@keyframes o-ai-option-in {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.o_ai_option_card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 14px;
+    text-align: left;
+    background: #ffffff;
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    animation: o-ai-option-in 0.25s ease both;
+    transition: border-color 0.15s ease, background 0.15s ease,
+                box-shadow 0.15s ease, transform 0.1s ease;
+
+    // gentle stagger on appearance
+    &:nth-child(2) { animation-delay: 0.05s; }
+    &:nth-child(3) { animation-delay: 0.1s; }
+    &:nth-child(4) { animation-delay: 0.15s; }
+    &:nth-child(5) { animation-delay: 0.2s; }
+    &:nth-child(6) { animation-delay: 0.25s; }
+
+    &:hover {
+        background: #f0f6ff;
+        border-color: #3b82f6;
+        box-shadow: 0 3px 10px rgba(59, 130, 246, 0.18);
+
+        .o_ai_option_card_chevron {
+            transform: translateX(3px);
+            color: #3b82f6;
+        }
+    }
+
+    &:active {
+        transform: scale(0.985);
+    }
+}
+
+.o_ai_option_card_badge {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #9333ea);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 600;
+
+    .fa {
+        font-size: 0.7rem;
+    }
+}
+
+.o_ai_option_card_text {
+    flex: 1 1 auto;
+    color: #1f2937;
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.35;
+    white-space: normal;
+    word-break: break-word;
+}
+
+.o_ai_option_card_chevron {
+    flex-shrink: 0;
+    color: #9ca3af;
+    font-size: 0.75rem;
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+// Muted reminder under the cards: free-text input is always possible
+.o_ai_option_hint {
+    align-self: flex-start;
+    margin-top: 2px;
+    font-size: 0.72rem;
+    color: #9ca3af;
+
+    .fa {
+        margin-right: 5px;
+    }
+}
+
+// ─── Semantic accents ───
+.o_ai_option_card--confirm {
+    border-color: rgba(16, 185, 129, 0.45);
+
+    .o_ai_option_card_badge {
+        background: linear-gradient(135deg, #10b981, #059669);
+    }
+
+    &:hover {
+        background: #ecfdf5;
+        border-color: #10b981;
+        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.2);
+
+        .o_ai_option_card_chevron { color: #10b981; }
+    }
+}
+
+.o_ai_option_card--cancel {
+    border-color: rgba(239, 68, 68, 0.35);
+
+    .o_ai_option_card_badge {
+        background: linear-gradient(135deg, #f87171, #dc2626);
+    }
+
+    &:hover {
+        background: #fef2f2;
+        border-color: #ef4444;
+        box-shadow: 0 3px 10px rgba(239, 68, 68, 0.18);
+
+        .o_ai_option_card_chevron { color: #ef4444; }
+    }
+}
+
+.o_ai_option_card--modify {
+    border-color: rgba(245, 158, 11, 0.4);
+
+    .o_ai_option_card_badge {
+        background: linear-gradient(135deg, #fbbf24, #d97706);
+    }
+
+    &:hover {
+        background: #fffbeb;
+        border-color: #f59e0b;
+        box-shadow: 0 3px 10px rgba(245, 158, 11, 0.18);
+
+        .o_ai_option_card_chevron { color: #f59e0b; }
+    }
+}
+
+@media (max-width: 768px) {
+    .o_ai_option_buttons,
+    .o_ai_form_card {
+        margin-left: 12px;
+        max-width: 100%;
+    }
+    .o_ai_option_card {
+        padding: 9px 12px;
+    }
+}
+
+// ─── AI message body: bordered tables & tidy markdown ───
+// The backend wraps every AI reply in <div class="o_ai_msg"> — these rules
+// only style AI-authored messages (previews, reports), never user messages.
+.o_ai_msg {
+    table {
+        width: 100%;
+        max-width: 100%;
+        margin: 8px 0;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid rgba(59, 130, 246, 0.35);
+        border-radius: 10px;
+        background: #ffffff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+        font-size: 0.85rem;
+    }
+
+    th,
+    td {
+        padding: 6px 10px;
+        vertical-align: top;
+        word-break: break-word;
+        border-bottom: 1px solid rgba(59, 130, 246, 0.16);
+
+        + th,
+        + td {
+            border-left: 1px solid rgba(59, 130, 246, 0.16);
+        }
+    }
+
+    th {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(147, 51, 234, 0.1));
+        color: #1e40af;
+        font-weight: 600;
+        text-align: left;
+        border-bottom: 1px solid rgba(59, 130, 246, 0.35);
+    }
+
+    tbody tr:nth-child(even) td {
+        background: rgba(59, 130, 246, 0.045);
+    }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    // rounded corners (works because border-collapse is separate)
+    tr:first-child > :first-child { border-top-left-radius: 9px; }
+    tr:first-child > :last-child { border-top-right-radius: 9px; }
+    tr:last-child > :first-child { border-bottom-left-radius: 9px; }
+    tr:last-child > :last-child { border-bottom-right-radius: 9px; }
+
+    pre {
+        background: #f6f8fa;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 8px 10px;
+        overflow-x: auto;
+    }
+}

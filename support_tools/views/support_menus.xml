@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_support_root"
+              name="Remote Support"
+              parent="ai_chatbot_enhance.ai_menu_root"
+              sequence="60"
+              groups="ai_chatbot_enhance.group_ai_manager"/>
+
+    <menuitem id="menu_support_diagnostic_session"
+              name="Diagnoses"
+              parent="menu_support_root"
+              action="support_diagnostic_session_action"
+              sequence="10"
+              groups="ai_chatbot_enhance.group_ai_manager"/>
+
+    <menuitem id="menu_support_remote_instance"
+              name="Remote Instances"
+              parent="menu_support_root"
+              action="support_remote_instance_action"
+              sequence="20"
+              groups="ai_chatbot_enhance.group_ai_manager"/>
+</odoo>

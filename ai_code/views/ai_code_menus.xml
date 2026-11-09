@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- AI Studio > Code opens the dedicated coding workspace (its own page
+         that extends the AI Platform chat). The task list sits next to it. -->
+    <menuitem id="menu_ai_studio_code"
+              name="Code"
+              parent="ai_chatbot_enhance.menu_ai_studio"
+              action="action_ai_code_workspace"
+              sequence="60"/>
+
+    <menuitem id="menu_ai_studio_code_tasks"
+              name="Coding Tasks"
+              parent="ai_chatbot_enhance.menu_ai_studio"
+              action="action_ai_code_task"
+              sequence="61"/>
+
+</odoo>

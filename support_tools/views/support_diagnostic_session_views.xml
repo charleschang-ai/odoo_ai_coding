@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="support_diagnostic_session_view_list" model="ir.ui.view">
+        <field name="name">support.diagnostic.session.list</field>
+        <field name="model">support.diagnostic.session</field>
+        <field name="arch" type="xml">
+            <list string="Diagnoses">
+                <field name="name"/>
+                <field name="instance_id"/>
+                <field name="question"/>
+                <field name="message_count" string="Messages"/>
+                <field name="user_id"/>
+                <field name="create_date"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'active'"
+                       decoration-muted="state == 'draft'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="support_diagnostic_session_view_form" model="ir.ui.view">
+        <field name="name">support.diagnostic.session.form</field>
+        <field name="model">support.diagnostic.session</field>
+        <field name="arch" type="xml">
+            <form string="Diagnosis">
+                <header>
+                    <button name="action_open_chat" type="object"
+                            string="Open Diagnosis Chat" class="oe_highlight"
+                            invisible="not question"/>
+                    <button name="action_open_discuss" type="object"
+                            string="Open in Discuss"
+                            invisible="not channel_id"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,active"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="instance_id"
+                                   options="{'no_create': True}"
+                                   readonly="channel_id"/>
+                            <field name="agent_id"
+                                   options="{'no_create': True}"
+                                   readonly="channel_id"/>
+                        </group>
+                        <group>
+                            <field name="user_id"/>
+                            <field name="channel_id" invisible="1"/>
+                            <field name="chat_seeded" invisible="1"/>
+                        </group>
+                    </group>
+                    <div class="o_support_question_block mt-3 mb-2">
+                        <label for="question" string="Customer Question"
+                               class="o_support_question_label"/>
+                        <field name="question" nolabel="1"
+                               class="o_support_question"
+                               readonly="chat_seeded"
+                               placeholder="描述客户遇到的问题，例如：发票 INV/2026/0087 点确认时报错，无法过账；或：产品 A123 的库存数量和仓库实际对不上。"/>
+                    </div>
+                    <separator string="Conversation"/>
+                    <field name="message_ids" nolabel="1" readonly="1">
+                        <kanban class="o_support_conversation" create="false"
+                                can_open="0" records_draggable="false">
+                            <field name="role"/>
+                            <field name="author_name"/>
+                            <field name="date"/>
+                            <field name="body"/>
+                            <templates>
+                                <t t-name="card">
+                                    <div t-attf-class="o_support_msg o_support_msg_#{record.role.raw_value}">
+                                        <div class="o_support_msg_head">
+                                            <span t-if="record.role.raw_value == 'assistant'"
+                                                  class="badge text-bg-success">
+                                                <t t-esc="record.role.value"/>
+                                            </span>
+                                            <span t-else="" class="badge text-bg-info">
+                                                <t t-esc="record.role.value"/>
+                                            </span>
+                                            <span class="o_support_msg_author">
+                                                <t t-esc="record.author_name.value"/>
+                                            </span>
+                                            <small class="o_support_msg_date text-muted">
+                                                <t t-esc="record.date.value"/>
+                                            </small>
+                                        </div>
+                                        <div class="o_support_msg_body">
+                                            <field name="body"/>
+                                        </div>
+                                    </div>
+                                </t>
+                            </templates>
+                        </kanban>
+                    </field>
+                    <div class="text-muted" invisible="message_ids">
+                        <p>Click <b>Open Diagnosis Chat</b> to start. Your question is
+                           sent to the AI, which investigates the remote instance and
+                           replies here. The whole conversation is saved on this record.</p>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="support_diagnostic_session_view_search" model="ir.ui.view">
+        <field name="name">support.diagnostic.session.search</field>
+        <field name="model">support.diagnostic.session</field>
+        <field name="arch" type="xml">
+            <search string="Diagnoses">
+                <field name="name"/>
+                <field name="instance_id"/>
+                <field name="question"/>
+                <filter name="active" string="In Progress"
+                        domain="[('state', '=', 'active')]"/>
+                <group>
+                    <filter name="group_instance" string="Instance"
+                            context="{'group_by': 'instance_id'}"/>
+                    <filter name="group_state" string="Status"
+                            context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="support_diagnostic_session_action" model="ir.actions.act_window">
+        <field name="name">Diagnoses</field>
+        <field name="res_model">support.diagnostic.session</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="support_diagnostic_session_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Start a remote diagnosis
+            </p>
+            <p>
+                Pick a remote instance, describe the customer's problem, then open
+                the chat. The AI investigates the remote database (read-only) and
+                proposes fixes.
+            </p>
+        </field>
+    </record>
+</odoo>

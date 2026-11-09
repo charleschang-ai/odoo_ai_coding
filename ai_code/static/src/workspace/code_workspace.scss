@@ -1,0 +1,818 @@
+// Coding workspace: folder picker + task strip (phase + todo) + diff drawer.
+// A dedicated page extending the AI Platform; only the new controls are here.
+
+.o_aic_dirpicker { position: relative; display: flex; align-items: center; }
+
+.o_aic_dir_pill {
+    display: inline-flex; align-items: center;
+    border: 1px solid var(--border-color, #dee2e6);
+    background: transparent; border-radius: 999px;
+    padding: 4px 12px; font-size: 13px; font-weight: 500;
+    color: inherit; cursor: pointer; max-width: 260px;
+    &:hover { background: rgba(0, 0, 0, 0.05); }
+    &--empty {
+        border-color: #0d6efd; color: #0d6efd;
+        background: rgba(13, 110, 253, 0.08);
+        animation: o_aic_pulse 2s ease-in-out infinite;
+    }
+    &--locked {
+        cursor: default;
+        opacity: 0.85;
+        &:hover { background: transparent; }
+        .fa-lock { font-size: 11px; opacity: 0.6; }
+    }
+    .o_aic_dir_name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+@keyframes o_aic_pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.3); }
+    50% { box-shadow: 0 0 0 4px rgba(13, 110, 253, 0); }
+}
+
+.o_aic_dirmenu {
+    position: absolute; top: calc(100% + 6px); left: 0;
+    min-width: 320px; max-width: 460px;
+    background: var(--o-aip-surface, #fff);
+    border: 1px solid var(--border-color, #dee2e6);
+    border-radius: 10px; box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+    padding: 6px; z-index: 1200; display: none;
+    &.o_aic_dirmenu--show { display: block; }
+}
+
+.o_aic_dirmenu_note { font-size: 12px; color: var(--text-muted, #6c757d); padding: 6px 8px; }
+
+.o_aic_dirmenu_section {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted, #adb5bd);
+    padding: 8px 10px 3px;
+}
+
+.o_aic_dirmenu_browse {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border: 0;
+    border-top: 1px solid var(--border-color, #dee2e6);
+    margin-top: 4px;
+    background: transparent;
+    border-radius: 0 0 8px 8px;
+    padding: 9px 10px;
+    text-align: left;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    color: #0d6efd;
+    &:hover { background: rgba(13, 110, 253, 0.08); }
+}
+
+// ── browse mode ─────────────────────────────────────────────────────
+.o_aic_browse_head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px 8px;
+    border-bottom: 1px solid var(--border-color, #dee2e6);
+    margin-bottom: 4px;
+}
+.o_aic_browse_back {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    color: inherit;
+    padding: 4px 6px;
+    border-radius: 6px;
+    &:hover { background: rgba(0, 0, 0, 0.06); }
+}
+.o_aic_browse_path {
+    font-family: var(--font-family-monospace, monospace);
+    font-size: 12px;
+    color: var(--text-muted, #495057);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.o_aic_browse_use {
+    border-top: 1px solid var(--border-color, #dee2e6);
+    margin-top: 4px;
+    padding: 8px;
+}
+.o_aic_dir_addbtn {
+    width: 100%;
+    border: 0;
+    background: #0d6efd;
+    color: #fff;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    &:disabled { opacity: 0.5; cursor: default; }
+    &:hover:not(:disabled) { background: #0b5ed7; }
+}
+
+.o_aic_dirmenu_count {
+    margin-left: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #0d6efd;
+    background: rgba(13, 110, 253, 0.12);
+    border-radius: 4px;
+    padding: 1px 5px;
+    &--empty { color: var(--text-muted, #6c757d); background: rgba(0, 0, 0, 0.06); }
+}
+
+// ── workspace card (new-chat empty state) ───────────────────────────
+.o_aic_wscard {
+    margin: 10px 16px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-color, #dee2e6);
+    border-radius: 10px;
+    background: var(--o-aip-surface-2, rgba(13, 110, 253, 0.03));
+    font-size: 13px;
+}
+.o_aic_wscard_head { color: var(--text-muted, #495057); margin-bottom: 8px; }
+.o_aic_wschips { display: flex; flex-wrap: wrap; gap: 6px; }
+.o_aic_modchip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    border: 1px solid var(--border-color, #dee2e6);
+    background: var(--o-aip-surface, #fff);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    color: inherit;
+    &:hover { background: rgba(13, 110, 253, 0.08); border-color: #0d6efd; }
+    &--active { background: rgba(13, 110, 253, 0.15); border-color: #0d6efd; }
+    .o_aic_modchip_name { font-family: var(--font-family-monospace, monospace); font-weight: 600; }
+    .o_aic_modchip_title { color: var(--text-muted, #6c757d); font-size: 11px; }
+}
+
+// ── modify-intent pill (above composer) ─────────────────────────────
+.o_aic_intent {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 16px 6px;
+    padding: 5px 12px;
+    width: fit-content;
+    border-radius: 999px;
+    font-size: 12px;
+    color: #0d6efd;
+    background: rgba(13, 110, 253, 0.12);
+    b { font-family: var(--font-family-monospace, monospace); }
+}
+.o_aic_intent_x {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    padding: 0 2px;
+    &:hover { opacity: 0.7; }
+}
+
+.o_aic_dirmenu_item {
+    display: flex; align-items: center; width: 100%;
+    border: 0; background: transparent; border-radius: 8px;
+    padding: 8px 10px; text-align: left; cursor: pointer;
+    &:hover { background: rgba(0, 0, 0, 0.05); }
+    &--current { background: rgba(13, 110, 253, 0.08); }
+    .o_aic_dirmenu_text { display: flex; flex-direction: column; overflow: hidden; }
+    .o_aic_dirmenu_name { font-weight: 600; font-size: 13px; }
+    .o_aic_dirmenu_nogit {
+        margin-left: 6px; font-size: 10px; font-weight: 600;
+        color: #b8860b; background: rgba(255, 193, 7, 0.2);
+        border-radius: 4px; padding: 1px 5px;
+    }
+    .o_aic_dirmenu_path {
+        font-size: 11px; color: var(--text-muted, #6c757d);
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+}
+
+// ── auto-growing composer textarea (cap the height) ─────────────────
+// composer root is .o_aip_inputbar in ai_chat_platform; the JS sets an inline
+// height up to this cap, then the textarea scrolls internally.
+.o_ai_platform .o_aip_inputbar textarea {
+    resize: none;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+// ── guided-task button + dialog ─────────────────────────────────────
+.o_aic_guided_btn {
+    display: inline-flex; align-items: center;
+    margin-left: 8px;
+    border: 1px solid #0d6efd; color: #0d6efd; background: rgba(13,110,253,0.06);
+    border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 600;
+    cursor: pointer; white-space: nowrap;
+    &:hover:not(:disabled) { background: rgba(13,110,253,0.14); }
+    &:disabled { opacity: 0.45; cursor: default; border-color: var(--border-color,#dee2e6); color: var(--text-muted,#6c757d); }
+}
+.o_aic_guided { display: flex; flex-direction: column; gap: 10px; }
+.o_aic_guided_ctx {
+    font-size: 12px; color: var(--text-muted,#6c757d);
+    background: rgba(0,0,0,0.03); border-radius: 6px; padding: 5px 10px;
+}
+.o_aic_guided_row { display: flex; flex-direction: column; gap: 3px;
+    label { font-size: 12px; font-weight: 600; color: var(--text-muted,#495057); } }
+.o_aic_guided_2col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    label { font-size: 12px; font-weight: 600; color: var(--text-muted,#495057); } }
+.o_aic_guided_preview {
+    border-top: 1px solid var(--border-color,#dee2e6); padding-top: 8px; margin-top: 2px;
+}
+.o_aic_guided_prevhead {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px; font-weight: 600; color: var(--text-muted,#495057); margin-bottom: 3px;
+}
+.o_aic_guided_prevbox {
+    font-family: var(--font-family-monospace, monospace); font-size: 12px;
+    background: var(--o-aip-surface-2, rgba(0,0,0,0.02));
+}
+
+// ── compact task status IN the header ───────────────────────────────
+.o_aic_hdr_task {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 8px;
+    min-width: 0;
+    flex-shrink: 1;
+    overflow: visible;
+}
+
+// ── background-tasks widget ─────────────────────────────────────────
+.o_aic_bg { position: relative; display: flex; align-items: center; margin-left: 4px; }
+
+.o_aic_bg_btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px; height: 32px;
+    border: 1px solid var(--border-color, #dee2e6);
+    background: transparent;
+    border-radius: 999px;
+    cursor: pointer;
+    color: inherit;
+    &:hover { background: rgba(0, 0, 0, 0.05); }
+    &--active { color: #0d6efd; border-color: #0d6efd; }
+}
+.o_aic_bg_badge {
+    position: absolute;
+    top: -5px; right: -5px;
+    background: #0d6efd; color: #fff;
+    border-radius: 999px;
+    font-size: 10px; font-weight: 700;
+    line-height: 1; padding: 3px 5px;
+    &--wait { background: #ffc107; color: #5c4400; }
+}
+.o_aic_bg_panel {
+    position: absolute;
+    top: calc(100% + 8px); right: 0;
+    width: 340px; max-height: 380px; overflow: auto;
+    background: var(--o-aip-surface, #fff);
+    border: 1px solid var(--border-color, #dee2e6);
+    border-radius: 10px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+    padding: 6px;
+    z-index: 1200;
+    display: none;
+    &--show { display: block; }
+}
+.o_aic_bg_head {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.04em; color: var(--text-muted, #adb5bd);
+    padding: 6px 10px 4px;
+}
+.o_aic_bg_tabs {
+    display: flex; gap: 4px;
+    padding: 4px 6px 6px; margin-bottom: 4px;
+    border-bottom: 1px solid var(--border-color, #eef0f2);
+}
+.o_aic_bg_tab {
+    flex: 1; border: 0; background: transparent; cursor: pointer;
+    font-size: 12px; font-weight: 600; color: var(--text-muted, #6c757d);
+    padding: 5px 8px; border-radius: 6px;
+    &:hover { background: rgba(0, 0, 0, 0.04); }
+    &--active { background: rgba(13, 110, 253, 0.10); color: #0d6efd; }
+}
+.o_aic_bg_row {
+    display: flex; align-items: center; gap: 4px;
+    border-radius: 8px;
+    &:hover { background: rgba(0, 0, 0, 0.04); }
+}
+.o_aic_bg_main {
+    flex: 1; display: flex; align-items: center;
+    border: 0; background: transparent;
+    padding: 8px 10px; text-align: left; cursor: pointer;
+    overflow: hidden; color: inherit;
+}
+.o_aic_bg_i--run { color: #0d6efd; }
+.o_aic_bg_i--wait { color: #b8860b; }
+.o_aic_bg_i--done { color: #198754; }
+.o_aic_bg_i--fail { color: #dc3545; }
+.o_aic_bg_text { display: flex; flex-direction: column; overflow: hidden; }
+.o_aic_bg_label {
+    font-size: 13px; font-weight: 600;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    .o_aic_bg_folder { margin-left: 6px; font-size: 11px; font-weight: 500; color: var(--text-muted, #6c757d); }
+}
+.o_aic_bg_sub { font-size: 11px; color: var(--text-muted, #6c757d); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.o_aic_bg_stop {
+    border: 1px solid var(--border-color, #dee2e6);
+    background: transparent;
+    border-radius: 6px;
+    padding: 5px 9px; margin-right: 6px;
+    cursor: pointer; color: #dc3545;
+    &:hover { background: rgba(220, 53, 69, 0.08); }
+}
+
+// ── git chip (rendered ONLY for a git repo) ─────────────────────────
+.o_aic_gitchip {
+    display: inline-flex; align-items: center; gap: 2px;
+    margin-left: 8px; padding: 3px 10px;
+    border: 1px solid var(--border-color, #dee2e6); border-radius: 999px;
+    font-size: 12px; color: var(--text-muted, #495057); white-space: nowrap;
+    background: rgba(0, 0, 0, 0.02); cursor: default;
+}
+.o_aic_gitbranch { font-weight: 600; max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+.o_aic_gitdirty {
+    margin-left: 4px; min-width: 16px; text-align: center;
+    background: #ffc107; color: #5c4400; border-radius: 999px;
+    font-size: 10px; font-weight: 700; padding: 1px 5px;
+}
+
+// ── manual refresh button ────────────────────────────────────────────
+.o_aic_refresh_btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; margin-left: 4px;
+    border: 1px solid var(--border-color, #dee2e6); background: transparent;
+    border-radius: 999px; cursor: pointer; color: inherit;
+    &:hover:not(:disabled) { background: rgba(0, 0, 0, 0.05); }
+    &:disabled { opacity: 0.6; cursor: default; }
+}
+
+// ── locked-folder read-only absolute path ────────────────────────────
+.o_aic_lockedpath {
+    margin: 4px 8px 6px; padding: 8px 10px;
+    background: var(--o-aip-surface-2, rgba(0, 0, 0, 0.03)); border-radius: 6px;
+    code {
+        font-size: 12px; color: var(--text-color, #212529);
+        word-break: break-all; white-space: pre-wrap;
+    }
+}
+
+// ── failure-reason banner ────────────────────────────────────────────
+.o_aic_errbar {
+    display: flex; align-items: flex-start; gap: 6px;
+    margin: 8px 16px 0; padding: 8px 12px;
+    background: rgba(220, 53, 69, 0.08); border: 1px solid rgba(220, 53, 69, 0.35);
+    border-radius: 8px; color: #b02a37; font-size: 12.5px;
+    .fa-exclamation-triangle { margin-top: 2px; }
+}
+.o_aic_errbar_text {
+    flex: 1; white-space: pre-wrap; word-break: break-word;
+    max-height: 120px; overflow: auto;
+}
+.o_aic_errbar_copy {
+    border: 0; background: transparent; cursor: pointer; color: #b02a37;
+    padding: 2px 6px; border-radius: 6px; flex-shrink: 0;
+    &:hover { background: rgba(220, 53, 69, 0.15); }
+}
+
+.o_aic_strip {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 16px; border-bottom: 1px solid var(--border-color, #dee2e6);
+    background: var(--o-aip-surface-2, rgba(0, 0, 0, 0.02));
+    font-size: 13px; position: relative;
+}
+
+.o_aic_chip {
+    display: inline-flex; align-items: center;
+    padding: 2px 10px; border-radius: 999px;
+    font-size: 12px; font-weight: 600;
+    background: rgba(0, 0, 0, 0.06); color: var(--text-muted, #6c757d);
+    white-space: nowrap;
+    &--run { background: rgba(13, 110, 253, 0.15); color: #0d6efd; }
+    &--review { background: rgba(255, 193, 7, 0.25); color: #9a6c00; }
+    &--done { background: rgba(25, 135, 84, 0.15); color: #198754; }
+    &--fail { background: rgba(220, 53, 69, 0.15); color: #dc3545; }
+}
+
+.o_aic_strip_module {
+    color: var(--text-muted, #6c757d);
+    font-family: var(--font-family-monospace, monospace);
+    font-size: 12px; white-space: nowrap;
+}
+.o_aic_strip_stats { color: var(--text-muted, #6c757d); font-size: 12px; white-space: nowrap; }
+
+.o_aic_todo { position: relative; display: flex; align-items: center; gap: 6px; cursor: pointer; min-width: 140px; }
+.o_aic_todo_bar { width: 110px; height: 6px; border-radius: 3px; background: rgba(0, 0, 0, 0.1); overflow: hidden; }
+.o_aic_todo_fill { height: 100%; border-radius: 3px; background: #0d6efd; transition: width 0.4s ease; }
+.o_aic_todo_count { font-size: 12px; color: var(--text-muted, #6c757d); white-space: nowrap; }
+
+.o_aic_todo_panel {
+    position: absolute; top: calc(100% + 8px); left: 0;
+    min-width: 360px; max-width: 560px; max-height: 340px; overflow: auto;
+    background: var(--o-aip-surface, #fff);
+    border: 1px solid var(--border-color, #dee2e6);
+    border-radius: 10px; box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+    padding: 6px; z-index: 1200; display: none;
+    &.o_aic_todo_panel--show { display: block; }
+}
+.o_aic_todo_item {
+    display: flex; align-items: baseline; gap: 4px;
+    padding: 5px 8px; border-radius: 6px; font-size: 12px;
+    .fa-check-circle { color: #198754; }
+    .fa-circle-o { color: var(--text-muted, #adb5bd); }
+    &--done .o_aic_todo_path { text-decoration: line-through; opacity: 0.7; }
+    .o_aic_todo_path { font-family: var(--font-family-monospace, monospace); white-space: nowrap; }
+    .o_aic_todo_sum { color: var(--text-muted, #6c757d); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+.o_aic_changes_btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    border: 1px solid var(--border-color, #dee2e6); background: transparent;
+    border-radius: 999px; padding: 3px 12px; font-size: 12px; font-weight: 600;
+    cursor: pointer; color: inherit;
+    &:hover:not(:disabled) { background: rgba(0, 0, 0, 0.05); }
+    &:disabled { opacity: 0.45; cursor: default; }
+}
+.o_aic_changes_badge { background: #0d6efd; color: #fff; border-radius: 999px; font-size: 11px; line-height: 1; padding: 3px 7px; }
+
+.o_aic_drawer_body { display: flex; flex-direction: column; overflow: auto; }
+.o_aic_changelist { padding: 6px; }
+.o_aic_change {
+    display: flex; align-items: center; gap: 4px;
+    &--reverted .o_aic_change_path { text-decoration: line-through; opacity: 0.6; }
+}
+.o_aic_change_main {
+    flex: 1; display: flex; align-items: center; gap: 8px;
+    border: 0; background: transparent; border-radius: 8px;
+    padding: 8px 10px; text-align: left; cursor: pointer; overflow: hidden;
+    &:hover { background: rgba(0, 0, 0, 0.05); }
+}
+.o_aic_change_type {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    border-radius: 4px; padding: 2px 6px;
+    &--create { background: rgba(25, 135, 84, 0.15); color: #198754; }
+    &--modify { background: rgba(13, 110, 253, 0.15); color: #0d6efd; }
+    &--delete { background: rgba(220, 53, 69, 0.15); color: #dc3545; }
+}
+.o_aic_change_path { font-family: var(--font-family-monospace, monospace); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.o_aic_change_sha { font-family: var(--font-family-monospace, monospace); font-size: 11px; color: var(--text-muted, #6c757d); }
+.o_aic_change_revert {
+    border: 1px solid var(--border-color, #dee2e6); background: transparent;
+    border-radius: 6px; padding: 4px 8px; cursor: pointer; color: #dc3545;
+    &:hover { background: rgba(220, 53, 69, 0.08); }
+    &--wide { padding: 6px 14px; }
+}
+.o_aic_change_revertedtag { font-size: 11px; color: var(--text-muted, #6c757d); padding-right: 8px; }
+
+.o_aic_diff { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.o_aic_diff_pre {
+    flex: 1; overflow: auto; margin: 0; padding: 10px 12px;
+    font-size: 12px; line-height: 1.45;
+    background: var(--o-aip-code-bg, #0d1117); color: #c9d1d9;
+}
+.o_aic_diff_line {
+    display: block; white-space: pre;
+    &.o_aic_diff_add { background: rgba(46, 160, 67, 0.2); color: #7ee787; }
+    &.o_aic_diff_del { background: rgba(248, 81, 73, 0.18); color: #ffa198; }
+    &.o_aic_diff_hunk { color: #79c0ff; }
+}
+.o_aic_diff_actions {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; border-top: 1px solid var(--border-color, #dee2e6);
+}
+.o_aic_diff_copybtn {
+    display: inline-flex; align-items: center;
+    border: 1px solid var(--border-color, #dee2e6);
+    background: transparent; border-radius: 6px;
+    padding: 5px 12px; font-size: 12px; font-weight: 600;
+    cursor: pointer; color: inherit;
+    &:hover { background: rgba(0, 0, 0, 0.05); }
+}
+
+// ── copy button on chat code blocks (injected into AI messages) ─────
+.o_aic_codeblock {
+    position: relative;
+    padding-top: 30px !important;
+}
+.o_aic_codebar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 26px; padding: 0 8px;
+    background: rgba(127, 127, 127, 0.14);
+    border-top-left-radius: inherit; border-top-right-radius: inherit;
+    font-size: 11px;
+}
+.o_aic_codelang {
+    text-transform: uppercase; letter-spacing: 0.03em;
+    color: var(--text-muted, #6c757d); font-weight: 700;
+}
+.o_aic_codecopy {
+    border: 0; background: transparent; cursor: pointer;
+    color: var(--text-muted, #495057); font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 5px;
+    &:hover { background: rgba(0, 0, 0, 0.08); }
+}
+
+// ── "AI working…" indicator above the composer ──────────────────────
+.o_aic_working {
+    display: flex; align-items: center; gap: 10px;
+    margin: 6px 16px 0; padding: 7px 14px;
+    background: linear-gradient(90deg, rgba(13, 110, 253, 0.10), rgba(111, 66, 193, 0.08));
+    border: 1px solid rgba(13, 110, 253, 0.25);
+    border-radius: 999px; font-size: 12.5px; font-weight: 600;
+    color: #0d6efd; width: fit-content; max-width: calc(100% - 32px);
+}
+.o_aic_working_dots { display: inline-flex; gap: 3px; }
+.o_aic_working_dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #0d6efd; opacity: 0.35;
+    animation: o_aic_dotpulse 1.2s ease-in-out infinite;
+    &:nth-child(2) { animation-delay: 0.2s; }
+    &:nth-child(3) { animation-delay: 0.4s; }
+}
+@keyframes o_aic_dotpulse {
+    0%, 100% { opacity: 0.25; transform: translateY(0); }
+    35% { opacity: 1; transform: translateY(-2px); }
+}
+.o_aic_working_label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+// ── guided dialog: vivid restyle ────────────────────────────────────
+.o_aic_guided label {
+    font-weight: 700; font-size: 12.5px; color: inherit;
+    display: inline-flex; align-items: center; gap: 6px;
+    .fa { color: #0d6efd; width: 15px; text-align: center; }
+}
+.o_aic_req { color: #dc3545; font-weight: 700; }
+.o_aic_hint { font-weight: 500; color: var(--text-muted, #6c757d); font-size: 11.5px; }
+.o_aic_guided_ctx {
+    display: flex; align-items: center;
+    font-weight: 600; font-size: 12.5px; color: inherit;
+    background: linear-gradient(90deg, rgba(13, 110, 253, 0.12), rgba(111, 66, 193, 0.10));
+    border: 1px solid rgba(13, 110, 253, 0.25);
+}
+.o_aic_guided_ver {
+    margin-left: auto; display: inline-flex; align-items: center;
+    .form-select { width: auto; padding: 2px 26px 2px 8px; font-size: 12px; font-weight: 600; }
+}
+.o_aic_typebtns .btn { font-weight: 600; }
+.o_aic_typebtns .btn-primary {
+    background: linear-gradient(135deg, #0d6efd, #6f42c1);
+    border-color: transparent;
+}
+.o_aic_guided_more {
+    border: 1px dashed rgba(111, 66, 193, 0.4); border-radius: 8px;
+    padding: 7px 12px;
+    summary {
+        cursor: pointer; font-size: 12.5px; font-weight: 700; color: #6f42c1;
+        user-select: none;
+        &:hover { opacity: 0.8; }
+    }
+    &[open] summary { margin-bottom: 8px; }
+}
+.o_aic_guided_morebody { display: flex; flex-direction: column; gap: 10px; }
+.o_aic_guided_prevhead span:first-child { color: #0d6efd; font-weight: 700; }
+.o_aic_guided_prevbox { border-color: rgba(13, 110, 253, 0.35); }
+.o_aic_guided_send {
+    background: linear-gradient(135deg, #0d6efd, #6f42c1);
+    border-color: transparent; font-weight: 700;
+    &:hover:not(:disabled) { filter: brightness(1.08); }
+}
+
+// ── responsive header (scoped to the coding page only) ──────────────
+.o_aic_page .o_aip_header {
+    flex-wrap: wrap;               // never clip controls — wrap to a second row
+    height: auto; min-height: 0;
+    row-gap: 4px; padding-top: 6px; padding-bottom: 6px;
+}
+@media (max-width: 768px) {
+    .o_aic_page {
+        .o_aic_txt { display: none; }              // icon-only buttons
+        .o_aic_gitchip { display: none; }          // informational — hidden on phones
+        .o_aip_usage_chip { display: none; }
+        .o_aip_header_title { max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .o_aic_dir_pill { max-width: 140px; padding: 4px 9px; }
+        .o_aic_guided_btn { padding: 4px 9px; .fa { margin-right: 0 !important; } }
+        .o_aic_hdr_task { gap: 4px; margin-left: 4px; }
+        .o_aic_chip { max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .o_aic_refresh_btn, .o_aic_bg_btn { width: 28px; height: 28px; }
+        // NOTE: no CSS min()/max() here — Odoo's libsass hijacks them as Sass
+        // builtins and crashes on calc() args; width+max-width is equivalent.
+        .o_aic_dirmenu { min-width: 0; width: calc(100vw - 24px); max-width: calc(100vw - 24px); }
+        .o_aic_bg_panel { width: calc(100vw - 24px); max-width: 320px; }
+        .o_aic_todo_panel { width: calc(100vw - 24px); max-width: 300px; }
+        .o_aic_errbar { margin: 6px 8px 0; }
+        .o_aic_working { margin: 6px 8px 0; }
+    }
+}
+@media (max-width: 420px) {
+    .o_aic_page {
+        .o_aip_header_title { display: none; }     // folder pill identifies the session
+        .o_aic_dir_pill { max-width: 120px; }
+    }
+}
+
+// ── vivid icons: header controls ────────────────────────────────────
+.o_aic_dir_pill {
+    .fa-folder-open-o, .fa-folder { color: #f59f00; }      // amber folder
+    .fa-lock { color: #e8590c; }
+    &:not(.o_aic_dir_pill--empty) { background: rgba(245, 159, 0, 0.07); }
+    &:not(.o_aic_dir_pill--empty):hover { background: rgba(245, 159, 0, 0.15); }
+}
+.o_aic_gitchip {                                            // purple git
+    border-color: rgba(111, 66, 193, 0.35);
+    background: rgba(111, 66, 193, 0.08);
+    .fa-code-fork { color: #6f42c1; }
+    .o_aic_gitbranch { color: #6f42c1; }
+}
+.o_aic_refresh_btn .fa-refresh { color: #0ca678; }          // teal refresh
+.o_aic_bg_btn .fa-tasks { color: #0d6efd; }                 // blue task manager
+.o_aic_changes_btn .fa-file-code-o { color: #0ca678; }
+// folder-picker menu entries
+.o_aic_dirmenu_item {
+    .fa-folder-o { color: #f59f00; }
+    .fa-clock-o { color: #0d6efd; }
+}
+.o_aic_dirmenu .o_aic_dirmenu_note .fa-code-fork { color: #6f42c1; }
+.o_aic_wscard_head .fa-cubes { color: #0d6efd; }
+
+// ── vivid module chips: 5-colour rotation ───────────────────────────
+$o_aic_palette: (#0d6efd, #6f42c1, #0ca678, #f59f00, #d6336c);
+@for $i from 1 through 5 {
+    .o_aic_wschips .o_aic_modchip:nth-child(5n + #{$i}) {
+        $c: nth($o_aic_palette, $i);
+        border-color: rgba($c, 0.45);
+        background: rgba($c, 0.07);
+        .fa-cube { color: $c; }
+        .o_aic_modchip_name { color: darken($c, 8%); }
+        &:hover { background: rgba($c, 0.16); border-color: $c; }
+        &.o_aic_modchip--active {
+            background: rgba($c, 0.22); border-color: $c;
+            box-shadow: 0 0 0 1px rgba($c, 0.35);
+        }
+    }
+}
+
+// ── conversation documents (spec-by-example uploads) ────────────────
+.o_aic_attachbar {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+    margin: 4px 16px 2px;
+}
+.o_aic_attach_btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px;
+    border: 1px dashed var(--border-color, #adb5bd); background: transparent;
+    border-radius: 999px; cursor: pointer; color: #6f42c1;
+    &:hover:not(:disabled) { background: rgba(111, 66, 193, 0.08); border-color: #6f42c1; }
+    &:disabled { opacity: 0.6; cursor: default; }
+}
+.o_aic_attchip {
+    display: inline-flex; align-items: center;
+    border: 1px solid rgba(111, 66, 193, 0.35);
+    background: rgba(111, 66, 193, 0.06);
+    border-radius: 999px; padding: 3px 6px 3px 10px; font-size: 12px;
+    .fa { color: #6f42c1; }
+    .o_aic_attchip_name {
+        max-width: 180px; overflow: hidden; text-overflow: ellipsis;
+        white-space: nowrap; font-weight: 600;
+    }
+    .o_aic_attchip_size { margin-left: 6px; color: var(--text-muted, #6c757d); font-size: 11px; }
+}
+.o_aic_attchip_x {
+    border: 0; background: transparent; cursor: pointer;
+    color: var(--text-muted, #6c757d); padding: 0 4px; margin-left: 2px;
+    border-radius: 50%;
+    &:hover { color: #dc3545; }
+}
+
+// ── --dev=reload warning bar (amber cousin of the error bar) ────────
+.o_aic_warnbar {
+    display: flex; align-items: flex-start; gap: 6px;
+    margin: 8px 16px 0; padding: 8px 12px;
+    background: rgba(255, 193, 7, 0.12); border: 1px solid rgba(255, 193, 7, 0.5);
+    border-radius: 8px; color: #8a6d00; font-size: 12.5px;
+    code { background: rgba(0, 0, 0, 0.06); padding: 0 4px; border-radius: 4px; }
+    .fa-exclamation-triangle { margin-top: 2px; }
+}
+
+// ── header slimming (fit one row on a normal laptop) ────────────────
+.o_aic_page .o_aip_usage_chip { display: none; }   // session tokens: long + low-value here (per-task cost lives in the task manager)
+.o_aic_page .o_aip_header_title {
+    max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    flex-shrink: 0;
+}
+.o_aic_dir_pill { max-width: 180px; }
+.o_aic_gitbranch { max-width: 90px; }
+.o_aic_guided_btn { padding: 5px 10px; .fa { margin: 0; } }
+.o_aic_chip {
+    max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    display: inline-block;
+}
+.o_aic_todo { min-width: 0; }
+.o_aic_todo_bar { width: 70px; }
+
+// ── merged composer accessory row (📎 + chips + intent + working) ───
+.o_aic_attachbar {
+    margin: 3px 16px 2px;
+    flex-wrap: wrap;
+}
+.o_aic_attachbar .o_aic_intent { margin: 0; padding: 4px 10px; }
+.o_aic_attachbar .o_aic_working {
+    margin: 0 0 0 auto;          // right-aligned, next to where you type
+    padding: 4px 12px;
+    font-size: 12px;
+}
+@media (max-width: 768px) {
+    .o_aic_page .o_aic_attachbar { margin: 3px 8px 2px; }
+    .o_aic_page .o_aic_attachbar .o_aic_working { margin-left: auto; }
+}
+
+// ── column alignment: my injected bars live in the SAME centered column
+//    as the platform's messages/composer (.o_aip_container), and the whole
+//    chat column is WIDENED on the coding page (860 → 1100px).
+.o_aic_page {
+    --aic-col: 1100px;
+
+    .o_aip_container { max-width: var(--aic-col); }
+
+    .o_aic_attachbar,
+    .o_aic_errbar,
+    .o_aic_warnbar,
+    .o_aic_wscard {
+        // 40px ≈ the inputbar's own 2×20px padding, so edges line up at any width
+        width: calc(100% - 40px);
+        max-width: var(--aic-col);
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .o_aic_attachbar { margin-top: 2px; margin-bottom: 4px; }
+    .o_aic_errbar, .o_aic_warnbar { margin-top: 8px; margin-bottom: 0; }
+    .o_aic_wscard { margin-top: 10px; margin-bottom: 0; }
+}
+
+// ── v2: activity feed + stop button + todo statuses ─────────────────────
+.o_aic_todo_item--active .o_aic_todo_sum { font-weight: 600; color: #0d6efd; }
+.o_aic_todo_item .o_aic_todo_sum { white-space: normal; }
+
+.o_aic_activity {
+    position: relative; display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 12px; cursor: pointer; font-size: 12px;
+    color: var(--text-muted, #6c757d); background: rgba(0, 0, 0, 0.04);
+    &:hover { background: rgba(0, 0, 0, 0.08); }
+}
+.o_aic_activity_count { font-size: 11px; font-weight: 600; }
+.o_aic_activity_panel {
+    display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 1050;
+    width: 420px; max-width: calc(100vw - 24px); max-height: 60vh; overflow: auto;
+    background: var(--o-view-background-color, #fff); border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 10px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); padding: 6px 0;
+    cursor: default; text-align: left;
+    &.o_aic_activity_panel--show { display: block; }
+}
+.o_aic_act {
+    display: flex; align-items: center; gap: 4px; padding: 4px 12px; font-size: 12px;
+    &--phase { color: var(--text-muted, #6c757d); font-style: italic; }
+    &--error { color: #dc3545; }
+    .o_aic_act_label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+                       font-family: var(--font-family-monospace, monospace); }
+    .o_aic_act_ms { color: var(--text-muted, #6c757d); font-size: 11px; white-space: nowrap; }
+}
+.o_aic_act--err { color: #dc3545; }
+
+.o_aic_stop_btn {
+    border: 1px solid rgba(220, 53, 69, 0.5); background: rgba(220, 53, 69, 0.08); color: #dc3545;
+    border-radius: 12px; padding: 2px 10px; font-size: 12px; cursor: pointer; line-height: 1.4;
+    &:hover:not(:disabled) { background: rgba(220, 53, 69, 0.18); }
+    &:disabled { opacity: 0.5; cursor: default; }
+}
+
+// ── v2: streamed draft bubble ─────────────────────────────────────────
+.o_aic_draft {
+    margin: 0 16px 6px; padding: 8px 12px; border-radius: 12px;
+    background: rgba(13, 110, 253, 0.06); border: 1px dashed rgba(13, 110, 253, 0.35);
+    .o_aic_draft_who { font-size: 11px; color: var(--text-muted, #6c757d); margin-bottom: 4px; }
+    .o_aic_draft_body { white-space: pre-wrap; max-height: 40vh; overflow: auto; font-size: 14px; line-height: 1.5; }
+}
+
+// ── v2: model picker ───────────────────────────────────────────────────
+.o_aic_modelpicker { position: relative; display: inline-flex; margin-left: 6px; }
+.o_aic_model_pill {
+    display: inline-flex; align-items: center; max-width: 220px; padding: 3px 10px;
+    border-radius: 14px; border: 1px solid rgba(0, 0, 0, 0.12); background: rgba(0, 0, 0, 0.03);
+    font-size: 12px; cursor: pointer; line-height: 1.5;
+    &:hover { background: rgba(0, 0, 0, 0.07); }
+    .o_aic_model_name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+.o_aic_modelmenu { min-width: 320px; }
+
+.o_aic_dirmenu_item--ro { opacity: 0.55; cursor: not-allowed; }

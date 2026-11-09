@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Full-page chat client action -->
+    <record id="action_ai_platform" model="ir.actions.client">
+        <field name="name">AI Platform</field>
+        <field name="tag">ai_chat_platform.platform</field>
+    </record>
+
+    <!-- Backend list of AI chat conversations (discuss.channel, ai_chat type) -->
+    <record id="view_discuss_channel_ai_platform_list" model="ir.ui.view">
+        <field name="name">discuss.channel.ai.platform.list</field>
+        <field name="model">discuss.channel</field>
+        <field name="arch" type="xml">
+            <list create="false" default_order="last_interest_dt desc">
+                <field name="name" string="Conversation"/>
+                <field name="ai_en_agent_id" string="Agent"/>
+                <field name="create_uid" string="Owner"/>
+                <field name="last_interest_dt" string="Last Activity"/>
+                <field name="create_date" string="Created"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_ai_platform_conversations" model="ir.actions.act_window">
+        <field name="name">AI Conversations</field>
+        <field name="res_model">discuss.channel</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_discuss_channel_ai_platform_list"/>
+        <field name="domain">[('channel_type', '=', 'ai_chat')]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No AI conversations yet</p>
+            <p>Conversations created in the AI Platform chat page will show up here.</p>
+        </field>
+    </record>
+
+    <!-- Section placed right after AI Studio (sequence 40) -->
+    <menuitem id="menu_ai_platform_root" name="AI Platform"
+              parent="ai_chatbot_enhance.ai_menu_root" sequence="45">
+        <menuitem id="menu_ai_platform_chat" name="Chat"
+                  action="action_ai_platform" sequence="10"/>
+        <menuitem id="menu_ai_platform_conversations" name="Conversations"
+                  action="action_ai_platform_conversations" sequence="20"/>
+    </menuitem>
+</odoo>

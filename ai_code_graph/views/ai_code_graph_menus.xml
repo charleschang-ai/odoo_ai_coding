@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- AI Studio > Code Graph (viewer) + Graph Data (raw tables) -->
+    <menuitem id="menu_ai_studio_code_graph"
+              name="Code Graph"
+              parent="ai_chatbot_enhance.menu_ai_studio"
+              action="action_ai_code_graph"
+              sequence="40"/>
+
+    <menuitem id="menu_ai_studio_code_graph_data"
+              name="Graph Data"
+              parent="ai_chatbot_enhance.menu_ai_studio"
+              sequence="50">
+        <menuitem id="menu_ai_code_node" name="Nodes"
+                  action="action_ai_code_node" sequence="10"/>
+        <menuitem id="menu_ai_code_edge" name="Edges"
+                  action="action_ai_code_edge" sequence="20"/>
+    </menuitem>
+
+</odoo>

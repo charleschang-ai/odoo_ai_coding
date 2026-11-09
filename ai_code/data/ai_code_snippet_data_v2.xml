@@ -1,0 +1,901 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Odoo 19 idiom library, part 2 (2026-09-02). Every snippet was checked
+         against the Odoo 19 source tree (core signatures, view tags, data
+         fields). Keep them SHORT and CORRECT: a wrong idiom is copied as truth. -->
+
+    <!-- ══════════════ MODEL ══════════════ -->
+    <record id="snippet_model_relations" model="ai.code.snippet">
+        <field name="topic">many2one one2many many2many relation inverse ondelete domain</field>
+        <field name="title">Relational fields: Many2one / One2many / Many2many done right</field>
+        <field name="artifact_type">model</field>
+        <field name="sequence">12</field>
+        <field name="source_ref">ai_code curated (Odoo 19)</field>
+        <field name="code"><![CDATA[
+class LibraryBook(models.Model):
+    _name = 'library.book'
+    _description = 'Library Book'
+
+    # Many2one: ondelete is MANDATORY thinking — 'restrict' protects data,
+    # 'cascade' deletes children, 'set null' (default) orphans the link.
+    author_id = fields.Many2one('res.partner', string='Author', ondelete='restrict',
+                                domain="[('is_company', '=', False)]", index=True)
+    company_id = fields.Many2one('res.company', default=lambda self: self.env.company)
+    # One2many needs the inverse Many2one on the OTHER model (book_id below)
+    loan_ids = fields.One2many('library.loan', 'book_id', string='Loans')
+    loan_count = fields.Integer(compute='_compute_loan_count')
+    # Many2many: name the relation table explicitly when two M2M link the same models
+    tag_ids = fields.Many2many('library.tag', 'library_book_tag_rel', 'book_id', 'tag_id',
+                               string='Tags')
+
+    @api.depends('loan_ids')
+    def _compute_loan_count(self):
+        # batch-friendly: ONE query for the whole recordset, never search() per record
+        counts = dict(self.env['library.loan']._read_group(
+            [('book_id', 'in', self.ids)], ['book_id'], ['__count']))
+        for book in self:
+            book.loan_count = counts.get(book, 0)
+
+
+class LibraryLoan(models.Model):
+    _name = 'library.loan'
+    _description = 'Library Loan'
+    _order = 'date_start desc, id desc'
+
+    book_id = fields.Many2one('library.book', required=True, ondelete='cascade', index=True)
+    partner_id = fields.Many2one('res.partner', string='Borrower', required=True)
+    date_start = fields.Date(default=fields.Date.context_today, required=True)
+    # related/related-stored: read-through to the parent, no duplicate data
+    book_author_id = fields.Many2one(related='book_id.author_id', string='Author')
+]]></field>
+    </record>
+
+    <record id="snippet_model_workflow" model="ai.code.snippet">
+        <field name="topic">state workflow buttons action confirm cancel sequence name create</field>
+        <field name="title">State workflow + button methods + sequence number on create</field>
+        <field name="artifact_type">model</field>
+        <field name="sequence">12</field>
+        <field name="source_ref">ai_code curated (Odoo 19; sale.order pattern)</field>
+        <field name="code"><![CDATA[
+class PurchaseRequest(models.Model):
+    _name = 'x.purchase.request'
+    _description = 'Purchase Request'
+    _inherit = ['mail.thread', 'mail.activity.mixin']   # chatter + tracking
+
+    name = fields.Char(default=lambda self: _('New'), copy=False, readonly=True)
+    state = fields.Selection([
+        ('draft', 'Draft'), ('confirmed', 'Confirmed'), ('done', 'Done'), ('cancel', 'Cancelled'),
+    ], default='draft', required=True, tracking=True, copy=False)
+
+    @api.model_create_multi            # Odoo 13+: create() ALWAYS takes a list of dicts
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('name', _('New')) == _('New'):
+                vals['name'] = self.env['ir.sequence'].next_by_code('x.purchase.request') or _('New')
+        return super().create(vals_list)
+
+    # button methods: type="object" in the view, act on self (a recordset!)
+    def action_confirm(self):
+        for rec in self:
+            if rec.state != 'draft':
+                raise UserError(_("Only draft requests can be confirmed."))
+            rec.state = 'confirmed'
+        return True
+
+    def action_cancel(self):
+        self.filtered(lambda r: r.state != 'done').write({'state': 'cancel'})
+
+    def action_reset_draft(self):
+        self.write({'state': 'draft'})
+
+    def unlink(self):
+        if any(rec.state not in ('draft', 'cancel') for rec in self):
+            raise UserError(_("You can only delete draft or cancelled requests."))
+        return super().unlink()
+
+# data/ir_sequence_data.xml (noupdate="1"):
+# <record id="seq_x_purchase_request" model="ir.sequence">
+#     <field name="name">Purchase Request</field>
+#     <field name="code">x.purchase.request</field>
+#     <field name="prefix">PR/%(year)s/</field>
+#     <field name="padding">5</field>
+#     <field name="company_id" eval="False"/>
+# </record>
+]]></field>
+    </record>
+
+    <record id="snippet_model_read_group" model="ai.code.snippet">
+        <field name="topic">read_group aggregate group by sum count statistics report data</field>
+        <field name="title">Aggregation: _read_group (Odoo 17+ signature) and read_group</field>
+        <field name="artifact_type">model</field>
+        <field name="sequence">14</field>
+        <field name="source_ref">odoo/orm/models.py Odoo 19</field>
+        <field name="code"><![CDATA[
+# Odoo 17+: _read_group(domain, groupby=(), aggregates=(), having=(), offset=0, limit=None, order=None)
+# returns a list of TUPLES: (groupby values..., aggregate values...)
+rows = self.env['sale.order']._read_group(
+    [('state', '=', 'sale'), ('date_order', '>=', date_from)],
+    ['partner_id', 'date_order:month'],                    # groupby (with granularity)
+    ['amount_total:sum', '__count'],                       # aggregates
+    order='amount_total:sum desc', limit=10)
+for partner, month, amount_sum, count in rows:
+    ...   # partner is a res.partner RECORD, month a date
+
+# the public read_group (dicts, like the old API) still exists for RPC/UI code:
+data = self.env['sale.order'].read_group(
+    [('state', '=', 'sale')], ['amount_total:sum'], ['partner_id'], lazy=False)
+# -> [{'partner_id': (id, 'Name'), 'amount_total': 1234.0, '__count': 3, '__domain': [...]}, ...]
+
+# Dashboard method: sudo() the reads, return EVERYTHING the UI shows
+@api.model
+def get_dashboard_data(self, days=30):
+    Order = self.env['sale.order'].sudo()
+    date_from = fields.Date.today() - timedelta(days=days)
+    rows = Order._read_group([('date_order', '>=', date_from)], ['partner_id'],
+                             ['amount_total:sum', '__count'])
+    return {
+        'kpis': {'orders': sum(c for _p, _a, c in rows), 'revenue': sum(a for _p, a, _c in rows)},
+        'by_partner': [{'label': p.display_name, 'value': a} for p, a, _c in rows],
+    }
+]]></field>
+    </record>
+
+    <record id="snippet_model_sql_view" model="ai.code.snippet">
+        <field name="topic">sql view report model _auto False init analysis statistics</field>
+        <field name="title">SQL view model (_auto = False) for reporting</field>
+        <field name="artifact_type">model</field>
+        <field name="sequence">16</field>
+        <field name="source_ref">ai_code curated (Odoo 19; sale.report pattern)</field>
+        <field name="code"><![CDATA[
+from odoo import api, fields, models, tools
+
+
+class LibraryLoanReport(models.Model):
+    _name = 'library.loan.report'
+    _description = 'Loan Analysis'
+    _auto = False            # no table: backed by the SQL view below
+    _rec_name = 'book_id'
+    _order = 'date_start desc'
+
+    book_id = fields.Many2one('library.book', readonly=True)
+    partner_id = fields.Many2one('res.partner', readonly=True)
+    date_start = fields.Date(readonly=True)
+    nb_loans = fields.Integer(readonly=True)
+
+    def init(self):
+        tools.drop_view_if_exists(self.env.cr, self._table)
+        self.env.cr.execute(f"""
+            CREATE OR REPLACE VIEW {self._table} AS (
+                SELECT min(l.id) AS id, l.book_id, l.partner_id, l.date_start,
+                       count(*) AS nb_loans
+                FROM library_loan l
+                GROUP BY l.book_id, l.partner_id, l.date_start
+            )""")
+
+# Views for it: <list> / <graph> / <pivot>; ir.model.access.csv line with perm_read only.
+# NEVER write/search_read business fields "on the view model" from JS expecting a table —
+# aggregate in Python from the real model when the view is not enough.
+]]></field>
+    </record>
+
+    <record id="snippet_model_defaults_onchange" model="ai.code.snippet">
+        <field name="topic">default_get context default onchange compute readonly false copy</field>
+        <field name="title">Defaults, onchange vs compute(readonly=False), copy()</field>
+        <field name="artifact_type">model</field>
+        <field name="sequence">16</field>
+        <field name="source_ref">ai_code curated (Odoo 19)</field>
+        <field name="code"><![CDATA[
+class LibraryLoan(models.Model):
+    _name = 'library.loan'
+    _description = 'Library Loan'
+
+    book_id = fields.Many2one('library.book', required=True)
+    # PREFERRED over @api.onchange: a computed field that the user may still edit
+    # (store=True, readonly=False). Works in the UI AND in create()/write() from code.
+    date_due = fields.Date(compute='_compute_date_due', store=True, readonly=False)
+    note = fields.Text()
+
+    @api.depends('book_id')
+    def _compute_date_due(self):
+        for loan in self:
+            loan.date_due = fields.Date.context_today(loan) + timedelta(days=14)
+
+    # @api.onchange is UI-only (not triggered by code) — reserve it for warnings/domains
+    @api.onchange('book_id')
+    def _onchange_book_id(self):
+        if self.book_id and self.book_id.state == 'borrowed':
+            return {'warning': {'title': _("Already out"),
+                                'message': _("This book is currently borrowed.")}}
+
+    @api.model
+    def default_get(self, fields_list):
+        defaults = super().default_get(fields_list)
+        # context defaults from an action: context="{'default_book_id': active_id}"
+        if 'note' in fields_list and not defaults.get('note'):
+            defaults['note'] = _("Standard 14-day loan")
+        return defaults
+
+    def copy(self, default=None):
+        default = dict(default or {}, note=_("%s (copy)", self.note or ''))
+        return super().copy(default)
+]]></field>
+    </record>
+
+    <record id="snippet_model_multicompany_search" model="ai.code.snippet">
+        <field name="topic">multi company currency monetary name search rec_names_search</field>
+        <field name="title">Multi-company + Monetary fields + name search</field>
+        <field name="artifact_type">model</field>
+        <field name="sequence">18</field>
+        <field name="source_ref">ai_code curated (Odoo 19)</field>
+        <field name="code"><![CDATA[
+class Membership(models.Model):
+    _name = 'x.membership'
+    _description = 'Membership'
+    _check_company_auto = True             # validates company consistency of M2O with check_company
+    _rec_name = 'code'
+    _rec_names_search = ['code', 'partner_id.name']   # what name_search / the M2O autocomplete matches
+
+    code = fields.Char(required=True, index='trigram')
+    company_id = fields.Many2one('res.company', required=True, default=lambda self: self.env.company)
+    currency_id = fields.Many2one('res.currency', related='company_id.currency_id')
+    fee = fields.Monetary(currency_field='currency_id')     # Monetary ALWAYS needs currency_field
+    partner_id = fields.Many2one('res.partner', check_company=True)
+
+    _code_company_uniq = models.Constraint(
+        'UNIQUE(code, company_id)', "The code must be unique per company.")
+
+# security/ir_rule.xml — restrict records to the user's allowed companies:
+# <record id="x_membership_company_rule" model="ir.rule">
+#     <field name="name">Membership: multi-company</field>
+#     <field name="model_id" ref="model_x_membership"/>
+#     <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+# </record>
+]]></field>
+    </record>
+
+    <record id="snippet_model_mail_activity" model="ai.code.snippet">
+        <field name="topic">send email template activity schedule message post notify</field>
+        <field name="title">Sending mail / posting messages / scheduling activities from code</field>
+        <field name="artifact_type">model</field>
+        <field name="sequence">18</field>
+        <field name="source_ref">ai_code curated (Odoo 19 mail)</field>
+        <field name="code"><![CDATA[
+# model must _inherit = ['mail.thread', 'mail.activity.mixin']
+def action_send_reminder(self):
+    self.ensure_one()
+    template = self.env.ref('x_library.mail_template_loan_reminder', raise_if_not_found=False)
+    if template:
+        template.send_mail(self.id, force_send=True)          # uses template.partner_to/email_to
+    # a note in the chatter (no email):
+    self.message_post(body=_("Reminder sent to %s", self.partner_id.display_name),
+                      message_type='comment', subtype_xmlid='mail.mt_note')
+    # a to-do for a user:
+    self.activity_schedule('mail.mail_activity_data_todo',
+                           date_deadline=fields.Date.today() + timedelta(days=3),
+                           summary=_("Follow up loan"), user_id=self.env.user.id)
+
+# data/mail_template_data.xml:
+# <record id="mail_template_loan_reminder" model="mail.template">
+#     <field name="name">Library: Loan Reminder</field>
+#     <field name="model_id" ref="model_library_loan"/>
+#     <field name="subject">Reminder: {{ object.book_id.name }}</field>
+#     <field name="partner_to">{{ object.partner_id.id }}</field>
+#     <field name="body_html" type="html">
+# <div>Dear <t t-out="object.partner_id.name"/>, please return <t t-out="object.book_id.name"/>.</div>
+#     </field>
+# </record>
+]]></field>
+    </record>
+
+    <record id="snippet_model_errors_logging" model="ai.code.snippet">
+        <field name="topic">exception UserError ValidationError logger translation _ env._ ensure_one</field>
+        <field name="title">Errors, logging and translations in Odoo 19 Python</field>
+        <field name="artifact_type">model</field>
+        <field name="sequence">20</field>
+        <field name="source_ref">ai_code curated (Odoo 19)</field>
+        <field name="code"><![CDATA[
+import logging
+from odoo import api, fields, models, _
+from odoo.exceptions import UserError, ValidationError, AccessError
+
+_logger = logging.getLogger(__name__)      # module-level, once per file
+
+class Thing(models.Model):
+    _name = 'x.thing'
+    _description = 'Thing'
+
+    qty = fields.Float()
+
+    @api.constrains('qty')
+    def _check_qty(self):
+        for rec in self:
+            if rec.qty < 0:
+                # ValidationError for data-integrity rules (shown in the UI, rolls back)
+                raise ValidationError(_("Quantity must be positive, got %s.", rec.qty))
+
+    def action_do(self):
+        self.ensure_one()                      # singleton guard before using self.<field>
+        if not self.env.user.has_group('base.group_system'):
+            raise AccessError(_("Only administrators can do this."))
+        try:
+            ...
+        except Exception:                      # never a bare `except: pass`
+            _logger.exception("x_thing: action_do failed for %s", self.id)
+            raise UserError(_("The operation failed; see the server log."))
+
+# Translations: `_("text %s", value)` — formatting args go INTO the call (lazy-safe).
+# In model methods `self.env._("...")` is equivalent. Never f-string inside _().
+]]></field>
+    </record>
+
+    <!-- ══════════════ VIEW ══════════════ -->
+    <record id="snippet_view_form_full" model="ai.code.snippet">
+        <field name="topic">form view header statusbar buttons notebook one2many editable list widget</field>
+        <field name="title">Full form view: header buttons, statusbar, notebook, editable O2M list</field>
+        <field name="artifact_type">view</field>
+        <field name="sequence">12</field>
+        <field name="source_ref">ai_code curated (Odoo 19)</field>
+        <field name="code"><![CDATA[
+<record id="view_x_purchase_request_form" model="ir.ui.view">
+    <field name="name">x.purchase.request.form</field>
+    <field name="model">x.purchase.request</field>
+    <field name="arch" type="xml">
+        <form>
+            <header>
+                <button name="action_confirm" type="object" string="Confirm" class="btn-primary"
+                        invisible="state != 'draft'"/>
+                <button name="action_cancel" type="object" string="Cancel"
+                        invisible="state in ('done', 'cancel')" confirm="Cancel this request?"/>
+                <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done"/>
+            </header>
+            <sheet>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_view_lines" type="object" class="oe_stat_button" icon="fa-list">
+                        <field name="line_count" widget="statinfo" string="Lines"/>
+                    </button>
+                </div>
+                <div class="oe_title">
+                    <h1><field name="name" readonly="1"/></h1>
+                </div>
+                <group>
+                    <group>
+                        <field name="partner_id" options="{'no_create': True}"/>
+                        <field name="date_request"/>
+                    </group>
+                    <group>
+                        <field name="user_id" widget="many2one_avatar_user"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="Lines" name="lines">
+                        <field name="line_ids" readonly="state != 'draft'">
+                            <list editable="bottom">
+                                <field name="product_id"/>
+                                <field name="qty"/>
+                                <field name="price_unit"/>
+                                <field name="subtotal" sum="Total"/>
+                            </list>
+                        </field>
+                    </page>
+                    <page string="Notes" name="notes">
+                        <field name="note" placeholder="Internal notes..."/>
+                    </page>
+                </notebook>
+            </sheet>
+            <chatter/>    <!-- Odoo 18+; the model must inherit mail.thread -->
+        </form>
+    </field>
+</record>
+]]></field>
+    </record>
+
+    <record id="snippet_view_list_widgets" model="ai.code.snippet">
+        <field name="topic">list view decoration optional widget badge handle sum groupby default order</field>
+        <field name="title">List view: decorations, optional columns, widgets, sums; widget cheat sheet</field>
+        <field name="artifact_type">view</field>
+        <field name="sequence">14</field>
+        <field name="source_ref">ai_code curated (Odoo 19)</field>
+        <field name="code"><![CDATA[
+<record id="view_library_loan_list" model="ir.ui.view">
+    <field name="name">library.loan.list</field>
+    <field name="model">library.loan</field>
+    <field name="arch" type="xml">
+        <list decoration-danger="date_due and date_due &lt; current_date and state == 'out'"
+              decoration-muted="state == 'returned'" default_order="date_start desc"
+              multi_edit="1" sample="1">
+            <field name="sequence" widget="handle"/>          <!-- drag to reorder (Integer field 'sequence') -->
+            <field name="book_id"/>
+            <field name="partner_id" widget="many2one_avatar"/>
+            <field name="date_start"/>
+            <field name="date_due" optional="show"/>
+            <field name="amount" sum="Total" optional="hide"/>
+            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+            <field name="state" widget="badge" decoration-success="state == 'returned'"
+                   decoration-warning="state == 'out'"/>
+            <button name="action_return" type="object" string="Return" icon="fa-undo"
+                    invisible="state != 'out'"/>
+        </list>
+    </field>
+</record>
+
+<!-- Widget cheat sheet (Odoo 19):
+  Char/Text: email, phone, url, CopyClipboardChar, text (multiline), html
+  Numbers:   monetary (needs currency_field), percentage, progressbar, float_time, integer
+  Dates:     date, datetime, remaining_days, daterange (options start/end)
+  Selection: badge, statusbar (statusbar_visible=...), priority (Selection '0'..'3'), state_selection
+  Boolean:   boolean_toggle, boolean_favorite
+  Relational: many2one_avatar_user, many2one_avatar, many2many_tags, many2many_checkboxes,
+              many2many_avatar_user, many2many_binary, one2many (default), radio, selection
+  Binary:    image (options={'size': [90, 90]}), pdf_viewer, binary
+  Misc:      handle, statinfo (stat buttons), color_picker, ace (code), signature
+-->
+]]></field>
+    </record>
+
+    <record id="snippet_view_graph_pivot_calendar" model="ai.code.snippet">
+        <field name="topic">graph pivot calendar activity view action view_mode</field>
+        <field name="title">Graph / pivot / calendar views + action view_mode</field>
+        <field name="artifact_type">view</field>
+        <field name="sequence">18</field>
+        <field name="source_ref">ai_code curated (Odoo 19)</field>
+        <field name="code"><![CDATA[
+<record id="view_library_loan_graph" model="ir.ui.view">
+    <field name="name">library.loan.graph</field>
+    <field name="model">library.loan</field>
+    <field name="arch" type="xml">
+        <graph string="Loans" type="bar" sample="1">
+            <field name="date_start" interval="month"/>
+            <field name="amount" type="measure"/>
+        </graph>
+    </field>
+</record>
+
+<record id="view_library_loan_pivot" model="ir.ui.view">
+    <field name="name">library.loan.pivot</field>
+    <field name="model">library.loan</field>
+    <field name="arch" type="xml">
+        <pivot string="Loans" sample="1">
+            <field name="partner_id" type="row"/>
+            <field name="date_start" interval="month" type="col"/>
+            <field name="amount" type="measure"/>
+        </pivot>
+    </field>
+</record>
+
+<record id="view_library_loan_calendar" model="ir.ui.view">
+    <field name="name">library.loan.calendar</field>
+    <field name="model">library.loan</field>
+    <field name="arch" type="xml">
+        <calendar date_start="date_start" date_stop="date_due" color="partner_id" mode="month"
+                  quick_create="0">
+            <field name="book_id"/>
+            <field name="partner_id"/>
+        </calendar>
+    </field>
+</record>
+
+<record id="action_library_loan" model="ir.actions.act_window">
+    <field name="name">Loans</field>
+    <field name="res_model">library.loan</field>
+    <field name="view_mode">list,kanban,form,calendar,graph,pivot</field>   <!-- 'list' not 'tree' -->
+    <field name="context">{'search_default_group_state': 1}</field>
+    <field name="help" type="html"><p class="o_view_nocontent_smiling_face">No loan yet</p></field>
+</record>
+]]></field>
+    </record>
+
+    <!-- ══════════════ SECURITY ══════════════ -->
+    <record id="snippet_security_record_rules" model="ai.code.snippet">
+        <field name="topic">record rule own records multi company ir.rule domain_force groups</field>
+        <field name="title">Record rules: own records / multi-company / manager sees all</field>
+        <field name="artifact_type">security</field>
+        <field name="sequence">12</field>
+        <field name="source_ref">addons/project/security/project_security.xml (Odoo 19)</field>
+        <field name="code"><![CDATA[
+<!-- security/x_library_security.xml — load BEFORE ir.model.access.csv in the manifest -->
+<odoo>
+    <record id="res_groups_privilege_library" model="res.groups.privilege">
+        <field name="name">Library</field>
+        <field name="sequence">50</field>
+        <field name="category_id" ref="base.module_category_services"/>
+    </record>
+    <record id="group_library_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="privilege_id" ref="res_groups_privilege_library"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+    <record id="group_library_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="privilege_id" ref="res_groups_privilege_library"/>
+        <field name="implied_ids" eval="[(4, ref('group_library_user'))]"/>
+    </record>
+
+    <!-- users see only their own loans; managers see all (rules of a user's groups are OR-ed) -->
+    <record id="library_loan_rule_user" model="ir.rule">
+        <field name="name">Loan: own records</field>
+        <field name="model_id" ref="model_library_loan"/>
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_library_user'))]"/>
+    </record>
+    <record id="library_loan_rule_manager" model="ir.rule">
+        <field name="name">Loan: manager sees all</field>
+        <field name="model_id" ref="model_library_loan"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_library_manager'))]"/>
+    </record>
+    <!-- global rule (no groups): applies to everyone, AND-ed with the group rules -->
+    <record id="library_loan_rule_company" model="ir.rule">
+        <field name="name">Loan: multi-company</field>
+        <field name="model_id" ref="model_library_loan"/>
+        <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+    </record>
+</odoo>
+]]></field>
+    </record>
+
+    <!-- ══════════════ DATA ══════════════ -->
+    <record id="snippet_data_server_action_params" model="ai.code.snippet">
+        <field name="topic">server action ir.actions.server code binding config parameter demo data</field>
+        <field name="title">Server action (contextual "Action" menu), config parameter, demo data</field>
+        <field name="artifact_type">data</field>
+        <field name="sequence">14</field>
+        <field name="source_ref">ai_code curated (Odoo 19)</field>
+        <field name="code"><![CDATA[
+<odoo>
+    <!-- "Action" dropdown entry on the model's list/form (binding_model_id) -->
+    <record id="action_server_mark_returned" model="ir.actions.server">
+        <field name="name">Mark as Returned</field>
+        <field name="model_id" ref="model_library_loan"/>
+        <field name="binding_model_id" ref="model_library_loan"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">records.action_return()</field>   <!-- `records` = selected recordset -->
+    </record>
+
+    <!-- system parameter with a default (read with get_param) -->
+    <record id="param_library_loan_days" model="ir.config_parameter">
+        <field name="key">x_library.loan_days</field>
+        <field name="value">14</field>
+    </record>
+</odoo>
+
+<!-- demo/library_demo.xml — listed under 'demo' in the manifest, loaded only with demo data -->
+<odoo>
+    <record id="book_demo_1" model="library.book">
+        <field name="name">Odoo Development Essentials</field>
+        <field name="author_id" ref="base.res_partner_1"/>
+        <field name="tag_ids" eval="[(6, 0, [ref('tag_demo_tech')])]"/>
+    </record>
+</odoo>
+]]></field>
+    </record>
+
+    <!-- ══════════════ REPORT ══════════════ -->
+    <record id="snippet_report_action_paperformat" model="ai.code.snippet">
+        <field name="topic">report action binding print paperformat report_name template external_layout</field>
+        <field name="title">PDF report: action + template + paperformat (checked against sale)</field>
+        <field name="artifact_type">report</field>
+        <field name="sequence">12</field>
+        <field name="source_ref">addons/sale/report/ir_actions_report.xml (Odoo 19)</field>
+        <field name="code"><![CDATA[
+<odoo>
+    <record id="paperformat_library_a5" model="report.paperformat">
+        <field name="name">Library A5</field>
+        <field name="format">A5</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">20</field>
+        <field name="margin_bottom">20</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_spacing">10</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- shows under the record's Print menu (binding_model_id + binding_type) -->
+    <record id="action_report_library_loan" model="ir.actions.report">
+        <field name="name">Loan Slip</field>
+        <field name="model">library.loan</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">x_library.report_loan_slip</field>     <!-- module.template_id -->
+        <field name="report_file">x_library.report_loan_slip</field>
+        <field name="print_report_name">'Loan - %s' % (object.book_id.name)</field>
+        <field name="binding_model_id" ref="model_library_loan"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_library_a5"/>
+    </record>
+
+    <template id="report_loan_slip">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Loan <span t-field="doc.book_id.name"/></h2>
+                        <p>Borrower: <span t-field="doc.partner_id"/></p>
+                        <p>Due: <span t-field="doc.date_due" t-options="{'widget': 'date'}"/></p>
+                        <table class="table table-sm">
+                            <tr t-foreach="doc.line_ids" t-as="line">
+                                <td t-out="line.name"/><td class="text-end" t-out="line.qty"/>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
+]]></field>
+    </record>
+
+    <!-- ══════════════ CONTROLLER ══════════════ -->
+    <record id="snippet_controller_website_download" model="ai.code.snippet">
+        <field name="topic">controller website page template download file http response public auth</field>
+        <field name="title">Website page controller + file download response</field>
+        <field name="artifact_type">controller</field>
+        <field name="sequence">14</field>
+        <field name="source_ref">addons/website/controllers/main.py (Odoo 19)</field>
+        <field name="code"><![CDATA[
+from odoo import http
+from odoo.http import request
+
+
+class LibraryWebsite(http.Controller):
+
+    # website page rendering a QWeb template (module 'website' in depends)
+    @http.route('/library/books', type='http', auth='public', website=True, sitemap=True)
+    def books(self, **kw):
+        books = request.env['library.book'].sudo().search([('state', '=', 'available')])
+        return request.render('x_library.website_books', {'books': books})
+
+    # JSON endpoint (Odoo 18+: type='jsonrpc', the body is JSON-RPC)
+    @http.route('/library/api/books', type='jsonrpc', auth='user', methods=['POST'])
+    def api_books(self, limit=20, **kw):
+        return request.env['library.book'].search_read([], ['name', 'state'], limit=limit)
+
+    # file download
+    @http.route('/library/export/<int:book_id>', type='http', auth='user')
+    def export(self, book_id, **kw):
+        book = request.env['library.book'].browse(book_id).exists()
+        if not book:
+            return request.not_found()
+        data = f"name,state\n{book.name},{book.state}\n".encode()
+        return request.make_response(data, headers=[
+            ('Content-Type', 'text/csv'),
+            ('Content-Disposition', http.content_disposition(f'book_{book.id}.csv')),
+        ])
+
+# website template (views/website_templates.xml):
+# <template id="website_books" name="Books">
+#     <t t-call="website.layout">
+#         <div class="container my-4">
+#             <t t-foreach="books" t-as="book"><p t-esc="book.name"/></t>
+#         </div>
+#     </t>
+# </template>
+]]></field>
+    </record>
+
+    <!-- ══════════════ JS / OWL ══════════════ -->
+    <record id="snippet_js_field_widget" model="ai.code.snippet">
+        <field name="topic">field widget custom owl registry fields extractProps supportedTypes</field>
+        <field name="title">Custom field widget (registry "fields") — Odoo 19</field>
+        <field name="artifact_type">js</field>
+        <field name="sequence">14</field>
+        <field name="source_ref">addons/web/static/src/views/fields/char/char_field.js (Odoo 19)</field>
+        <field name="code"><![CDATA[
+/** @odoo-module **/
+// static/src/fields/rating_stars/rating_stars.js
+import { Component } from "@odoo/owl";
+import { registry } from "@web/core/registry";
+import { standardFieldProps } from "@web/views/fields/standard_field_props";
+import { _t } from "@web/core/l10n/translation";
+
+export class RatingStarsField extends Component {
+    static template = "x_library.RatingStarsField";      // t-name in the .xml MUST match
+    static props = { ...standardFieldProps, max: { type: Number, optional: true } };
+
+    get value() {
+        return this.props.record.data[this.props.name] || 0;
+    }
+    setValue(n) {
+        this.props.record.update({ [this.props.name]: n });   // writes through the record
+    }
+}
+
+export const ratingStarsField = {
+    component: RatingStarsField,
+    displayName: _t("Rating Stars"),
+    supportedTypes: ["integer"],
+    extractProps: ({ options }) => ({ max: options.max || 5 }),
+};
+registry.category("fields").add("rating_stars", ratingStarsField);
+
+// static/src/fields/rating_stars/rating_stars.xml
+// <templates xml:space="preserve">
+//   <t t-name="x_library.RatingStarsField">
+//     <span t-foreach="[1,2,3,4,5]" t-as="n" t-key="n" class="fa"
+//           t-att-class="n &lt;= value ? 'fa-star' : 'fa-star-o'"
+//           t-on-click="() => this.setValue(n)"/>
+//   </t>
+// </templates>
+// View: <field name="rating" widget="rating_stars" options="{'max': 5}"/>
+// Manifest: 'assets': {'web.assets_backend': ['x_library/static/src/**/*']}
+]]></field>
+    </record>
+
+    <record id="snippet_js_services_systray" model="ai.code.snippet">
+        <field name="topic">owl services orm action notification rpc systray useService onWillStart</field>
+        <field name="title">Using services in OWL (orm, action, notification) + a systray item</field>
+        <field name="artifact_type">js</field>
+        <field name="sequence">16</field>
+        <field name="source_ref">ai_code curated (Odoo 19 web)</field>
+        <field name="code"><![CDATA[
+/** @odoo-module **/
+import { Component, onWillStart, useState } from "@odoo/owl";
+import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
+import { _t } from "@web/core/l10n/translation";
+
+export class LoanSystray extends Component {
+    static template = "x_library.LoanSystray";
+    static props = {};
+
+    setup() {
+        this.orm = useService("orm");
+        this.action = useService("action");
+        this.notification = useService("notification");
+        this.state = useState({ count: 0 });
+        onWillStart(async () => {
+            // orm.call(model, method, args, kwargs) -> a @api.model / record method
+            this.state.count = await this.orm.call("library.loan", "get_overdue_count", []);
+        });
+    }
+
+    openOverdue() {
+        this.action.doAction({
+            type: "ir.actions.act_window",
+            name: _t("Overdue loans"),
+            res_model: "library.loan",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["state", "=", "out"], ["date_due", "<", luxon.DateTime.now().toISODate()]],
+        });
+    }
+
+    async remind() {
+        await this.orm.call("library.loan", "action_send_all_reminders", []);
+        this.notification.add(_t("Reminders sent"), { type: "success" });
+    }
+}
+registry.category("systray").add("x_library.loan_systray", { Component: LoanSystray }, { sequence: 50 });
+
+// Other services: useService("rpc") is GONE in 17+ — use `import { rpc } from "@web/core/network/rpc"`
+// for raw routes; useService("user") -> `import { user } from "@web/core/user"` (user.userId, user.hasGroup()).
+]]></field>
+    </record>
+
+    <!-- ══════════════ WIZARD ══════════════ -->
+    <record id="snippet_wizard_active_ids" model="ai.code.snippet">
+        <field name="topic">wizard active_ids default_get selected records batch action transient</field>
+        <field name="title">Wizard acting on the selected records (active_ids) + return actions</field>
+        <field name="artifact_type">wizard</field>
+        <field name="sequence">12</field>
+        <field name="source_ref">ai_code curated (Odoo 19)</field>
+        <field name="code"><![CDATA[
+class LoanReturnWizard(models.TransientModel):
+    _name = 'library.loan.return.wizard'
+    _description = 'Return Loans'
+
+    loan_ids = fields.Many2many('library.loan', string='Loans')
+    date_return = fields.Date(default=fields.Date.context_today, required=True)
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        # opened from the list "Action" menu / a button: the selection is in the context
+        if self.env.context.get('active_model') == 'library.loan':
+            res['loan_ids'] = [(6, 0, self.env.context.get('active_ids', []))]
+        return res
+
+    def action_confirm(self):
+        self.ensure_one()
+        self.loan_ids.write({'state': 'returned', 'date_return': self.date_return})
+        # close the dialog (or return an act_window to open something)
+        return {'type': 'ir.actions.act_window_close'}
+
+# views/wizard_views.xml
+# <record id="view_loan_return_wizard_form" model="ir.ui.view">
+#     <field name="name">library.loan.return.wizard.form</field>
+#     <field name="model">library.loan.return.wizard</field>
+#     <field name="arch" type="xml">
+#         <form>
+#             <group><field name="date_return"/><field name="loan_ids" widget="many2many_tags"/></group>
+#             <footer>
+#                 <button name="action_confirm" type="object" string="Return" class="btn-primary"/>
+#                 <button string="Cancel" class="btn-secondary" special="cancel"/>
+#             </footer>
+#         </form>
+#     </field>
+# </record>
+# <record id="action_loan_return_wizard" model="ir.actions.act_window">
+#     <field name="name">Return Loans</field>
+#     <field name="res_model">library.loan.return.wizard</field>
+#     <field name="view_mode">form</field>
+#     <field name="target">new</field>
+#     <field name="binding_model_id" ref="model_library_loan"/>   <!-- list "Action" menu -->
+#     <field name="binding_view_types">list</field>
+# </record>
+# ir.model.access.csv needs a line for the TransientModel too.
+]]></field>
+    </record>
+
+    <!-- ══════════════ TEST ══════════════ -->
+    <record id="snippet_test_httpcase_tour" model="ai.code.snippet">
+        <field name="topic">test http case tour frontend js test_tags at_install post_install</field>
+        <field name="title">Tests: tagged post_install, HttpCase tour, test data setup</field>
+        <field name="artifact_type">test</field>
+        <field name="sequence">12</field>
+        <field name="source_ref">addons/project/tests (Odoo 19)</field>
+        <field name="code"><![CDATA[
+# tests/__init__.py: from . import test_loan
+# tests/test_loan.py
+from odoo.tests import TransactionCase, HttpCase, tagged
+from odoo.exceptions import UserError
+
+
+@tagged('post_install', '-at_install')       # run after ALL modules are installed
+class TestLoan(TransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.book = cls.env['library.book'].create({'name': 'Test Book'})
+        cls.partner = cls.env['res.partner'].create({'name': 'Reader'})
+
+    def test_loan_flow(self):
+        loan = self.env['library.loan'].create({'book_id': self.book.id, 'partner_id': self.partner.id})
+        loan.action_confirm()
+        self.assertEqual(loan.state, 'out')
+        self.assertEqual(self.book.state, 'borrowed')
+        with self.assertRaises(UserError):
+            loan.unlink()
+
+
+@tagged('post_install', '-at_install')
+class TestLoanTour(HttpCase):
+    def test_tour(self):
+        # static/tests/tours/loan_tour.js registers "x_library_loan_tour" in registry.category("web_tour.tours")
+        self.start_tour('/odoo', 'x_library_loan_tour', login='admin')
+
+# run: odoo-bin -d db -u x_library --test-enable --test-tags /x_library --stop-after-init
+]]></field>
+    </record>
+
+    <!-- ══════════════ MENU ══════════════ -->
+    <record id="snippet_menu_root_icon_groups" model="ai.code.snippet">
+        <field name="topic">root menu app icon web_icon groups sequence submenu</field>
+        <field name="title">App root menu with icon + group-gated submenus</field>
+        <field name="artifact_type">menu</field>
+        <field name="sequence">12</field>
+        <field name="source_ref">addons/project/views/project_menus.xml (Odoo 19)</field>
+        <field name="code"><![CDATA[
+<odoo>
+    <!-- root: appears in the app switcher; icon = module/static/description/icon.png -->
+    <menuitem id="menu_library_root" name="Library" sequence="70"
+              web_icon="x_library,static/description/icon.png"
+              groups="x_library.group_library_user"/>
+    <menuitem id="menu_library_operations" name="Operations" parent="menu_library_root" sequence="10"/>
+    <menuitem id="menu_library_books" name="Books" parent="menu_library_operations"
+              action="action_library_book" sequence="10"/>
+    <menuitem id="menu_library_loans" name="Loans" parent="menu_library_operations"
+              action="action_library_loan" sequence="20"/>
+    <!-- configuration only for managers -->
+    <menuitem id="menu_library_config" name="Configuration" parent="menu_library_root" sequence="90"
+              groups="x_library.group_library_manager"/>
+    <menuitem id="menu_library_tags" name="Tags" parent="menu_library_config"
+              action="action_library_tag" sequence="10"/>
+</odoo>
+<!-- Menus load AFTER the actions they reference: put the menu file last in the manifest data list.
+     Set 'application': True in the manifest for a root menu to be an "app". -->
+]]></field>
+    </record>
+</odoo>

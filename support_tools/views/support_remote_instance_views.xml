@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="support_remote_instance_view_list" model="ir.ui.view">
+        <field name="name">support.remote.instance.list</field>
+        <field name="model">support.remote.instance</field>
+        <field name="arch" type="xml">
+            <list string="Remote Instances">
+                <field name="name"/>
+                <field name="url"/>
+                <field name="db"/>
+                <field name="username"/>
+                <field name="version_info"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'ok'"
+                       decoration-danger="state == 'fail'"
+                       decoration-muted="state == 'unknown'"/>
+                <field name="last_test"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="support_remote_instance_view_form" model="ir.ui.view">
+        <field name="name">support.remote.instance.form</field>
+        <field name="model">support.remote.instance</field>
+        <field name="arch" type="xml">
+            <form string="Remote Instance">
+                <header>
+                    <button name="action_test_connection" type="object"
+                            string="Test Connection" class="oe_highlight"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="unknown,ok,fail"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_sessions" type="object"
+                                class="oe_stat_button" icon="fa-stethoscope">
+                            <field name="session_count" widget="statinfo"
+                                   string="Diagnoses"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Customer A — Production"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Connection">
+                            <field name="url" placeholder="https://customer.odoo.com"/>
+                            <field name="db" placeholder="customer-db-name"/>
+                            <field name="username" placeholder="support@customer.com"/>
+                            <field name="api_key" password="True"
+                                   placeholder="remote API key"/>
+                            <field name="timeout"/>
+                        </group>
+                        <group string="Status">
+                            <field name="version_info"/>
+                            <field name="last_test"/>
+                            <field name="last_test_message"/>
+                            <field name="active" invisible="1"/>
+                            <field name="color" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Privacy / Masking">
+                        <field name="mask_sensitive"/>
+                        <field name="mask_monetary" invisible="not mask_sensitive"/>
+                        <field name="sensitive_fields" invisible="not mask_sensitive"
+                               placeholder="amount total price iban vat password ..."/>
+                    </group>
+                    <group string="Notes">
+                        <field name="notes" nolabel="1"
+                               placeholder="Deployment type, plan, contacts, scope of read access..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="support_remote_instance_view_search" model="ir.ui.view">
+        <field name="name">support.remote.instance.search</field>
+        <field name="model">support.remote.instance</field>
+        <field name="arch" type="xml">
+            <search string="Remote Instances">
+                <field name="name"/>
+                <field name="url"/>
+                <field name="db"/>
+                <filter name="reachable" string="Reachable"
+                        domain="[('state', '=', 'ok')]"/>
+                <filter name="failed" string="Failed"
+                        domain="[('state', '=', 'fail')]"/>
+                <filter name="archived" string="Archived"
+                        domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="support_remote_instance_action" model="ir.actions.act_window">
+        <field name="name">Remote Instances</field>
+        <field name="res_model">support.remote.instance</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="support_remote_instance_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Register a customer's remote Odoo instance
+            </p>
+            <p>
+                Store the URL, database, a dedicated read-only support user and
+                its API key. The AI can then diagnose issues on that instance
+                without a remote desktop session.
+            </p>
+        </field>
+    </record>
+</odoo>

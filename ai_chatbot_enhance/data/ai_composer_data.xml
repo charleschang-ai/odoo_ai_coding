@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="ai_prompt_rewrite_text" model="ai.en.prompt.button">
+            <field name="name">Rewrite selected text</field>
+        </record>
+
+        <record id="ai_prompt_top_selling_products_chart" model="ai.en.prompt.button">
+            <field name="name">Bar chart of top-selling products</field>
+        </record>
+
+        <record id="ai_prompt_top_sales_reps" model="ai.en.prompt.button">
+            <field name="name">Top 5 sales reps by revenue</field>
+        </record>
+
+        <record id="ai_prompt_sales_by_category" model="ai.en.prompt.button">
+            <field name="name">Show sales by product category this month</field>
+        </record>
+
+        <record id="ai_prompt_summarize_chatter" model="ai.en.prompt.button">
+            <field name="name">Summarize the chatter conversation</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="ai_prompt_write_followup_chatter" model="ai.en.prompt.button">
+            <field name="name">Write a followup answer</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="ai_chatter_helper" model="ai.en.composer">
+            <field name="name">Chatter Helper</field>
+            <field name="interface_key">chatter_ai_button</field>
+            <field name="ai_agent" ref="ai_chatbot_enhance.ai_default_agent"/>
+            <field name="default_prompt">Your job is to assist the user with the chatter correspondence. If the user
+                asks you to summarize the chatter conversation, reply with a small description for the conversation and
+                then a list of all the key messages in the correspondence. Each bullet point should have a general title
+                in bold and a description in plaintext. If the user asks you to write a reply or a message, **YOUR REPLY
+                WILL BE INSERTED AS IS**. Follow the tone from the previous messages in the chatter. **WRITE ONLY THE
+                BODY OF THE MESSAGE. DO NOT ADD ADDITIONAL COMMENTARY, A SUBJECT LINE, OR A SIGNATURE.** Format your
+                messages like an email, beginning with a greeting, and the rest of the content in a new line.
+            </field>
+            <field name="is_system_default">True</field>
+            <field name="available_prompts"
+                   eval="[(4, ref('ai_chatbot_enhance.ai_prompt_summarize_chatter')), (4, ref('ai_chatbot_enhance.ai_prompt_write_followup_chatter'))]"/>
+        </record>
+
+        <record id="ai_html_text_selector" model="ai.en.composer">
+            <field name="name">Text Selector</field>
+            <field name="interface_key">html_field_text_select</field>
+            <field name="ai_agent" ref="ai_chatbot_enhance.ai_default_agent"/>
+            <field name="default_prompt">Your job is to suggest alternatives to a piece of text the user has written. If
+                the user asks you to rewrite the text in a specific way, **YOUR ANSWER WILL BE REPLACING THE ORIGINAL
+                TEXT AS IS, thus DO NOT ADD ADDITIONAL COMMENTARY**.
+            </field>
+            <field name="is_system_default">True</field>
+            <field name="available_prompts" eval="[(4, ref('ai_chatbot_enhance.ai_prompt_rewrite_text'))]"/>
+        </record>
+
+        <record id="ai_systray_action" model="ai.en.composer">
+            <field name="name">Ask AI</field>
+            <field name="interface_key">systray_ai_button</field>
+            <field name="ai_agent" ref="ai_chatbot_enhance.ai_default_agent"/>
+            <field name="default_prompt">You are a helpful AI assistant. Please provide concise and accurate
+                answers.
+            </field>
+            <field name="available_prompts" eval="[
+                (4, ref('ai_chatbot_enhance.ai_prompt_top_sales_reps')),
+                (4, ref('ai_chatbot_enhance.ai_prompt_top_selling_products_chart')),
+                (4, ref('ai_chatbot_enhance.ai_prompt_sales_by_category')),
+                ]"/>
+            <field name="is_system_default">True</field>
+        </record>
+    </data>
+</odoo>

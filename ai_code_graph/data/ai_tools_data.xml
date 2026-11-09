@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══ Read-only Code Graph tools for chat agents ═══
+         Attach them to a Topic (AI menu > Skills) to enable them on an agent. -->
+
+    <record id="code_graph_model_map" model="ir.actions.server">
+        <field name="name">Code Graph: Model Map</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="ai_tool_confirmation_policy">never</field>
+        <field name="model_id" ref="model_ai_code_node"/>
+        <field name="ai_tool_description">Read-only code structure map of an Odoo model from the code graph index.
+Shows: which module defines the model, which modules extend it (runtime MRO order),
+field counts and custom fields, all views with their inheritance, window actions,
+and methods overridden across modules.
+
+Use when the user asks things like: "which modules modify sale.order?",
+"where is this model defined?", "what views does this model have?",
+"which methods are overridden?".
+
+Requires the code graph index to be built (AI Studio > Code Graph > Rebuild Index).</field>
+        <field name="ai_tool_schema">{"type": "object", "properties": {"model_name": {"type": "string", "description": "Technical model name, e.g. 'sale.order', 'res.partner'"}}, "required": ["model_name"]}</field>
+        <field name="code">ai['result'] = env['ai.code.node'].sudo().ai_tool_model_map(model_name=model_name)</field>
+    </record>
+
+    <record id="code_graph_blast_radius" model="ir.actions.server">
+        <field name="name">Code Graph: Blast Radius</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="ai_tool_confirmation_policy">never</field>
+        <field name="model_id" ref="model_ai_code_node"/>
+        <field name="ai_tool_description">Read-only impact analysis of one field from the code graph index:
+which views display it, which computed fields depend on it, its relational
+target and compute dependencies.
+
+Use BEFORE modifying or removing a field, or when the user asks
+"what happens if I change field X?", "where is this field used?".
+
+Requires the code graph index to be built (AI Studio > Code Graph > Rebuild Index).</field>
+        <field name="ai_tool_schema">{"type": "object", "properties": {"model_name": {"type": "string", "description": "Technical model name, e.g. 'sale.order'"}, "field_name": {"type": "string", "description": "Technical field name on that model, e.g. 'partner_id'"}}, "required": ["model_name", "field_name"]}</field>
+        <field name="code">ai['result'] = env['ai.code.node'].sudo().ai_tool_blast_radius(model_name=model_name, field_name=field_name)</field>
+    </record>
+
+    <record id="code_graph_call_chain" model="ir.actions.server">
+        <field name="name">Code Graph: Call Chain</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="ai_tool_confirmation_policy">never</field>
+        <field name="model_id" ref="model_ai_code_node"/>
+        <field name="ai_tool_description">Read-only call hierarchy of one Python method (like an IDE's Call Hierarchy):
+what it calls (downward, recursive) and what calls it (upward, including
+view buttons). Each entry shows module and file:line.
+
+Use when the user asks: "what happens when method X runs?",
+"what does the confirm button do?", "who calls this method?",
+"trace the flow of ...".
+
+Workflow tip: use 'Code Graph: Model Map' first to find method names,
+then this tool to trace the chain. Only custom addons are deep-indexed.</field>
+        <field name="ai_tool_schema">{"type": "object", "properties": {"model_name": {"type": "string", "description": "Technical model name, e.g. 'sale.order'"}, "method_name": {"type": "string", "description": "Method name without parentheses, e.g. 'action_confirm'"}}, "required": ["model_name", "method_name"]}</field>
+        <field name="code">ai['result'] = env['ai.code.node'].sudo().ai_tool_call_chain(model_name=model_name, method_name=method_name)</field>
+    </record>
+
+</odoo>

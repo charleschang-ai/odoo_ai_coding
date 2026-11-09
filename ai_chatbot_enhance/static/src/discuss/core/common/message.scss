@@ -1,0 +1,157 @@
+// ========== 消息卡片整体：极光微光边框 + 细腻玻璃态 ==========
+.o-mail-Message {
+    transition: background-color .2s ease-out, opacity .5s ease-out, box-shadow .5s ease-out, transform .2s ease-out;
+
+    &.o-card {
+        outline: 1px solid rgba(0, 160, 255, 0.35);          // 原变量替换为霓虹蓝
+        outline-offset: -1px;
+        background-color: rgba(255, 255, 255, 0.92);         // 半透白，增加清爽玻璃感
+        box-shadow: 0 4px 12px rgba(0, 120, 255, 0.08);      // 新增柔光阴影（不影响布局）
+        --border-opacity: .6;
+    }
+
+    // 高亮效果：改为发光上浮 + 渐变底纹
+    &.o-highlighted {
+        transform: translateY(-#{map-get($spacers, 3)});      // 保留原值，不动
+        background: linear-gradient(120deg, rgba(0, 200, 255, 0.08), rgba(100, 100, 255, 0.02));
+        outline: 1px solid rgba(0, 200, 255, 0.6);
+        box-shadow: 0 8px 20px rgba(0, 150, 255, 0.2);
+    }
+
+    &.o-actionMenuMobileOpen {
+        background-color: rgba(0, 150, 255, 0.12);
+        outline: 1px solid rgba(0, 150, 255, 0.3);
+        outline-offset: -1px;
+    }
+}
+
+// ========== 日期文本：霓虹青淡出 ==========
+.o-mail-Message-date {
+    opacity: 70%;                         // 稍微提高可见度
+    color: #2c7da0;                      // 清爽蓝绿
+    text-shadow: 0 0 2px rgba(0, 200, 255, 0.3);
+}
+
+// ========== 已读回执区域 ==========
+.o-mail-Message-seenContainer {
+    font-size: 0.65rem;
+    right: 2px;
+    bottom: -2px;
+    color: #00b4d8;                      // 亮青
+}
+
+// ========== 侧边栏（保持宽高不变） ==========
+.o-mail-Message-sidebar {
+    flex-basis: $o-mail-Message-sidebarWidth;
+    max-width: $o-mail-Message-sidebarWidth;
+
+    &.o-inChatWindow {
+        flex-basis: $o-mail-Message-sidebarSmallWidth;
+        max-width: $o-mail-Message-sidebarSmallWidth;
+    }
+}
+
+// ========== 头像容器 ==========
+.o-mail-Message-avatarContainer {
+    width: $o-mail-Avatar-size;
+    height: $o-mail-Avatar-size;
+
+    &.o-inChatWindow {
+        width: $o-mail-Avatar-sizeSmall;
+        height: $o-mail-Avatar-sizeSmall;
+    }
+}
+
+// ========== 消息气泡全新配色：玻璃拟态 + 渐变边框 ==========
+.o-mail-Message-bubble {
+    // 蓝色气泡（对方消息）
+    &.o-blue {
+        background: linear-gradient(135deg, #e6f4ff, #d4eaff) !important;
+        border: 1px solid rgba(0, 160, 255, 0.4) !important;
+        box-shadow: 0 2px 6px rgba(0, 120, 255, 0.1);
+
+        &.o-muted {
+            background: linear-gradient(135deg, #f0f8ff, #e2f0ff) !important;
+            border-color: rgba(0, 140, 255, 0.3) !important;
+        }
+    }
+    // 绿色气泡（系统/成功消息）
+    &.o-green {
+        background: linear-gradient(135deg, #e0f9e8, #cff0df) !important;
+        border: 1px solid rgba(0, 180, 120, 0.4) !important;
+        box-shadow: 0 2px 6px rgba(0, 200, 120, 0.1);
+
+        &.o-muted {
+            background: linear-gradient(135deg, #edfff5, #ddf5ea) !important;
+            border-color: rgba(0, 160, 100, 0.3) !important;
+        }
+    }
+    // 橙色气泡（警告/强调）
+    &.o-orange {
+        background: linear-gradient(135deg, #fff0e0, #ffe4cc) !important;
+        border: 1px solid rgba(255, 140, 0, 0.4) !important;
+        box-shadow: 0 2px 6px rgba(255, 120, 0, 0.1);
+
+        &.o-muted {
+            background: linear-gradient(135deg, #fff7ef, #ffefdf) !important;
+            border-color: rgba(255, 120, 0, 0.3) !important;
+        }
+    }
+}
+
+// ========== 消息操作按钮：悬浮亮色 ==========
+.o-mail-Message-actions {
+    z-index: $o-mail-NavigableList-zIndex - 3;
+
+    &.o-expanded {
+        z-index: $o-mail-NavigableList-zIndex - 2;
+    }
+
+    button {
+        opacity: 60%;
+        transition: opacity 0.2s, color 0.2s;
+        color: #2c6693;
+
+        &:hover, &.focus, &.show {
+            opacity: 100%;
+            color: #0077be;
+            text-shadow: 0 0 3px rgba(0, 150, 255, 0.5);
+        }
+    }
+}
+
+// ========== 更多菜单 ==========
+.o-mail-Message-moreMenu {
+    z-index: $o-mail-NavigableList-zIndex;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(8px);
+}
+
+// ========== 移动端菜单激活态 ==========
+.o-mail-Message-openActionMobile:active {
+    opacity: 85% !important;
+}
+
+// ========== 待发送进度 ==========
+.o-mail-Message-pendingProgress {
+    animation: o-mail-message-pendingProgress-animation 0s ease-in 0.5s forwards;
+    visibility: hidden;
+}
+
+// ========== 搜索结果高亮 ==========
+.o-mail-Message-searchHighlight {
+    background: rgba(255, 210, 90, 0.85);
+    box-shadow: 0 0 0 1px rgba(255, 180, 0, 0.5);
+}
+
+// ========== 收藏星标 ==========
+.o-mail-Message-starred {
+    color: #ffb347;                     // 暖橙金
+    text-shadow: 0 0 2px #ffa500;
+}
+
+// ========== 翻译消息 ==========
+.o-mail-Message-translated {
+    color: #b77eff;                     // 紫罗兰
+    font-weight: 500;
+}

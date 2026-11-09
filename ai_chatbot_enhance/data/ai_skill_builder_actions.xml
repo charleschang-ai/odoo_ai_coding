@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══ Skill Builder tools: all logic lives in the ai.skill.builder helper
+         model (permission gate, code safety checks, draft mechanics, sandbox
+         test run). The action code below is dispatch only. ═══ -->
+
+    <record id="ai_skill_builder_action_list_methods" model="ir.actions.server">
+        <field name="name">Skill Builder: Get Model Methods</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Lists the public business methods of an Odoo model (name, signature, first doc line).
+
+Use when a skill needs to call a business method (confirm an order, validate a picking, ...) and you must verify the exact method name, e.g. action_confirm on sale.order.
+
+Without search_term only business methods are shown; with a search_term generic ORM methods also match.
+A listed name only proves the method exists — always verify actual behavior with Test Run Skill.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "model_name": {
+            "type": "string",
+            "description": "Odoo technical model name, e.g. sale.order, res.partner"
+        },
+        "search_term": {
+            "type": "string",
+            "description": "Filter by method name, e.g. 'confirm'. Empty string to list all business methods."
+        }
+    },
+    "required": ["model_name", "search_term"]
+}</field>
+        <field name="code">ai['result'] = env['ai.skill.builder'].list_model_methods(model_name=model_name, search_term=search_term)</field>
+    </record>
+
+    <record id="ai_skill_builder_action_list_skills" model="ir.actions.server">
+        <field name="name">Skill Builder: List Skills</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Lists all AI skills: drafts and active ones, custom and built-in.
+
+Call this BEFORE creating a new skill to check whether a similar one already exists.
+Built-in skills are read-only but excellent examples: read them with Get Skill Details.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "search_term": {
+            "type": "string",
+            "description": "Filter by skill name. Empty string to list all."
+        }
+    },
+    "required": ["search_term"]
+}</field>
+        <field name="code">ai['result'] = env['ai.skill.builder'].list_skills(search_term=search_term)</field>
+    </record>
+
+    <record id="ai_skill_builder_action_get_skill" model="ir.actions.server">
+        <field name="name">Skill Builder: Get Skill Details</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Returns the full content of one skill: description, JSON schema, python code, status.
+
+Use it to:
+- read a built-in skill as a reference example before writing a new one
+- review a draft before updating or activating it</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "skill_id": {
+            "type": "number",
+            "description": "Database ID of the skill (from List Skills or a previous create)."
+        }
+    },
+    "required": ["skill_id"]
+}</field>
+        <field name="code">ai['result'] = env['ai.skill.builder'].get_skill(skill_id=skill_id)</field>
+    </record>
+
+    <record id="ai_skill_builder_action_create_draft" model="ir.actions.server">
+        <field name="name">Skill Builder: Create Skill Draft</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_requires_guide" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Creates a new AI skill as an INACTIVE draft. Drafts are invisible to all agents until activated.
+
+Before calling: confirm the model with Get Models, the field names with Search Fields, and check List Skills for duplicates.
+The schema and code are validated on creation; if rejected, fix the issue and try again.
+After creation, ALWAYS run Test Run Skill.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Short action name, e.g. 'Create Sales Quotation'"
+        },
+        "model_name": {
+            "type": "string",
+            "description": "Technical name of the model the skill operates on, e.g. sale.order"
+        },
+        "description": {
+            "type": "string",
+            "description": "Tool description for the LLM: what it does, when to use it (trigger phrases), what it returns."
+        },
+        "schema_json": {
+            "type": "string",
+            "description": "JSON schema of the parameters as a JSON STRING. Follow the schema rules from your instructions strictly."
+        },
+        "code": {
+            "type": "string",
+            "description": "Python code. Schema properties are injected as local variables; end with ai['result'] = '...'. No sudo(), no system models."
+        }
+    },
+    "required": ["name", "model_name", "description", "schema_json", "code"]
+}</field>
+        <field name="code">ai['result'] = env['ai.skill.builder'].create_skill_draft(name=name, model_name=model_name, description=description, schema_json=schema_json, code=code)</field>
+    </record>
+
+    <record id="ai_skill_builder_action_update_draft" model="ir.actions.server">
+        <field name="name">Skill Builder: Update Skill Draft</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_requires_guide" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Updates a custom skill (typically to fix a failed test). Built-in skills cannot be modified.
+
+Pass an empty string for any part you do not want to change.
+Changing the code or schema resets the test flag: you must run Test Run Skill again before activating.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "skill_id": {
+            "type": "number",
+            "description": "Database ID of the skill to update."
+        },
+        "name": {
+            "type": "string",
+            "description": "New name, or empty string to keep the current one."
+        },
+        "description": {
+            "type": "string",
+            "description": "New description, or empty string to keep the current one."
+        },
+        "schema_json": {
+            "type": "string",
+            "description": "New JSON schema as a JSON string, or empty string to keep the current one."
+        },
+        "code": {
+            "type": "string",
+            "description": "New python code, or empty string to keep the current one."
+        }
+    },
+    "required": ["skill_id", "name", "description", "schema_json", "code"]
+}</field>
+        <field name="code">ai['result'] = env['ai.skill.builder'].update_skill_draft(skill_id=skill_id, name=name, description=description, schema_json=schema_json, code=code)</field>
+    </record>
+
+    <record id="ai_skill_builder_action_test_run" model="ir.actions.server">
+        <field name="name">Skill Builder: Test Run Skill</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_requires_guide" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Executes a skill in a sandbox with sample arguments. ALL database changes are rolled back automatically — nothing persists, so it is always safe to run.
+
+Provide realistic sample arguments matching the skill's schema (use clearly fake names like 'TEST Customer ABC').
+On success the skill is marked as tested (required for activation).
+On failure you get the full traceback: analyse it, fix with Update Skill Draft, and test again.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "skill_id": {
+            "type": "number",
+            "description": "Database ID of the skill to test."
+        },
+        "arguments_json": {
+            "type": "string",
+            "description": "Sample arguments as a JSON object string matching the skill schema, e.g. {\"customer_name\": \"TEST Customer ABC\"}"
+        }
+    },
+    "required": ["skill_id", "arguments_json"]
+}</field>
+        <field name="code">ai['result'] = env['ai.skill.builder'].test_run_skill(skill_id=skill_id, arguments_json=arguments_json)</field>
+    </record>
+
+    <record id="ai_skill_builder_action_activate" model="ir.actions.server">
+        <field name="name">Skill Builder: Activate Skill</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_requires_guide" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Activates a draft skill so administrators can attach it to Topics.
+
+STRICT PRECONDITIONS (enforced): the skill must have a description, code, and a PASSED test run.
+NEVER call this without the user's explicit approval in their latest message (e.g. 'yes', 'confirm', 'activate it').</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "skill_id": {
+            "type": "number",
+            "description": "Database ID of the draft skill to activate."
+        }
+    },
+    "required": ["skill_id"]
+}</field>
+        <field name="code">ai['result'] = env['ai.skill.builder'].activate_skill(skill_id=skill_id)</field>
+    </record>
+
+    <record id="ai_skill_builder_action_deactivate" model="ir.actions.server">
+        <field name="name">Skill Builder: Deactivate Skill</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_requires_guide" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="model_id" ref="model_ai_agent_bot"/>
+        <field name="ai_tool_description">Puts a custom skill back into draft state so no agent can use it. Nothing is deleted (soft delete).
+
+Use when the user asks to disable, remove or delete a skill. Built-in skills cannot be deactivated.
+Ask for confirmation before calling if the user's intent is ambiguous.</field>
+        <field name="ai_tool_schema">{
+    "type": "object",
+    "properties": {
+        "skill_id": {
+            "type": "number",
+            "description": "Database ID of the skill to deactivate."
+        }
+    },
+    "required": ["skill_id"]
+}</field>
+        <field name="code">ai['result'] = env['ai.skill.builder'].deactivate_skill(skill_id=skill_id)</field>
+    </record>
+
+    <!-- ═══ Topic: workflow + strict authoring rules ═══ -->
+
+    <record id="ai_topic_skill_builder" model="ai.en.topic">
+        <field name="name">AI Skill Builder</field>
+        <field name="description">Lets an administrator create, test and activate AI Skills through conversation, without writing code by hand.</field>
+        <field name="instructions"># Skill Builder — core rules (always loaded)
+
+- ROUTE FIRST: a one-off business operation (concrete data, do it NOW) → use the generic CRUD tools directly, never build a skill for it. A reusable capability ("让AI以后能...", parameterized) → the skill building path. Ambiguous → ask one short question and wait.
+- Before ANY skill-building mutation (create/update/test/activate/deactivate a draft): call get_skill_guide("AI Skill Builder") and follow the returned handbook — those tools are HARD-BLOCKED until the guide is loaded this turn.
+- Safety order is absolute: draft → sandbox test → fix until green → user's explicit approval → activate. Drafts are invisible to agents; tests always roll back.
+- Report tool results honestly. Built-in skills are read-only examples (Get Skill Details).</field>
+        <field name="detailed_guide"># Skill Builder Agent — Detailed Guide
+
+**Purpose**: help the administrator get things done. Either perform a one-off business operation directly, or create, test and activate a reusable AI Skill through conversation. You write the description, JSON schema and python code; the human only describes the need and confirms.
+
+## STEP 0 — ROUTE THE REQUEST (always classify FIRST)
+
+Before doing anything, decide which path the request belongs to:
+
+- **ONE-OFF OPERATION** — the user wants something done NOW, on concrete data ("create a contact called John Chan, phone 123", "update Acme's email", "archive lead X"). DO NOT build a skill for this. Use the generic CRUD tools directly (AI Skill: Get Model Fields, then Create/Update/Archive Record). One or two tool calls and you are done.
+- **REUSABLE CAPABILITY** — the user wants the AI to be ABLE to do something repeatedly in the future ("I want AI to create quotations from a customer name", "build a skill that...", "让AI以后能自动..."). Only THIS path uses the skill building workflow below.
+- **Ambiguous** — ask ONE short question: "Do you want me to do this right now, or build it as a reusable skill for later?" and wait.
+
+Routing signals: concrete values (names, phones, amounts, a specific record) mean ONE-OFF; parameterized/generic phrasing, words like "以后 / 自动 / 技能 / be able to / whenever", mean CAPABILITY. Never run the heavy skill workflow for a request that is obviously a one-off operation.
+
+## Skill building workflow (CAPABILITY path only — follow IN ORDER, never skip)
+
+1. **UNDERSTAND** — identify: the target model, the inputs the calling LLM should provide, the exact behavior, and what the result message should say. For simple, low-risk skills make reasonable assumptions and proceed; ask AT MOST one round of clarifying questions, and state your assumptions in the final summary instead of interrogating the user upfront.
+2. **INSPECT** — use *Get Models* / *Search Fields* to confirm technical model and field names. Use *Get Model Methods* if the skill must call a business method (e.g. action_confirm). NEVER guess technical names.
+3. **CHECK EXISTING** — call *List Skills*; if a similar skill exists, tell the user instead of duplicating. Read a built-in skill with *Get Skill Details* as a style example when unsure.
+4. **DRAFT** — call *Create Skill Draft*. Drafts are inactive and invisible to all agents, so this is always safe.
+5. **TEST** — call *Test Run Skill* with realistic sample arguments (use clearly fake data like 'TEST Customer ABC'). Everything is rolled back automatically.
+6. **FIX LOOP** — if the test fails, analyse the traceback, fix with *Update Skill Draft*, and test again. Repeat until it passes. Never present a failing skill as done.
+7. **CONFIRM** — show the user a summary: what the skill does, its parameters, and the actual test result. Then explicitly ask whether to activate. WAIT for their answer.
+8. **ACTIVATE** — only after the user explicitly approves in their reply, call *Activate Skill*. Then remind them to attach the skill to a Topic (AI menu, Topics) so an agent can use it.
+
+## Python code rules (violations are auto-rejected)
+
+- The code runs in a sandbox: no import, no underscore-prefixed methods or attributes.
+- Schema properties arrive as local variables (a property "customer_name" becomes the variable customer_name).
+- ALWAYS end by setting ai['result'] = "..." — this is the message returned to the calling LLM. On failure paths set ai['result'] = "ERROR: ..." instead of raising.
+- NEVER use sudo(). The code must run with the current user's access rights.
+- NEVER read or write system/configuration models (ir.model, ir.ui.view, ir.ui.menu, ir.actions.*, ir.rule, ir.config_parameter, ir.cron, res.users, res.groups, ai.studio). Only manipulate business data users can edit in the UI: partners, orders, leads, tasks, products, ...
+- Prefer archiving (record.write({'active': False})) over unlink() when the user asks to delete something.
+- Search before create to avoid duplicates; handle not-found cases gracefully.
+- Do not send emails with force_send or call external webhooks — side effects cannot be rolled back by the test sandbox.
+
+## JSON schema rules (validated strictly on save)
+
+- Top level exactly: {"type": "object", "properties": {...}, "required": [...]}
+- Each property may ONLY use the keys: type, description, enum, pattern (string only), maxLength (string only), items (array only).
+- Allowed types: string, number, integer, boolean, array.
+- Array items MUST be scalar types — arrays of objects and nested objects are NOT supported.
+- For tabular input use parallel arrays (e.g. field_names + field_values, matched by index), like the built-in skills do.
+- List EVERY property in "required"; instruct the LLM in the description to pass "" or 0 when a value is not applicable.
+- Write a clear description for every property — it is the only documentation the calling LLM sees.
+
+## Confirmation protocol (CRITICAL)
+
+- NEVER call *Activate Skill* in the same turn you created or fixed a draft.
+- Activation requires the user's explicit approval in their LATEST message.
+- Report test results honestly, including failures. Never claim success without a passed test.
+- If a tool answers with an access error, tell the user this assistant is reserved for administrators.</field>
+        <field name="tool_ids" eval="[
+            (4, ref('get_skill_guide')),
+            (4, ref('ai_studio_action_get_models')),
+            (4, ref('ai_studio_action_search_fields')),
+            (4, ref('ai_skill_builder_action_list_methods')),
+            (4, ref('ai_skill_builder_action_list_skills')),
+            (4, ref('ai_skill_builder_action_get_skill')),
+            (4, ref('ai_skill_builder_action_create_draft')),
+            (4, ref('ai_skill_builder_action_update_draft')),
+            (4, ref('ai_skill_builder_action_test_run')),
+            (4, ref('ai_skill_builder_action_activate')),
+            (4, ref('ai_skill_builder_action_deactivate')),
+        ]"/>
+    </record>
+
+    <!-- ═══ Agent ═══ -->
+
+    <record id="ai_agent_skill_builder" model="ai.agent.bot">
+        <field name="name">AI Skill Builder</field>
+        <field name="subtitle">Does business operations directly, or builds reusable AI Skills — describe what you need in plain language.</field>
+        <field name="llm_model">deepseek-v4-pro</field>
+        <field name="response_style">analytical</field>
+        <field name="enable_web_search" eval="False"/>
+        <field name="allowed_group_ids" eval="[(6, 0, [ref('ai_chatbot_enhance.group_ai_manager')])]"/>
+        <field name="topic_ids" eval="[(6, 0, [ref('ai_topic_skill_builder'), ref('ai_topic_crud_operations')])]"/>
+        <field name="system_prompt"><![CDATA[# AI Skill Builder
+You are a senior Odoo consultant serving an administrator through conversation. You do two different jobs — always route first:
+1. ONE-OFF business operations ("create this contact", "update that record"): use the generic CRUD tools directly and finish in one or two calls. Never build a skill for these.
+2. REUSABLE capabilities ("I want AI to be able to..."): build an AI Skill — you write the tool description, JSON schema and python code, then prove it works with a sandbox test before anything goes live. Your user cannot write code.
+
+## Core principles
+- Route first: misclassifying a quick operation into the heavy skill workflow wastes the user's time. When unsure, ask one short question.
+- Safety first: drafts are inactive, tests are always rolled back, activation needs the user's explicit approval. Follow the workflow in your topic instructions strictly.
+- Accuracy over speed: verify every technical model, field and method name with your inspection tools before using it. Never guess.
+- Only touch business data users can edit in the UI. System configuration (views, menus, security, users, automations) is strictly off-limits for the skills you write.
+- Be honest: show real test results, including failures. Never claim something works without a passed test.
+- Answer in the same language the user writes in.
+- If your tools return an access error, explain that this assistant is reserved for administrators and stop.]]></field>
+    </record>
+
+</odoo>

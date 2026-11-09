@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="ai_chat_platform.Composer">
+    <div class="o_aip_inputbar">
+        <div class="o_aip_container">
+            <!-- pending attachments -->
+            <div class="o_aip_attachrow">
+                <span t-foreach="attachments" t-as="att" t-key="att.id" class="o_aip_attach">
+                    <span class="o_aip_attach_nm" t-att-title="att.name">
+                        <i class="fa fa-paperclip me-1"/><t t-esc="att.name"/>
+                    </span>
+                    <span class="o_aip_attach_rm" title="Remove file"
+                          t-on-click="() => this.removeAttachment(att)">
+                        <i class="fa fa-times"/>
+                    </span>
+                </span>
+                <span t-if="state.uploadingCount" class="o_aip_attach o_aip_attach--pending">
+                    <i class="fa fa-circle-o-notch fa-spin me-1"/>Uploading…
+                </span>
+            </div>
+
+            <div class="o_aip_inputrow" t-att-class="{ 'o_aip_inputrow--recording': voiceRecorder.recording }">
+                <!-- plus menu -->
+                <div class="o_aip_plusmenu" t-att-class="{ 'o_aip_plusmenu--show': state.menuOpen }">
+                    <button t-on-click="pickFile">
+                        <i class="fa fa-paperclip me-2"/>Upload files for AI analysis
+                    </button>
+                    <button t-on-click="exportChat">
+                        <i class="fa fa-download me-2"/>Export chat (TXT)
+                    </button>
+                    <div class="o_aip_plusmenu_note">
+                        Supports pdf / docx / xlsx / csv / txt / md and images.<br/>
+                        Files are sent with your message and read by the AI.
+                    </div>
+                </div>
+                <button class="o_aip_tool" title="More actions" t-on-click="toggleMenu">
+                    <i class="fa fa-plus"/>
+                </button>
+                <button class="o_aip_tool o_aip_mic"
+                        t-att-class="{ 'o_aip_mic--recording': voiceRecorder.recording }"
+                        t-att-title="voiceRecorder.recording ? 'Stop recording' : 'Voice message'"
+                        t-att-disabled="voiceRecorder.isActionPending ? 'disabled' : undefined"
+                        t-on-click="onVoiceClick">
+                    <i t-att-class="voiceRecorder.recording ? 'fa fa-stop' : 'fa fa-microphone'"/>
+                </button>
+                <span t-if="voiceRecorder.recording" class="o_aip_rec_elapsed"
+                      t-att-class="{ 'o_aip_rec_elapsed--warn': voiceRecorder.limitWarning }">
+                    <i class="fa fa-circle o_aip_rec_dot me-1"/><t t-esc="voiceRecorder.elapsed"/>
+                </span>
+                <textarea t-ref="textarea"
+                          t-model="state.text"
+                          placeholder="Ask anything… Enter to send, Shift+Enter for a new line"
+                          t-on-keydown="onKeydown"/>
+                <button class="o_aip_send"
+                        t-att-disabled="!canSend ? 'disabled' : undefined"
+                        t-on-click="send">
+                    <t t-if="props.busy"><i class="fa fa-circle-o-notch fa-spin me-1"/>Thinking…</t>
+                    <t t-else=""><i class="fa fa-paper-plane me-1"/>Send</t>
+                </button>
+            </div>
+        </div>
+        <input type="file" t-ref="fileInput" class="d-none" multiple="multiple"
+               accept=".pdf,.docx,.pptx,.xlsx,.csv,.txt,.md,.jpg,.jpeg,.png"
+               t-on-change="onFileChange"/>
+    </div>
+</t>
+
+</templates>

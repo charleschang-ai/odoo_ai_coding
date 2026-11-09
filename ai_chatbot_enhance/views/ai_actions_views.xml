@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ─── List view ─── -->
+    <record id="ai_actions_server_view_list" model="ir.ui.view">
+        <field name="name">ir.actions.server.ai.list</field>
+        <field name="model">ir.actions.server</field>
+        <field name="arch" type="xml">
+            <list string="AI Actions">
+                <field name="name"/>
+                <field name="ai_tool_description" string="Description" optional="show"/>
+                <field name="model_id" string="Model" optional="show"/>
+                <field name="ai_tool_allow_end_message" string="Terminates Loop" optional="show"/>
+                <field name="ai_skill_draft" string="Draft" optional="show"/>
+                <field name="ai_tool_test_passed" string="Test Passed" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ─── Form view ─── -->
+    <record id="ai_actions_server_view_form" model="ir.ui.view">
+        <field name="name">ir.actions.server.ai.form</field>
+        <field name="model">ir.actions.server</field>
+        <field name="arch" type="xml">
+            <form string="AI Action">
+                <sheet>
+
+                    <!-- state 固定 code，隱藏不讓用戶改 -->
+
+                    <!-- ── Title + 關鍵字段 ── -->
+                    <div class="oe_title mb-0">
+                        <label for="name" string="Action Name"/>
+                        <h1>
+                            <field name="name"
+                                   placeholder="e.g. Create Quotation, Update Stage, Send Notification"/>
+                        </h1>
+                    </div>
+
+                    <group class="mt-0">
+                        <group>
+                            <field name="model_id"
+                                   string="Target Model"
+                                   options="{'no_quick_create': True}"
+                                   help="The Odoo model this action operates on, e.g. sale.order, crm.lead. Use ai.agent for actions spanning multiple models."/>
+                            <field name="use_in_ai"
+                                   string="Enable as AI Tool"
+                                   help="Check this to make the action available in AI Topics and agents."/>
+                        </group>
+                        <group>
+                            <field name="ai_tool_allow_end_message"
+                                   string="Terminates AI Loop"
+                                   help="When checked, the AI stops calling further tools after this action and shows its final reply to the user. Use for 'last step' actions."/>
+                            <field name="state"/>
+                            <field name="ai_skill_draft"
+                                   string="Draft (Skill Builder)"
+                                   help="Draft created by the AI Skill Builder agent. Drafts are never available to AI agents until activated."/>
+                            <field name="ai_tool_test_passed"
+                                   string="Sandbox Test Passed"
+                                   readonly="1"
+                                   help="Set by the Skill Builder test run. Automatically reset whenever the code or schema changes."/>
+                        </group>
+                    </group>
+
+                    <!-- ── Notebook：只在啟用 AI 時顯示 ── -->
+                    <notebook invisible="not use_in_ai">
+
+                        <!-- Tab 1: Description -->
+                        <page string="Description" name="description">
+                            <div class="alert alert-info" role="alert">
+                                Tell the LLM <strong>what this tool does</strong> and <strong>when to use it</strong>.
+                                Be specific — this is what the AI reads to decide whether to call this action.
+                            </div>
+                            <field name="ai_tool_description"
+                                   nolabel="1"
+                                   placeholder="Example:&#10;&#10;Creates a sales quotation for a customer.&#10;Automatically finds or creates the customer and products by name.&#10;&#10;Use when the user says: 'create a quote', 'make an offer', 'prepare an order for [customer]'.&#10;&#10;Returns the new quotation name (e.g. S00042) on success."/>
+                        </page>
+
+                        <!-- Tab 2: Parameters -->
+                        <page string="Parameters (JSON Schema)" name="schema">
+                            <div class="alert alert-info" role="alert">
+                                Define the parameters the LLM will pass to this action.
+                                Each property in the schema becomes a <strong>local variable</strong> in your Python code.
+                                Leave empty if no parameters are needed.
+                            </div>
+                            <field name="ai_tool_schema"
+                                   nolabel="1"
+                                   widget="code"
+                                   placeholder='{&#10;    "type": "object",&#10;    "properties": {&#10;        "customer_name": {&#10;            "type": "string",&#10;            "description": "Full name of the customer"&#10;        },&#10;        "product_lines": {&#10;            "type": "array",&#10;            "description": "Products to add to the order",&#10;            "items": {&#10;                "type": "object",&#10;                "properties": {&#10;                    "name":       { "type": "string",  "description": "Product name" },&#10;                    "quantity":   { "type": "number",  "description": "Quantity" },&#10;                    "price_unit": { "type": "number",  "description": "Unit price (optional)" }&#10;                },&#10;                "required": ["name", "quantity"]&#10;            }&#10;        }&#10;    },&#10;    "required": ["customer_name", "product_lines"]&#10;}'/>
+                        </page>
+
+                        <!-- Tab 3: Python Code -->
+                        <page string="Python Code" name="code">
+                            <div class="alert alert-info" role="alert">
+                                <strong>Available variables</strong>
+                                <ul class="mb-1 mt-1">
+                                    <li><code>env</code> — Odoo environment</li>
+                                    <li><code>record</code> / <code>records</code> — current record(s) if record-bound</li>
+                                    <li><code>ai['result']</code> — set this to return a message back to the LLM</li>
+                                    <li>All schema properties are injected as local variables (e.g. <code>customer_name</code>, <code>product_lines</code>)</li>
+                                </ul>
+                                <strong>Common patterns</strong>
+                                <ul class="mb-0 mt-1">
+                                    <li>Search: <code>env['sale.order'].search([['name', '=', 'S00001']])</code></li>
+                                    <li>Create: <code>env['res.partner'].create({'name': customer_name})</code></li>
+                                    <li>Find-or-create: search first, create if empty</li>
+                                    <li>One2many lines: <code>[(0, 0, {'product_id': p.id, 'product_uom_qty': 1})]</code></li>
+                                </ul>
+                            </div>
+                            <field name="code"
+                                   nolabel="1"
+                                   widget="code"
+                                   placeholder="# Schema properties are injected as local variables&#10;# e.g. customer_name, product_lines&#10;&#10;# 1. Find or create customer&#10;partner = env['res.partner'].search(&#10;    [['name', 'ilike', customer_name], ['active', '=', True]], limit=1&#10;)&#10;if not partner:&#10;    partner = env['res.partner'].create({&#10;        'name': customer_name,&#10;        'is_company': True,&#10;        'customer_rank': 1,&#10;    })&#10;&#10;# 2. Build order lines&#10;lines = []&#10;for line in product_lines:&#10;    product = env['product.product'].search(&#10;        ['|', ['name', 'ilike', line['name']],&#10;              ['default_code', 'ilike', line['name']]], limit=1&#10;    )&#10;    if not product:&#10;        product = env['product.product'].create({&#10;            'name': line['name'], 'type': 'consu',&#10;            'list_price': line.get('price_unit', 0.0),&#10;        })&#10;    lines.append((0, 0, {&#10;        'product_id': product.id,&#10;        'product_uom_qty': line.get('quantity', 1),&#10;        'price_unit': line.get('price_unit', product.list_price),&#10;    }))&#10;&#10;# 3. Create the quotation&#10;order = env['sale.order'].create({&#10;    'partner_id': partner.id,&#10;    'order_line': lines,&#10;})&#10;ai['result'] = f&quot;Quotation {order.name} created for {partner.name}.&quot;"/>
+                        </page>
+
+                    </notebook>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ─── Window action ─── -->
+    <record id="ai_actions_server_action" model="ir.actions.act_window">
+        <field name="name">AI Tools</field>
+        <field name="res_model">ir.actions.server</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">['|', ('use_in_ai', '=', True), ('ai_skill_draft', '=', True)]</field>
+        <field name="context">{'default_use_in_ai': True, 'default_state': 'code'}</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('ai_actions_server_view_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('ai_actions_server_view_form')}),
+        ]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first AI Action!</p>
+            <p>
+                AI Actions are Python functions the AI agent can call to perform tasks —
+                like creating a quotation, updating a record, or sending a notification.
+            </p>
+            <p>
+                Each action needs a <strong>name</strong>, a <strong>description</strong>
+                (so the AI knows when to use it), a <strong>parameters schema</strong> (JSON),
+                and the <strong>Python code</strong> to execute.
+            </p>
+        </field>
+    </record>
+
+</odoo>

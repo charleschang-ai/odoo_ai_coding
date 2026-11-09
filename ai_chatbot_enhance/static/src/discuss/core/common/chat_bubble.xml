@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-inherit="mail.ChatBubble" t-inherit-mode="extension">
+        <xpath expr="//button[hasclass('o-mail-ChatHub-bubbleBtn btn shadow')]" position="inside">
+            <div><span class="badge rounded-pill bg-info bg-gradient text-dark fw-bolder shadow-sm px-2 py-1"
+                       style="font-size: 0.7rem; white-space: nowrap;" t-esc="thread.name">Ai Chat</span></div>
+        </xpath>
+    </t>
+</templates>

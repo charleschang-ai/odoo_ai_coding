@@ -1,0 +1,33 @@
+
+.ai-systray-icon {
+    height: 20px;
+}
+
+/* 控制下拉框整体宽度和质感阴影 */
+.ai-dropdown-menu {
+    min-width: 280px !important; /* 宽度拉长，避免文字拥挤，显得大气 */
+    background-color: #ffffff;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08) !important; /* 柔和的高级弥散阴影 */
+}
+
+/* 重置 Odoo 默认的 dropdown-item 样式 */
+.ai-dropdown-item {
+    transition: all 0.2s ease-in-out;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+/* 悬浮时的华丽动效 */
+.ai-dropdown-item:hover, .ai-dropdown-item:focus {
+    background-color: #f8faff !important; /* 淡淡的科技蓝底色 */
+    border-color: #e5edff !important;     /* 极细的蓝色边框 */
+    transform: translateY(-2px);          /* 整个卡片轻微向上浮动 */
+    box-shadow: 0 4px 12px rgba(67, 107, 214, 0.06); /* 悬浮时的浮雕感阴影 */
+}
+
+/* 头像在悬浮时稍微旋转或放大一点，增加互动感 */
+.ai-dropdown-item:hover .ai-avatar {
+    background-color: #eff3ff !important;
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+}

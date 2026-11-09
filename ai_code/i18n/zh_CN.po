@@ -1,0 +1,2915 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* ai_code
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-02 13:42+0000\n"
+"PO-Revision-Date: 2026-09-02 13:42+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_files.py:0
+msgid ""
+"\n"
+"(This PDF seems to have NO text layer — likely a scan. Ask the user for an xlsx/csv, or wait for Phase B vision.)"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "%s is larger than 15 MB — skipped."
+msgstr "%s 超过 15 MB，已跳过。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "%s is not a directory."
+msgstr "%s 不是目录。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "%s uncommitted change(s)"
+msgstr "%s 处未提交的改动"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_files.py:0
+msgid ""
+"'%s' is an image. Image/scan analysis is not enabled yet (Phase B) — ask the"
+" user to provide the data as PDF-with-text, xlsx or csv."
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+msgid "(depends on %s)"
+msgstr "（依赖 %s）"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "(edited)"
+msgstr "（已编辑）"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "(from this folder)"
+msgstr "（来自此文件夹）"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/discuss_channel.py:0
+msgid "(no diff recorded)"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "(no git — no revert)"
+msgstr "（无 git，不能回滚）"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "(pre-fills best practices)"
+msgstr "（预填最佳实践）"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+msgid "(propose a distinctive snake_case name — avoid core names)"
+msgstr "（请起一个有辨识度的 snake_case 名称，避免与核心模块重名）"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_task.py:0
+msgid "(session)"
+msgstr "（会话）"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "--dev=all/reload"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "--dev=xml"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid ""
+". Restart Odoo\n"
+"                without it ("
+msgstr "。请去掉该参数重启 Odoo（"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid ".. (up one level)"
+msgstr "..（上一级）"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_res_config_settings__ai_code_default_token_budget
+msgid "0 = unlimited. A per-session hard cap on total tokens."
+msgstr "0 = 不限制。每个会话的 Token 总量硬上限。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_runner.py:0
+msgid "A few quick decisions"
+msgstr "几个需要你决定的问题"
+
+#. module: ai_code
+#: model:ir.model,name:ai_code.model_ai_agent_bot
+msgid "AI Agent Bot"
+msgstr ""
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.res_config_settings_view_form
+msgid "AI Code"
+msgstr "AI 编程"
+
+#. module: ai_code
+#: model:ir.model,name:ai_code.model_ai_code_files
+msgid "AI Code Attachment Ingestion"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model,name:ai_code.model_ai_code_runner
+msgid "AI Code Task Runner"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_discuss_channel__ai_code_working_dir
+msgid "AI Code Working Directory"
+msgstr "AI 编程工作目录"
+
+#. module: ai_code
+#: model:ir.model,name:ai_code.model_ai_code_workspace
+msgid "AI Code Workspace Service"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model,name:ai_code.model_ai_code_snippet
+msgid "AI Code Writing Idiom Snippet"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model,name:ai_code.model_ai_code_memory
+msgid "AI Coding Experience Memory"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model,name:ai_code.model_ai_code_change
+msgid "AI Coding File Change"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model,name:ai_code.model_ai_code_task
+msgid "AI Coding Task"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model,name:ai_code.model_ai_code_event
+msgid "AI Coding Task Event"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_discuss_channel__ai_code_task_ids
+msgid "AI Coding Tasks"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+msgid "AND the OWL frontend must render + interactions (filters) must work"
+msgstr "并且 OWL 前端必须能渲染、交互（筛选）必须可用"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__api_calls
+msgid "API Calls"
+msgstr "API 调用次数"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__abort_flag
+msgid "Abort Requested"
+msgstr "已请求中止"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_task__target_dir
+msgid ""
+"Absolute path of the addons directory to work in. Must be inside the "
+"configured whitelist (Settings > AI Chatbot > AI Code)."
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_memory__active
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_snippet__active
+msgid "Active"
+msgstr "进行中"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Activity"
+msgstr "活动记录"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_form
+msgid "Advanced"
+msgstr "高级"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "All changes"
+msgstr "全部改动"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+msgid ""
+"Analyze %s in this codebase. Read the real source and use the code graph — "
+"do not guess."
+msgstr "分析这个代码库中的 %s。请读真实源码并使用代码图谱，不要猜测。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Analyze code"
+msgstr "分析代码"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Analyzing"
+msgstr "分析中"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_task__state__analyzing
+msgid "Analyzing (legacy)"
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_runner.py:0
+msgid "Answer"
+msgstr "提交回答"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+msgid "Answer with concrete file:line references. Do NOT modify any code."
+msgstr "回答时给出具体的 文件:行号 引用。不要修改任何代码。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Applies to this session from the next message"
+msgstr "对本会话从下一条消息开始生效"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_snippet__artifact_type
+msgid "Artifact"
+msgstr "工件类型"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Ask you"
+msgstr "向你提问"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_event__role__assistant
+msgid "Assistant"
+msgstr "助手"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_files.py:0
+msgid "Attachment %s is not part of this conversation."
+msgstr "附件 %s 不属于这个会话。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/discuss_channel.py:0
+msgid "Attachment not found in this conversation."
+msgstr "此会话中没有这个附件。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Attachments"
+msgstr "附件"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.res_config_settings_view_form
+msgid "Author identity used for the agent's checkpoint commits."
+msgstr "助手检查点提交所使用的作者身份。"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__auto_test
+msgid "Auto Sandbox Test"
+msgstr "自动沙盒测试"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_res_config_settings__ai_code_shell_auto_approve
+msgid "Auto-approve Shell Commands"
+msgstr "自动批准 Shell 命令"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Awaiting plan approval"
+msgstr "等待确认计划"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Awaiting spec approval"
+msgstr "等待确认规格"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Back"
+msgstr "返回"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+msgid "Backend (methods & EXACT return structure)"
+msgstr "后端（方法与精确的返回结构）"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Backend (methods & exact return structure)"
+msgstr "后端（方法与精确的返回结构）"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Background coding tasks"
+msgstr "后台编程任务"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__res_config_settings__ai_code_executor__thread
+msgid "Background thread in the HTTP worker"
+msgstr "HTTP worker 内的后台线程"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Blast radius"
+msgstr "影响范围"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__branch_base_sha
+msgid "Branch Base"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Browse a folder…"
+msgstr "浏览文件夹…"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+msgid "Build a new Odoo %s module `%s`"
+msgstr "新建一个 Odoo %s 模块 `%s`"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_task__heartbeat
+msgid ""
+"Bumped by the live runner; a stale heartbeat on a running task means the "
+"worker died."
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_memory__weight
+msgid "Bumped when a memory proves useful again; decays over time."
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__cached_tokens
+msgid "Cached Tokens"
+msgstr "缓存 Token"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Cancel"
+msgstr "取消"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_form
+msgid "Cancel Session"
+msgstr "取消会话"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_task__state__cancelled
+msgid "Cancelled"
+msgstr "已取消"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "Cannot read %s: %s"
+msgstr "无法读取 %s：%s"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_change__change_type
+msgid "Change"
+msgstr "改动内容"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__change_count
+msgid "Change Count"
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/discuss_channel.py:0
+msgid "Change not found in this conversation."
+msgstr "此会话中没有这个改动。"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__change_ids
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_form
+msgid "Changes"
+msgstr "改动"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Changes —"
+msgstr "改动 —"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_task__history_json
+msgid "Chat-format history the model sees (compacted)."
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__cheap_model
+msgid "Cheap Model"
+msgstr "廉价模型"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_task__cheap_model
+msgid ""
+"Cheaper model used for memory distillation. Falls back to the main model."
+msgstr "用于记忆提炼的廉价模型。为空时使用主模型。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Choose a folder"
+msgstr "选择文件夹"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Choose a working directory first (folder picker in the header)."
+msgstr "请先选择工作目录（顶部的文件夹选择器）。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Choose a working directory first."
+msgstr "请先选择工作目录。"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_task__target_dir_pick
+msgid ""
+"Choose one of the whitelisted addons directories; it fills the working "
+"directory below."
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Choose the LLM model for this coding session"
+msgstr "选择本编程会话使用的模型"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Clear"
+msgstr "清除"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Close"
+msgstr "关闭"
+
+#. module: ai_code
+#: model:ir.ui.menu,name:ai_code.menu_ai_studio_code
+msgid "Code"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Code copied"
+msgstr "代码已复制"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Coding"
+msgstr "编码中"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_task__state__coding
+msgid "Coding (legacy)"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_agent_bot__is_coding_agent
+msgid "Coding Agent"
+msgstr "编程助手"
+
+#. module: ai_code
+#: model:ir.actions.act_window,name:ai_code.action_ai_code_task
+msgid "Coding Sessions"
+msgstr "编程会话"
+
+#. module: ai_code
+#: model:ir.ui.menu,name:ai_code.menu_ai_studio_code_tasks
+msgid "Coding Tasks"
+msgstr "编程任务"
+
+#. module: ai_code
+#: model:ir.actions.client,name:ai_code.action_ai_code_workspace
+msgid "Coding Workspace"
+msgstr "编程工作台"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_discuss_channel__ai_code_working_dir
+msgid ""
+"Coding sessions: whitelisted addons directory this conversation works in. "
+"Every task created from this conversation inherits it."
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_res_config_settings__ai_code_sandbox_modules
+msgid ""
+"Comma-separated modules installed when the sandbox database is bootstrapped "
+"(e.g. base,mail,sale for tasks that extend them)."
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_change__git_sha
+msgid "Commit"
+msgstr "提交"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_change__git_sha
+msgid "Commit created for this step; revert targets it."
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_event__event_type__summary
+msgid "Condensed Summary"
+msgstr "压缩摘要"
+
+#. module: ai_code
+#: model:ir.model,name:ai_code.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__content
+msgid "Content"
+msgstr "内容"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_snippet__artifact_type__controller
+msgid "Controller"
+msgstr "控制器"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__channel_id
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_form
+msgid "Conversation"
+msgstr "会话"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Copied"
+msgstr "已复制"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Copy"
+msgstr "复制"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Copy absolute path"
+msgstr "复制绝对路径"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Copy diff"
+msgstr "复制差异"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Copy failed — select and copy manually."
+msgstr "复制失败 — 请手动选择并复制。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Copy file"
+msgstr "复制文件"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Copy the error"
+msgstr "复制错误信息"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Copy the full current file"
+msgstr "复制当前完整文件"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Copy the full file content"
+msgstr "复制完整文件内容"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Copy the unified diff"
+msgstr "复制统一差异"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__cost
+msgid "Cost"
+msgstr "费用"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_files.py:0
+msgid "Could not extract '%s': %s"
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_runner.py:0
+msgid "Could you clarify?"
+msgstr "能再说明一下吗？"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_change__change_type__create
+msgid "Create"
+msgstr "新建"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_change__create_uid
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__create_uid
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_memory__create_uid
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_snippet__create_uid
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_change__create_date
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__create_date
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_memory__create_date
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_snippet__create_date
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.res_config_settings_view_form
+msgid "D:\\odoo_project\\odoo19\\custom\\my-addons"
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_files.py:0
+msgid "DOCX text, part %s/%s:\n"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_snippet__artifact_type__data
+msgid "Data (XML/CSV)"
+msgstr "数据（XML/CSV）"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_res_config_settings__ai_code_default_cheap_model
+msgid "Default Cheap Model"
+msgstr "默认廉价模型"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_res_config_settings__ai_code_default_main_model
+msgid "Default Main Model"
+msgstr "默认主模型"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_res_config_settings__ai_code_default_token_budget
+msgid "Default Token Budget per Session"
+msgstr "每会话默认 Token 预算"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_change__change_type__delete
+msgid "Delete"
+msgstr "删除"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Depends"
+msgstr "依赖"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_memory__kind__decision
+msgid "Design Decision"
+msgstr "设计决策"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__res_config_settings__ai_code_executor__process
+msgid "Detached odoo-bin process (survives worker recycling)"
+msgstr "独立的 odoo-bin 进程（不受 worker 回收影响）"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Detailed spec (optional — the preset already filled it)"
+msgstr "详细规格（可选 — 预设已填好）"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Details (optional)"
+msgstr "详细说明（可选）"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Detected (addons path)"
+msgstr "自动检测（addons 路径）"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_task__odoo_version
+msgid ""
+"Detected target series (e.g. 18.0). Drives which idiom snippets and lint "
+"rules apply."
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Diff copied"
+msgstr "差异已复制"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "Direct access to .git internals is refused."
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model,name:ai_code.model_discuss_channel
+msgid "Discussion Channel"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Dismiss (stays hidden in this browser)"
+msgstr "关闭（本浏览器不再显示）"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Dismiss — everything saved is kept; just send the next message"
+msgstr "关闭 — 已保存的内容都在，直接发下一条消息即可"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_agent_bot__display_name
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_change__display_name
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__display_name
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_files__display_name
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_memory__display_name
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_runner__display_name
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_snippet__display_name
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__display_name
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_workspace__display_name
+#: model:ir.model.fields,field_description:ai_code.field_discuss_channel__display_name
+#: model:ir.model.fields,field_description:ai_code.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_res_config_settings__ai_code_sandbox_db
+msgid ""
+"Disposable database used to install-test generated modules. Created "
+"automatically on first use."
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_files.py:0
+msgid "Document has %s part(s) only."
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Done"
+msgstr "完成"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_task__state__done
+msgid "Done (legacy)"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_task__state__draft
+msgid "Draft"
+msgstr "草稿"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__duration_ms
+msgid "Duration (ms)"
+msgstr "耗时（毫秒）"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__duration
+msgid "Duration (s)"
+msgstr "耗时（秒）"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Edit"
+msgstr "编辑"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_memory__embedding
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_snippet__embedding
+msgid "Embedding"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_memory__embedding_model
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_snippet__embedding_model
+msgid "Embedding Model"
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/discuss_channel.py:0
+msgid "Empty file."
+msgstr "文件为空。"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_event__status__error
+msgid "Error"
+msgstr "错误"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__token_est
+msgid "Est. Tokens"
+msgstr "估算 Token"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__event_count
+msgid "Event Count"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.constraint,message:ai_code.constraint_ai_code_event_seq_uniq
+msgid "Event sequence numbers must be unique per task."
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__event_ids
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_form
+msgid "Events"
+msgstr "事件"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.res_config_settings_view_form
+msgid "Execution"
+msgstr "执行方式"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Explore (program)"
+msgstr "程序化探索"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_search
+msgid "Failed"
+msgstr "失败"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Failed:"
+msgstr "失败："
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_form
+msgid "Failure"
+msgstr "失败原因"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__error_ack
+msgid "Failure Acknowledged"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__error_message
+msgid "Failure Reason"
+msgstr "失败原因"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_change__file_path
+msgid "File"
+msgstr "文件"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__plan_md
+msgid "File Plan (legacy)"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "File copied"
+msgstr "文件已复制"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_files.py:0
+msgid "File has %s part(s) only."
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_files.py:0
+msgid "File too large (> %s MB)."
+msgstr "文件太大（超过 %s MB）。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/discuss_channel.py:0
+msgid "File too large (max 15 MB)."
+msgstr "文件太大（最大 15 MB）。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Find symbol"
+msgstr "查找符号"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "Folder %s does not exist."
+msgstr "文件夹 %s 不存在。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "Folder %s is outside the allowed area."
+msgstr "文件夹 %s 不在允许的范围内。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "Folder %s is outside the allowed project area."
+msgstr "文件夹 %s 不在允许的项目范围内。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Folder — locked to this session"
+msgstr "文件夹 — 已绑定到本会话"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__followup_active
+msgid "Follow-up Running (legacy)"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Frontend"
+msgstr "前端"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__content_full
+msgid "Full Content"
+msgstr "完整内容"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.res_config_settings_view_form
+msgid "Git Author"
+msgstr "Git 提交作者"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_res_config_settings__ai_code_git_user_email
+msgid "Git Author Email"
+msgstr "Git 作者邮箱"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_res_config_settings__ai_code_git_user_name
+msgid "Git Author Name"
+msgstr "Git 作者名"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__branch_name
+msgid "Git Branch"
+msgstr "Git 分支"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Git diff"
+msgstr "Git 差异"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Git log"
+msgstr "Git 日志"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Git status"
+msgstr "Git 状态"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Git · branch %s · %s. Ask the AI for git diff / log / status."
+msgstr "Git · 分支 %s · %s。可以让 AI 查看 git diff / log / status。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "Give a path relative to the module, got %r."
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "Give a path relative to the working directory, got %r."
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Goal"
+msgstr "目标"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Guided task — fill a short form, best practices pre-filled"
+msgstr "引导式任务 — 填一个简短表单，已预填最佳实践"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_task__token_budget
+msgid "Hard cap of total tokens for this session. 0 = unlimited."
+msgstr "本会话 Token 总量硬上限。0 = 不限制。"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__heartbeat
+msgid "Heartbeat"
+msgstr "心跳"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "History"
+msgstr "历史"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_agent_bot__id
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_change__id
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__id
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_files__id
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_memory__id
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_runner__id
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_snippet__id
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__id
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_workspace__id
+#: model:ir.model.fields,field_description:ai_code.field_discuss_channel__id
+#: model:ir.model.fields,field_description:ai_code.field_res_config_settings__id
+msgid "ID"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Idioms"
+msgstr "写法库"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__input_tokens
+msgid "Input Tokens"
+msgstr "输入 Token"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "Invalid module name %r."
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "Invalid sandbox database name %r."
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_task.py:0
+msgid ""
+"Invalid technical module name %r: use snake_case (lowercase letters, digits,"
+" underscores)."
+msgstr "模块技术名称 %r 无效：请使用 snake_case（小写字母、数字、下划线）。"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_snippet__artifact_type__js
+msgid "JS / OWL"
+msgstr "JS / OWL"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Keep working (do not break)"
+msgstr "必须保持可用（不能弄坏）"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_memory__kind
+msgid "Kind"
+msgstr "类型"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__history_json
+msgid "LLM History"
+msgstr "LLM 历史"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_event__event_type__message
+msgid "LLM Message"
+msgstr "LLM 消息"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_change__write_uid
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__write_uid
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_memory__write_uid
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_snippet__write_uid
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_change__write_date
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__write_date
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_memory__write_date
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_snippet__write_date
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_task__state__failed
+msgid "Last turn failed"
+msgstr "上一轮失败"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_form
+msgid "Legacy artifacts"
+msgstr "旧版产物"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_task__auto_test
+msgid "Legacy flag (the agent now decides when to run sandbox_test)."
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_res_config_settings__ai_code_sandbox_enabled
+msgid ""
+"Let the agent install-test modules in a disposable database (sandbox_test "
+"tool). Off = the user verifies manually."
+msgstr "允许助手在一次性数据库中安装测试模块（sandbox_test 工具）。关闭 = 由用户手动验证。"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_res_config_settings__ai_code_shell_enabled
+msgid ""
+"Let the agent run commands inside the workspace. Read-only commands run at "
+"once; state-changing ones pause on an approval card in the chat."
+msgstr "允许助手在工作目录内运行命令。只读命令立即执行；会改变状态的命令会在聊天里弹出确认卡。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "List files"
+msgstr "列出文件"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Loading…"
+msgstr "加载中…"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__main_model
+msgid "Main Model"
+msgstr "主模型"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.res_config_settings_view_form
+msgid ""
+"Main model runs the agent loop; the cheap model distills memory. Round and "
+"token caps are safety nets."
+msgstr "主模型运行主循环；廉价模型提炼记忆。回合与 Token 上限是安全网。"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_snippet__artifact_type__manifest
+msgid "Manifest"
+msgstr "清单文件"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_res_config_settings__ai_code_max_rounds
+msgid "Max Rounds per Turn"
+msgstr "每轮最大回合数"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_memory__text
+msgid "Memory"
+msgstr "记忆"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Menu & access"
+msgstr "菜单与权限"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_snippet__artifact_type__menu
+msgid "Menu / Action"
+msgstr "菜单/动作"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Message to send"
+msgstr "将要发送的消息"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_task__pending_user_text
+msgid ""
+"Message(s) the user sent while a turn was running; injected before the next "
+"LLM call."
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Model"
+msgstr "模型"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/discuss_channel.py:0
+msgid "Model %s is not available (no API key for its provider)."
+msgstr "模型 %s 不可用（其服务商未配置 API key）。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_runner.py:0
+msgid ""
+"Model %s is not available on any configured provider. Configure a model in "
+"Settings > AI Chatbot > AI Code."
+msgstr "模型 %s 在已配置的服务商里不可用。请到 设置 > AI Chatbot > AI Code 配置模型。"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_snippet__artifact_type__model
+msgid "Model (Python)"
+msgstr "模型（Python）"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Model map"
+msgstr "模型结构图"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Model set to %s. It applies from the next message."
+msgstr "模型已切换为 %s，从下一条消息开始生效。"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.res_config_settings_view_form
+msgid "Models & Limits"
+msgstr "模型与限制"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Models & fields"
+msgstr "模型与字段"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_change__change_type__modify
+msgid "Modify"
+msgstr "修改"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_task__task_type__modify_module
+msgid "Modify Module"
+msgstr "修改模块"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Modify module"
+msgstr "修改模块"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Modify the %s module: %s"
+msgstr "修改 %s 模块：%s"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+msgid ""
+"Modify the EXISTING module `%s` in this working directory (read its files "
+"first; extend rather than rewrite; prefer inheritance over editing "
+"originals)."
+msgstr "修改本工作目录中已有的模块 `%s`（先读它的文件；扩展而不是重写；优先用继承而不是改原文件）。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Modifying"
+msgstr "修改"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "Module %r is not installed / not found on the addons path."
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__module_name
+msgid "Module (technical name)"
+msgstr "模块（技术名）"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__module_title
+msgid "Module Title"
+msgstr "模块标题"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_task__module_name
+msgid ""
+"Module most recently written by the agent (used as the default for sandbox "
+"tests and labels)."
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Module name"
+msgstr "模块名"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Module or model to analyze"
+msgstr "要分析的模块或模型"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Modules in"
+msgstr "模块："
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_search
+msgid "My Sessions"
+msgstr "我的会话"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_runner.py:0
+msgid "Needs your approval because: %s"
+msgstr "需要你确认，因为：%s"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_task__task_type__new_module
+msgid "New Module"
+msgstr "新建模块"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "New module"
+msgstr "新建模块"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/discuss_channel.py:0
+msgid "New session"
+msgstr "新会话"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid ""
+"No addons folder detected — use Browse below,\n"
+"                        or add one in Settings > AI Chatbot > AI Code."
+msgstr "未检测到 addons 目录 — 请用下面的“浏览”，或到 设置 > AI Chatbot > AI Code 添加。"
+
+#. module: ai_code
+#: model_terms:ir.actions.act_window,help:ai_code.action_ai_code_task
+msgid "No coding session yet"
+msgstr "还没有编程会话"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "No coding task running."
+msgstr "没有正在运行的编程任务。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_files.py:0
+msgid "No document uploaded in this conversation."
+msgstr "此会话中没有上传过文档。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "No file changes yet."
+msgstr "还没有文件改动。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "No finished tasks yet."
+msgstr "还没有完成的任务。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "No folder chosen."
+msgstr "没有选择文件夹。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "No sub-folders here."
+msgstr "这里没有子文件夹。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "No working directory given."
+msgstr "没有指定工作目录。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid ""
+"No workspace whitelist configured. Add your custom addons directories under "
+"Settings > AI Chatbot > AI Code first."
+msgstr "尚未配置工作目录白名单。请先到 设置 > AI Chatbot > AI Code 添加你的自定义 addons 目录。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Nothing yet."
+msgstr "还没有活动。"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_event__status__ok
+msgid "OK"
+msgstr "成功"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_event__event_type__observation
+msgid "Observation"
+msgstr "观察结果"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Odoo"
+msgstr "Odoo"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/discuss_channel.py:0
+msgid "Odoo Coding Agent"
+msgstr "Odoo 编程助手"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_snippet__odoo_version
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__odoo_version
+msgid "Odoo Version"
+msgstr "Odoo 版本"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/discuss_channel.py:0
+msgid "Only AI managers may add a coding folder."
+msgstr "只有 AI 管理员可以添加编程目录。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/discuss_channel.py:0
+msgid "Only AI managers may revert coding steps."
+msgstr "只有 AI 管理员可以回滚编程步骤。"
+
+#. module: ai_code
+#: model_terms:ir.actions.act_window,help:ai_code.action_ai_code_task
+msgid ""
+"Open AI Studio &gt; Code, pick a working folder and describe what you\n"
+"               want — the agent plans, writes, tests and reports."
+msgstr "打开 AI Studio &gt; Code，选择工作目录并描述需求 — 助手会规划、编写、测试并汇报。"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_snippet__artifact_type__other
+msgid "Other"
+msgstr "其他"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Outline"
+msgstr "大纲"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__output_tokens
+msgid "Output Tokens"
+msgstr "输出 Token"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_files.py:0
+msgid "PDF has only %s page(s) — part %s is out of range."
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_files.py:0
+msgid "PDF: %s pages, part %s/%s (pages %s-%s)\n"
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "Path %s escapes the module directory."
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "Path %s escapes the working directory — refused."
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_change__file_path
+msgid "Path relative to the working directory."
+msgstr "相对于工作目录的路径。"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__pending_action_json
+msgid "Pending Action"
+msgstr "待处理动作"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__pending_call_id
+msgid "Pending Question Call"
+msgstr "待回答的提问"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__phase
+msgid "Phase"
+msgstr "阶段"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_event__event_type__phase_change
+msgid "Phase Change"
+msgstr "阶段变化"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__target_dir_pick
+msgid "Pick a Folder"
+msgstr "选择文件夹"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_runner.py:0
+msgid ""
+"Pick a working directory for this conversation first (the folder selector at"
+" the top), then tell me what to build."
+msgstr "请先为这个会话选择工作目录（顶部的文件夹选择器），然后告诉我要做什么。"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__pinned
+msgid "Pinned"
+msgstr "固定"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_memory__kind__pitfall
+msgid "Pitfall / Fix"
+msgstr "坑点/修复"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Plan"
+msgstr "规划"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__plan_json
+msgid "Plan JSON (legacy)"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_task__state__plan_review
+msgid "Plan Review (legacy)"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Planning"
+msgstr "规划中"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_task__state__planning
+msgid "Planning (legacy)"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+msgid "Proceed without asking; this spec is complete."
+msgstr "不用再问，直接做；需求已经完整。"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_memory__kind__convention
+msgid "Project Convention"
+msgstr "项目约定"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+msgid "Question"
+msgstr "问题"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Question dismissed — the session is ready for a new message."
+msgstr "已撤销提问，会话可以继续收新消息。"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__pending_user_text
+msgid "Queued User Message"
+msgstr "排队中的用户消息"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_form
+msgid "Queued user message"
+msgstr "排队中的用户消息"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Read"
+msgstr "读取"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Read Odoo source"
+msgstr "读 Odoo 源码"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Read document"
+msgstr "读文档"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.res_config_settings_view_form
+msgid ""
+"Read-only commands run immediately; state-changing commands pause on an "
+"approval card in the chat. git mutations and catastrophic commands are "
+"always refused."
+msgstr "只读命令立即执行；会改变状态的命令会在聊天里弹出确认卡。git 变更和灾难性命令一律拒绝。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_task__state__idle
+msgid "Ready"
+msgstr "就绪"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Recent"
+msgstr "最近使用"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__reference_modules
+msgid "Reference Modules"
+msgstr "参考模块"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Reference modules"
+msgstr "参考模块"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+msgid "Reference modules to study first (use their REAL field names)"
+msgstr "先研读的参考模块（使用它们真实的字段名）"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Refresh task status and content"
+msgstr "刷新任务状态和内容"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "Refusing a folder inside the Odoo source tree."
+msgstr "不能选择 Odoo 源码树内的文件夹。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Regenerate from fields"
+msgstr "根据字段重新生成"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Remove"
+msgstr "移除"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Repo map"
+msgstr "仓库地图"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_snippet__artifact_type__report
+msgid "Report"
+msgstr "报表"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_form
+msgid "Request & Todo"
+msgstr "需求与待办"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__user_id
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_search
+msgid "Requested By"
+msgstr "发起人"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__requirement
+msgid "Requirement"
+msgstr "需求"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_form
+msgid "Reset to Ready"
+msgstr "重置为就绪"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_form
+msgid "Result"
+msgstr "结果"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__result_summary
+msgid "Result Summary"
+msgstr "结果摘要"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_form
+msgid "Revert"
+msgstr "回滚"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid ""
+"Revert the change on \"%s\" (git revert %s)? Later steps touching the same "
+"lines may conflict."
+msgstr "回滚对“%s”的改动（git revert %s）？后续改动了相同行的步骤可能会冲突。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Revert this step"
+msgstr "回滚这一步"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Revert this step (git revert)"
+msgstr "回滚这一步（git revert）"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_change__reverted
+msgid "Reverted"
+msgstr "已回滚"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid ""
+"Reverting %s conflicts with later changes. Revert the later steps first "
+"(newest to oldest)."
+msgstr "回滚 %s 与后续改动冲突。请先回滚后面的步骤（从最新到最旧）。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Review the file changes (diffs, revert)"
+msgstr "查看文件改动（差异、回滚）"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__role
+msgid "Role"
+msgstr "角色"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_agent_bot__is_coding_agent
+msgid ""
+"Route this agent's chat to the AI Code runner (single ReAct loop with todo "
+"list, tools and sandbox) instead of the standard assistant loop."
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_event__status__running
+msgid "Running"
+msgstr "运行中"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_res_config_settings__ai_code_max_rounds
+msgid "Safety cap on LLM rounds (tool-call cycles) for one user message."
+msgstr "单条用户消息允许的 LLM 回合（工具调用循环）上限。"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_res_config_settings__ai_code_sandbox_db
+msgid "Sandbox Database"
+msgstr "沙盒数据库"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_res_config_settings__ai_code_sandbox_modules
+msgid "Sandbox Preinstalled Modules"
+msgstr "沙盒预装模块"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.res_config_settings_view_form
+msgid "Sandbox Testing"
+msgstr "沙盒测试"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_res_config_settings__ai_code_sandbox_enabled
+msgid "Sandbox Testing Enabled"
+msgstr "启用沙盒测试"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid ""
+"Sandbox bootstrap failed (rc=%s):\n"
+"%s"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Sandbox test"
+msgstr "沙盒测试"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Sandbox testing"
+msgstr "沙盒测试中"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Scaffold module"
+msgstr "生成模块骨架"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Search"
+msgstr "搜索"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Search Odoo source"
+msgstr "搜 Odoo 源码"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_snippet__artifact_type__security
+msgid "Security"
+msgstr "权限"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Send to AI"
+msgstr "发送给 AI"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__seq
+msgid "Seq"
+msgstr "序号"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_snippet__sequence
+msgid "Sequence"
+msgstr "序号"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_list
+msgid "Session"
+msgstr "会话"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_files.py:0
+msgid "Sheet %s/%s: '%s' (other sheets: %s) — first %s rows as TSV:"
+msgstr ""
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.res_config_settings_view_form
+msgid "Shell Tool"
+msgstr "Shell 工具"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_res_config_settings__ai_code_shell_enabled
+msgid "Shell Tool Enabled"
+msgstr "启用 Shell 工具"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_snippet__topic
+msgid ""
+"Short retrieval key, e.g. 'unique constraint', 'compute field', 'list view'."
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_res_config_settings__ai_code_streaming
+msgid ""
+"Show the assistant's text live while it is generated (chat-completions "
+"providers: DeepSeek, Qwen, Kimi, OpenAI-compatible)."
+msgstr "在生成过程中实时显示助手的文字（chat-completions 类服务商：DeepSeek、Qwen、Kimi、OpenAI 兼容）。"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_res_config_settings__ai_code_shell_auto_approve
+msgid ""
+"Skip the approval card for state-changing commands (catastrophic commands "
+"and git mutations stay refused). Only for trusted, isolated servers."
+msgstr "对会改变状态的命令跳过确认卡（灾难性命令和 git 变更仍然拒绝）。仅用于可信的隔离服务器。"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_snippet__code
+msgid "Snippet / Rule"
+msgstr "片段/规则"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_snippet__source_ref
+msgid "Source"
+msgstr "来源"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_memory__source_task_id
+msgid "Source Task"
+msgstr "来源任务"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__spec_md
+msgid "Spec (legacy)"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__spec_json
+msgid "Spec JSON (legacy)"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_task__state__spec_review
+msgid "Spec Review (legacy)"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__state
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_search
+msgid "Stage"
+msgstr "阶段"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Start a new session to work in a different folder."
+msgstr "要在其他文件夹工作，请新建会话。"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__started_at
+msgid "Started At"
+msgstr "开始时间"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_form
+msgid "Statistics"
+msgstr "统计"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__status
+msgid "Status"
+msgstr "状态"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Step reverted."
+msgstr "已回滚这一步。"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_form
+msgid "Stop"
+msgstr "停止"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Stop after the current step"
+msgstr "当前步骤后停止"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_form
+msgid "Stop this session after the current step?"
+msgstr "在当前步骤后停止这个会话？"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Stopping after the current step…"
+msgstr "当前步骤完成后停止…"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_res_config_settings__ai_code_streaming
+msgid "Stream Answers Token by Token"
+msgstr "逐字流式显示回答"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_task__main_model
+msgid "Strong model used for the agent loop."
+msgstr "运行主循环的强模型。"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__study_notes
+msgid "Study Notes (legacy)"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+msgid ""
+"Study first (read the REAL source, use real field names — do not invent)"
+msgstr "先研读（读真实源码，用真实字段名，不要编造）"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Study first — reference modules"
+msgstr "先研读 — 参考模块"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Studying"
+msgstr "研读中"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_task__state__studying
+msgid "Studying (legacy)"
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_event__role__system
+msgid "System"
+msgstr "系统"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+msgid "Target Odoo %s idioms throughout. Install cleanly"
+msgstr "全程按 Odoo %s 的写法。要能干净地安装"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+msgid ""
+"Target Odoo %s idioms. Upgrade cleanly (-u). Proceed without asking; this "
+"spec is complete."
+msgstr "按 Odoo %s 的写法。要能干净地升级（-u）。不用再问，直接做；需求已经完整。"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_change__task_id
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__task_id
+msgid "Task"
+msgstr "任务"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_memory__kind__outcome
+msgid "Task Outcome"
+msgstr "任务结果"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/discuss_channel.py:0
+msgid "Task not found in this conversation."
+msgstr "此会话中没有这个任务。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/discuss_channel.py:0
+msgid "Task not found."
+msgstr "找不到任务。"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_event__phase
+msgid "Task stage when the event happened."
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_snippet__artifact_type__test
+msgid "Test"
+msgstr "测试"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_task__state__testing
+msgid "Testing (legacy)"
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_files.py:0
+msgid "Text file, part %s/%s:\n"
+msgstr ""
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.res_config_settings_view_form
+msgid ""
+"The agent install-tests modules in a disposable database and repairs its own"
+" code from the real errors."
+msgstr "助手在一次性数据库中安装测试模块，并根据真实错误修复自己的代码。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_files.py:0
+msgid "The attachment is empty."
+msgstr "附件是空的。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/discuss_channel.py:0
+msgid "The coding agent is not installed."
+msgstr "编程助手尚未安装。"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_snippet__code
+msgid "The example code or the rule text shown to the agent."
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_task__requirement
+msgid "The first request of the session."
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_runner.py:0
+msgid ""
+"The run was interrupted (server restart or crash). Send a message to "
+"continue."
+msgstr "运行被中断（服务器重启或崩溃）。发一条消息即可继续。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Thinking"
+msgstr "思考中"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid ""
+"This folder has no module yet — describe what you want and I'll\n"
+"                    create a new module in"
+msgstr "这个文件夹里还没有模块 — 描述你的需求，我会在此新建模块："
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "This server runs with"
+msgstr "此服务器以"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid ""
+"This session is bound to its folder —\n"
+"                        picking another starts a new session"
+msgstr "本会话已绑定文件夹 — 选择其他文件夹会新建会话"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "This step has no commit to revert."
+msgstr "这一步没有可回滚的提交。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "This step was already reverted."
+msgstr "这一步已经回滚过了。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_task.py:0
+msgid "This task has no conversation attached."
+msgstr "这个任务没有关联的会话。"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_res_config_settings__ai_code_executor
+msgid ""
+"Thread: fastest start, but a worker recycled by limit_time/limit_memory "
+"kills the run. Process: each turn runs in its own odoo-bin shell process "
+"(~5-10s start-up, ~300 MB), immune to worker recycling."
+msgstr "线程：启动最快，但 worker 因 limit_time/limit_memory 被回收时运行会中断。进程：每一回合在独立的 odoo-bin shell 进程中运行（启动约 5-10 秒，约 300 MB 内存），不受 worker 回收影响。"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_snippet__title
+msgid "Title"
+msgstr "标题"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__todo_md
+msgid "Todo"
+msgstr "待办"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__todo_json
+msgid "Todo List"
+msgstr "待办清单"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_form
+msgid "Todo list"
+msgstr "待办清单"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Todo list (the AI updates it as it works)"
+msgstr "待办清单（AI 边做边更新）"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__token_budget
+msgid "Token Budget"
+msgstr "Token 预算"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__tool_name
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_event__role__tool
+msgid "Tool"
+msgstr "工具"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_event__event_type__tool_call
+msgid "Tool Call"
+msgstr "工具调用"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__tool_calls
+msgid "Tool Calls"
+msgstr "工具调用次数"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_task__pending_call_id
+msgid ""
+"Tool-call id of the ask_user_question / shell approval waiting for the user."
+msgstr "等待用户回复的 ask_user_question / shell 确认所对应的工具调用 id。"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_snippet__topic
+msgid "Topic"
+msgstr "主题"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_list
+msgid "Total"
+msgstr "合计"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Tree"
+msgstr "目录树"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__turn
+msgid "Turn"
+msgstr "轮"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_res_config_settings__ai_code_executor
+msgid "Turn Executor"
+msgstr "回合执行器"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__turn_count
+msgid "Turns"
+msgstr "轮次"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_event__event_type
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__task_type
+msgid "Type"
+msgstr "类型"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_change__diff
+msgid "Unified Diff"
+msgstr "统一差异"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_files.py:0
+msgid ""
+"Unsupported file type '%s' (%s). Supported: pdf (text layer), xlsx, csv, "
+"docx, txt/json/xml."
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_event__content_full
+msgid ""
+"Untruncated payload when 'content' is a stub; fetched on demand via the "
+"get_full_observation tool."
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid ""
+"Upload documents (quotation / invoice / price list) — the AI builds the "
+"module from them"
+msgstr "上传文档（报价单/发票/价目表）— AI 据此构建模块"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_files.py:0
+msgid "Uploaded documents (read with read_attachment):"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid ""
+"Uploaded. Now describe what to build from these documents — the AI reads "
+"them while working."
+msgstr "上传完成。现在描述要基于这些文档做什么 — AI 工作时会读取它们。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "Use this folder"
+msgstr "使用此文件夹"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_event__role__user
+msgid "User"
+msgstr "用户"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_event__turn
+msgid "User turn this event belongs to."
+msgstr ""
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_snippet__artifact_type__view
+msgid "View (XML)"
+msgstr "视图（XML）"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_search
+msgid "Waiting for an answer"
+msgstr "等待回答"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_task__state__waiting_user
+msgid "Waiting for your answer"
+msgstr "等待你的回答"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_memory__weight
+msgid "Weight"
+msgstr "权重"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "What do you want to do?"
+msgstr "你想做什么？"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_event__content
+msgid ""
+"What enters the LLM context (possibly truncated with a retrieval handle)."
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "What the AI is doing (tool calls, live)"
+msgstr "AI 正在做什么（实时工具调用）"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_task__pending_action_json
+msgid ""
+"What the paused tool call is waiting for: {'kind': 'question'|'shell', ...}."
+msgstr "暂停的工具调用在等待什么：{'kind': 'question'|'shell', ...}。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "What to change"
+msgstr "改什么"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.res_config_settings_view_form
+msgid "Where a turn runs and whether answers stream token by token."
+msgstr "回合在哪里运行，以及回答是否逐字流式显示。"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_snippet__source_ref
+msgid "Where this idiom comes from (file path, doc URL)."
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Which module"
+msgstr "哪个模块"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_res_config_settings__ai_code_workspace_dirs
+msgid ""
+"Whitelisted addons directories the coding agent may work in (comma or "
+"newline separated absolute paths)."
+msgstr ""
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.res_config_settings_view_form
+msgid ""
+"Whitelisted addons directories the coding agent may write in. One absolute "
+"path per line (git repositories get per-step checkpoints and revert)."
+msgstr "编程助手可写入的 addons 目录白名单。每行一个绝对路径（git 仓库可获得逐步检查点与回滚）。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_runner.py:0
+msgid "Why: %s"
+msgstr "原因：%s"
+
+#. module: ai_code
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_snippet__artifact_type__wizard
+msgid "Wizard"
+msgstr "向导"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_files.py:0
+msgid "Workbook has only %s sheet(s): %s"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+#: model:ir.model.fields.selection,name:ai_code.selection__ai_code_task__state__running
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_search
+msgid "Working"
+msgstr "工作中"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_task__target_dir
+msgid "Working Directory"
+msgstr "工作目录"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "Working directory %s does not exist."
+msgstr "工作目录 %s 不存在。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "Working directory %s is inside the Odoo source tree — refused."
+msgstr "工作目录 %s 位于 Odoo 源码树内，已拒绝。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "Working directory %s is outside the configured whitelist."
+msgstr "工作目录 %s 不在配置的白名单内。"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_ai_code_memory__working_dir
+msgid "Workspace"
+msgstr "工作目录"
+
+#. module: ai_code
+#: model:ir.model.fields,field_description:ai_code.field_res_config_settings__ai_code_workspace_dirs
+#: model_terms:ir.ui.view,arch_db:ai_code.res_config_settings_view_form
+msgid "Workspace Directories"
+msgstr "工作目录"
+
+#. module: ai_code
+#: model:ir.model.fields,help:ai_code.field_ai_code_memory__working_dir
+msgid "Workspace the memory was learned in (empty = global)."
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "Write"
+msgstr "写入"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid ""
+"Write refused: this task only works on the %(module)s/ module directory, got"
+" %(path)s. If an error mentions another module, that is an environment issue"
+" — report it, do not create files for it."
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "Writing %s files is not allowed (allowed: %s)."
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/discuss_channel.py:0
+msgid "You are not allowed to use the coding agent."
+msgstr "你没有使用编程助手的权限。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/discuss_channel.py:0
+msgid "You may only stop your own tasks."
+msgstr "你只能停止自己的任务。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "Your question"
+msgstr "你的问题"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.js:0
+msgid "clean"
+msgstr "干净"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "e.g. a sales pipeline dashboard over crm.lead"
+msgstr "例如：基于 crm.lead 的销售管道看板"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "e.g. add a priority field and a kanban view"
+msgstr "例如：加一个优先级字段和看板视图"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "e.g. crm, sale — the agent reads their REAL field names (optional)"
+msgstr "例如 crm, sale — 助手会读取它们真实的字段名（可选）"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid ""
+"e.g. how is the invoice total computed? what breaks if I change field X?"
+msgstr "例如：发票总额怎么算的？改字段 X 会影响什么？"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "e.g. sale.order, or the module name"
+msgstr "例如 sale.order，或模块名"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "empty"
+msgstr "空"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "empty — the agent proposes one"
+msgstr "留空 — 由助手命名"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "files"
+msgstr "个文件"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "git %s failed: %s"
+msgstr "git %s 失败：%s"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "git command timed out: %s"
+msgstr "git 命令超时：%s"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "git executable not found on the server."
+msgstr "服务器上找不到 git 可执行文件。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "git:"
+msgstr "git："
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "keeps template hot-reload)."
+msgstr "可保留模板热更新）。"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "kills the coding run"
+msgstr "中断编程运行"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "module state after run: %s (expected installed)"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.xml:0
+msgid "module technical name"
+msgstr "模块技术名"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_files.py:0
+msgid "none"
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_runner.py:0
+msgid "question"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "reverted"
+msgstr "已回滚"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "sandbox db %s initialized with %s"
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "sandbox db %s ready"
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "sandbox run timed out after %s seconds"
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "smoke harness produced no result (rc=%s)"
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "smoke result was not parseable"
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "smoke run timed out"
+msgstr ""
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_workspace.py:0
+msgid "task has no module_name to install"
+msgstr ""
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/guided_task.js:0
+msgid "this module"
+msgstr "这个模块"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid "uncommitted"
+msgstr "未提交"
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid ""
+"—\n"
+"                    click one to modify it, or just describe a new module:"
+msgstr "— 点击一个进行修改，或直接描述一个新模块："
+
+#. module: ai_code
+#. odoo-javascript
+#: code:addons/ai_code/static/src/workspace/code_workspace.xml:0
+msgid ""
+"— every .py file the AI\n"
+"                writes restarts the server and"
+msgstr "运行 — AI 每写一个 .py 文件都会重启服务器并"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_runner.py:0
+msgid "⏹ Stopped. Tell me how to continue whenever you like."
+msgstr "⏹ 已停止。随时告诉我接下来怎么做。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_runner.py:0
+msgid "⏹ Token budget reached — stopping."
+msgstr "⏹ 已达到 token 预算上限，停止。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_runner.py:0
+msgid ""
+"⚠️ I reached the round limit for one turn (%s rounds). The work so far is "
+"saved; say \"continue\" and I'll pick up where I stopped."
+msgstr "⚠️ 本轮达到了轮次上限（%s 轮）。已完成的工作都已保存；回复“继续”我会接着做。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_runner.py:0
+msgid ""
+"⚠️ My previous run was interrupted (server restart or crash). Everything "
+"already saved is kept — send a message and I'll continue."
+msgstr "⚠️ 我上一次的运行被中断了（服务器重启或崩溃）。已保存的内容都还在，发一条消息我就继续。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_runner.py:0
+msgid ""
+"❌ I hit an error: %s\n"
+"\n"
+"Everything saved so far is kept. Send a message to continue."
+msgstr "❌ 我遇到了一个错误：%s\n\n已保存的内容都还在，发一条消息即可继续。"
+
+#. module: ai_code
+#: model_terms:ir.ui.view,arch_db:ai_code.view_ai_code_task_form
+msgid ""
+"💡 Sessions are driven from <b>AI Studio &gt; Code</b>: pick a folder and\n"
+"                        chat. This form is for review, statistics and troubleshooting."
+msgstr "💡 会话在 <b>AI Studio &gt; Code</b> 中进行：选择文件夹然后对话。此表单用于查看、统计和排错。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_runner.py:0
+msgid "📥 Got it — I'll take this into account after the current step."
+msgstr "📥 收到，当前步骤做完后我会考虑这条消息。"
+
+#. module: ai_code
+#. odoo-python
+#: code:addons/ai_code/models/ai_code_runner.py:0
+msgid "🖥️ I'd like to run this command in the workspace:"
+msgstr "🖥️ 我想在工作目录里运行这条命令："

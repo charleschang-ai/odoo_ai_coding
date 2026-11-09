@@ -1,0 +1,4 @@
+id,name,model_id/id,group_id/id,perm_read,perm_write,perm_create,perm_unlink
+access_support_remote_instance_manager,support.remote.instance.manager,model_support_remote_instance,ai_chatbot_enhance.group_ai_manager,1,1,1,1
+access_support_diagnostic_session_manager,support.diagnostic.session.manager,model_support_diagnostic_session,ai_chatbot_enhance.group_ai_manager,1,1,1,1
+access_support_diagnostic_message_manager,support.diagnostic.message.manager,model_support_diagnostic_message,ai_chatbot_enhance.group_ai_manager,1,1,1,1

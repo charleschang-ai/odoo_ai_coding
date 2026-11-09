@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="ai_chat_platform.Sidebar">
+    <div class="o_aip_sidebar">
+        <h2 class="o_aip_brand">AI Platform</h2>
+        <button class="o_aip_new_btn" t-on-click="() => props.onNew()">
+            <i class="fa fa-plus me-1"/> New chat
+        </button>
+        <div class="o_aip_search">
+            <i class="fa fa-search"/>
+            <input type="text" placeholder="Search conversations…" t-model="state.search"/>
+        </div>
+        <!-- Settings admin only: list every user's conversations -->
+        <label t-if="props.canViewAll" class="o_aip_showall"
+               title="Show the conversations of all users (administrator)">
+            <input type="checkbox" t-att-checked="props.showAll ? 'checked' : undefined"
+                   t-on-change="() => props.onToggleShowAll and props.onToggleShowAll()"/>
+            <span><i class="fa fa-users me-1"/>All users</span>
+        </label>
+        <div class="o_aip_convs">
+            <t t-foreach="groups" t-as="group" t-key="group.label">
+                <div class="o_aip_group_label" t-esc="group.label"/>
+                <div t-foreach="group.items" t-as="conv" t-key="conv.id"
+                     class="o_aip_conv"
+                     t-att-class="{ 'o_aip_conv--active': conv.id === props.activeId }"
+                     t-on-click="() => this.onConvClick(conv)">
+                    <t t-if="state.renamingId === conv.id">
+                        <input class="o_aip_rename_input" type="text"
+                               t-model="state.renameText"
+                               t-on-click="(ev) => ev.stopPropagation()"
+                               t-on-keydown="(ev) => this.onRenameKeydown(conv, ev)"
+                               t-on-blur="() => this.commitRename(conv)"
+                               t-ref="renameInput"/>
+                    </t>
+                    <t t-else="">
+                        <span class="o_aip_conv_title" t-att-title="conv.name" t-esc="conv.name"/>
+                        <span t-if="conv.is_mine === false" class="o_aip_conv_owner"
+                              t-att-title="conv.owner_name" t-esc="conv.owner_name"/>
+                        <span class="o_aip_conv_stamp" t-esc="stamp(conv)"/>
+                        <span class="o_aip_conv_ops">
+                            <span title="Rename" t-on-click="(ev) => this.startRename(conv, ev)">
+                                <i class="fa fa-pencil"/>
+                            </span>
+                            <span title="Delete" t-on-click="(ev) => this.onDeleteClick(conv, ev)">
+                                <i class="fa fa-trash-o"/>
+                            </span>
+                        </span>
+                    </t>
+                </div>
+            </t>
+            <div t-if="!groups.length" class="o_aip_convs_empty">
+                <t t-if="state.search">No conversations found</t>
+                <t t-else="">No conversations yet</t>
+            </div>
+        </div>
+        <div class="o_aip_userbar">
+            <div class="o_aip_username">
+                <span class="o_aip_avatar_dot"><i class="fa fa-user"/></span>
+                <t t-esc="props.userName"/>
+            </div>
+            <div class="o_aip_userhint">Conversations are stored in Discuss and stay in sync with chat windows.</div>
+        </div>
+    </div>
+</t>
+
+</templates>

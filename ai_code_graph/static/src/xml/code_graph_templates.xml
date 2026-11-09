@@ -1,0 +1,838 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="ai_code_graph.ViewTreeItem">
+    <div class="o_cg_tree_item" t-att-style="'margin-left: ' + (depth * 22) + 'px'">
+        <span t-if="depth > 0" class="o_cg_tree_elbow">↳</span>
+        <span class="badge o_cg_vtype me-1" t-esc="item.view_type or 'view'"/>
+        <a href="#" class="o_cg_link_text"
+           t-on-click.prevent="() => this.openRecord('ir.ui.view', item.ref_id)">
+            <t t-esc="item.name"/>
+        </a>
+        <span class="text-muted small ms-1">[<t t-esc="item.module"/>]</span>
+    </div>
+    <t t-foreach="item.children" t-as="child" t-key="child.id">
+        <t t-call="ai_code_graph.ViewTreeItem">
+            <t t-set="item" t-value="child"/>
+            <t t-set="depth" t-value="depth + 1"/>
+        </t>
+    </t>
+</t>
+
+<t t-name="ai_code_graph.CallTreeItem">
+    <div class="o_cg_call_row" t-att-style="'margin-left: ' + (depth * 22) + 'px'">
+        <button t-if="item.has_more or item.children.length" type="button"
+                class="o_cg_expand_btn"
+                t-on-click="() => this.expandCall(item, direction)">
+            <t t-esc="item.children.length ? '▾' : '▸'"/>
+        </button>
+        <span t-else="" class="o_cg_expand_spacer"/>
+        <span t-if="item.kind" class="o_cg_kind me-1"
+              t-att-class="'o_cg_kind_' + item.kind" t-esc="item.kind"/>
+        <t t-if="item.kind === 'button'">
+            <a href="#" class="o_cg_link_text"
+               t-on-click.prevent="() => this.openRecord('ir.ui.view', item.ref_id)">
+                <t t-esc="item.name"/>
+            </a>
+            <span class="text-muted small ms-1">
+                (button on <t t-esc="item.view_name"/>) [<t t-esc="item.module"/>]
+            </span>
+        </t>
+        <t t-elif="item.ntype === 'server_action'">
+            <a href="#" class="o_cg_link_text"
+               t-on-click.prevent="() => this.focusOn(item.key, 'server_action')">
+                <t t-esc="item.name"/>
+            </a>
+            <span class="text-muted small ms-1">
+                (server action<t t-if="item.model"> on <t t-esc="item.model"/></t>)
+                [<t t-esc="item.module or 'db'"/>]
+            </span>
+        </t>
+        <t t-else="">
+            <a href="#" class="o_cg_link_text"
+               t-att-title="'Center the hierarchy on ' + item.key"
+               t-on-click.prevent="() => this.focusOn(item.key, 'method')">
+                <code t-esc="item.model + '.' + item.name + '()'"/>
+            </a>
+            <span class="o_cg_mod ms-1"
+                  t-att-class="isCustomModule(item.module) ? 'o_cg_mod_custom' : ''"
+                  t-esc="item.module or 'core'"/>
+            <a t-if="item.url" t-att-href="item.url" class="o_cg_addr ms-1"
+               t-att-title="'Open in editor: ' + item.file">
+                <code t-esc="item.file + ':' + item.line"/>
+            </a>
+            <span class="text-muted small ms-1">
+                <span t-if="item.skeleton and !item.file"
+                      title="Outside the deep-indexed scope">·not indexed</span>
+            </span>
+        </t>
+    </div>
+    <t t-foreach="item.children" t-as="child" t-key="child.id + '_' + depth">
+        <t t-call="ai_code_graph.CallTreeItem">
+            <t t-set="item" t-value="child"/>
+            <t t-set="depth" t-value="depth + 1"/>
+            <t t-set="direction" t-value="direction"/>
+        </t>
+    </t>
+</t>
+
+<t t-name="ai_code_graph.CodeGraphAction">
+    <div class="o_ai_code_graph d-flex flex-column h-100">
+
+        <!-- ═══ Toolbar ═══ -->
+        <div class="o_cg_toolbar d-flex align-items-center gap-2 px-3 py-2 border-bottom flex-wrap">
+            <div class="btn-group btn-group-sm" role="group" aria-label="View mode">
+                <button type="button" class="btn"
+                        t-att-class="state.mode === 'structure' ? 'btn-primary' : 'btn-outline-secondary'"
+                        t-on-click="() => this.setMode('structure')">
+                    <i class="fa fa-sitemap me-1" role="img" aria-label="Structure"/>Structure
+                </button>
+                <button type="button" class="btn"
+                        t-att-class="state.mode === 'calls' ? 'btn-primary' : 'btn-outline-secondary'"
+                        t-on-click="() => this.setMode('calls')">
+                    <i class="fa fa-code-fork me-1" role="img" aria-label="Calls"/>Calls
+                </button>
+                <button type="button" class="btn"
+                        t-att-class="state.mode === 'graph' ? 'btn-primary' : 'btn-outline-secondary'"
+                        t-on-click="() => this.setMode('graph')">
+                    <i class="fa fa-share-alt me-1" role="img" aria-label="Graph"/>Graph
+                </button>
+            </div>
+
+            <div class="o_cg_search position-relative flex-grow-1" style="max-width: 320px;">
+                <input type="text" class="form-control form-control-sm"
+                       t-att-value="state.searchTerm"
+                       t-on-input="onSearchInput" t-on-keydown="onSearchKeydown"
+                       placeholder="Search models, methods, JS components…"/>
+                <div t-if="state.searchResults.length" class="o_cg_search_results shadow-sm">
+                    <a t-foreach="state.searchResults" t-as="result" t-key="result.id"
+                       href="#" class="o_cg_search_item d-block px-2 py-1 text-truncate"
+                       t-on-click.prevent="() => this.focusOn(result.key, result.type)">
+                        <span class="badge me-1"
+                              t-attf-style="background-color: {{ typeColor(result.type) }}; color: #fff;"
+                              t-esc="typeLabels[result.type] or result.type"/>
+                        <span t-esc="result.key"/>
+                        <span t-if="result.name and result.name !== result.key"
+                              class="text-muted small ms-1" t-esc="result.name"/>
+                    </a>
+                </div>
+            </div>
+
+            <t t-if="state.mode === 'graph'">
+                <div class="btn-group btn-group-sm" role="group" aria-label="Layers">
+                    <button type="button" class="btn o_cg_layer_btn o_cg_layer_python"
+                            t-att-class="state.layers.python ? 'active' : ''"
+                            t-on-click="() => this.toggleLayer('python')">Python</button>
+                    <button type="button" class="btn o_cg_layer_btn o_cg_layer_xml"
+                            t-att-class="state.layers.xml ? 'active' : ''"
+                            t-on-click="() => this.toggleLayer('xml')">XML</button>
+                    <button type="button" class="btn o_cg_layer_btn o_cg_layer_js"
+                            t-att-class="state.layers.js ? 'active' : ''"
+                            t-on-click="() => this.toggleLayer('js')">JS</button>
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                    <label class="text-muted small mb-0">Depth</label>
+                    <input type="range" min="1" max="3" step="1" style="width: 70px;"
+                           t-att-value="state.depth" t-on-change="onDepthChange"/>
+                    <span class="small fw-bold" t-esc="state.depth"/>
+                </div>
+            </t>
+
+            <button t-if="state.focusKey" type="button"
+                    class="btn btn-sm btn-secondary"
+                    t-on-click="backToOverview">
+                <i class="fa fa-arrow-left me-1" role="img" aria-label="Back"/>Overview
+            </button>
+
+            <button type="button" class="btn btn-sm btn-primary ms-auto"
+                    t-att-disabled="state.rebuilding"
+                    t-on-click="rebuildIndex">
+                <i t-att-class="'fa me-1 ' + (state.rebuilding ? 'fa-spinner fa-spin' : 'fa-refresh')"
+                   role="img" aria-label="Rebuild"/>
+                Rebuild Index
+            </button>
+        </div>
+
+        <!-- Stale index banner: shown when the index predates the installed
+             extractor version (e.g. right after a module upgrade) -->
+        <div t-if="state.stale" class="alert alert-warning d-flex align-items-center mb-0 mx-3 mt-2 py-2">
+            <i class="fa fa-exclamation-triangle me-2" role="img" aria-label="Warning"/>
+            <span>The index was built by an older version — rebuild it once to get the new data (methods, call chains).</span>
+            <button type="button" class="btn btn-sm btn-warning ms-auto"
+                    t-att-disabled="state.rebuilding"
+                    t-on-click="rebuildIndex">Rebuild Index</button>
+        </div>
+
+        <!-- ═══ Body ═══ -->
+        <div class="o_cg_body d-flex flex-grow-1 position-relative overflow-hidden">
+
+            <!-- ─── Graph mode ─── -->
+            <div class="o_cg_canvas flex-grow-1 position-relative"
+                 t-att-class="state.mode === 'graph' ? '' : 'd-none'">
+                <svg t-ref="svg" class="w-100 h-100"/>
+
+                <div t-if="state.loading" class="o_cg_overlay">
+                    <i class="fa fa-spinner fa-spin fa-2x" role="img" aria-label="Loading"/>
+                </div>
+
+                <div t-if="state.empty and !state.loading" class="o_cg_overlay text-center">
+                    <p class="h5 mb-2">The code graph index is empty</p>
+                    <p class="text-muted">Scan your custom addons to build the graph.</p>
+                    <button type="button" class="btn btn-primary"
+                            t-att-disabled="state.rebuilding"
+                            t-on-click="rebuildIndex">Rebuild Index</button>
+                </div>
+
+                <div t-if="state.error and state.mode === 'graph'" class="o_cg_overlay text-center">
+                    <p class="text-danger" t-esc="state.error"/>
+                </div>
+
+                <div class="o_cg_legend small">
+                    <span class="o_cg_dot" style="background:#8A8A83"/> Module
+                    <span class="o_cg_dot ms-2" style="background:#7F77DD"/> Python
+                    <span class="o_cg_dot ms-2" style="background:#F0997B"/> XML
+                    <span class="o_cg_dot ms-2" style="background:#5DCAA5"/> JS
+                    <span class="ms-3 text-muted">
+                        <t t-esc="state.nodeCount"/> nodes / <t t-esc="state.edgeCount"/> edges
+                        <t t-if="state.truncated"> (capped at 300 — narrow the filters)</t>
+                    </span>
+                </div>
+            </div>
+
+            <!-- ─── Calls mode (IDE-style call hierarchy) ─── -->
+            <div t-if="state.mode === 'calls'"
+                 class="o_cg_structure flex-grow-1 overflow-auto p-3">
+
+                <div t-if="state.loading" class="text-center py-5">
+                    <i class="fa fa-spinner fa-spin fa-2x" role="img" aria-label="Loading"/>
+                </div>
+                <div t-if="state.error" class="alert alert-warning" t-esc="state.error"/>
+                <div t-if="!state.focusKey and !state.loading" class="text-center py-5">
+                    <p class="h5 mb-2">Pick a method</p>
+                    <p class="text-muted">Search a method above (e.g.
+                        <code>sale.order.action_confirm</code>), or jump here from a
+                        model's Structure page.</p>
+                </div>
+
+                <t t-if="state.calls">
+                    <t t-set="m" t-value="state.calls.method"/>
+                    <div class="o_cg_card mb-3">
+                        <h4 class="mb-1"><code t-esc="m.model + '.' + m.name + '()'"/></h4>
+                        <div t-if="m.defs.length" class="small">
+                            <span class="text-muted me-1">Implementations:</span>
+                            <div t-foreach="m.defs" t-as="definition" t-key="definition_index"
+                                 class="ms-2">
+                                <span class="o_cg_chain_pill o_cg_pill_sm o_cg_pill_custom"
+                                      t-esc="definition.module"/>
+                                <code class="text-muted ms-1"
+                                      t-esc="definition.file + ':' + definition.line"/>
+                                <span t-if="definition.super" class="badge text-bg-light ms-1"
+                                      title="This implementation calls super()">super</span>
+                            </div>
+                        </div>
+                        <div t-if="m.mro.length" class="small mt-1">
+                            <span class="text-muted me-1">Override order:</span>
+                            <t t-foreach="m.mro.slice().reverse()" t-as="module" t-key="module_index">
+                                <span t-if="module_index > 0" class="o_cg_arrow small">→</span>
+                                <span class="o_cg_chain_pill o_cg_pill_sm" t-esc="module"/>
+                            </t>
+                        </div>
+                    </div>
+
+                    <div class="o_cg_card mb-3">
+                        <div class="o_cg_section_title">
+                            <i class="fa fa-arrow-down me-1" role="img" aria-label="Down"/>
+                            Calls <span class="text-muted">(what runs inside)</span>
+                        </div>
+                        <t t-foreach="state.calls.down" t-as="item" t-key="item.id">
+                            <t t-call="ai_code_graph.CallTreeItem">
+                                <t t-set="depth" t-value="0"/>
+                                <t t-set="direction" t-value="'down'"/>
+                            </t>
+                        </t>
+                        <div t-if="!state.calls.down.length" class="text-muted small">
+                            No resolved outgoing calls in the indexed scope.
+                        </div>
+                    </div>
+
+                    <div class="o_cg_card mb-3">
+                        <div class="o_cg_section_title">
+                            <i class="fa fa-arrow-up me-1" role="img" aria-label="Up"/>
+                            Called by <span class="text-muted">(incl. view buttons)</span>
+                        </div>
+                        <t t-foreach="state.calls.up" t-as="item" t-key="item.id">
+                            <t t-call="ai_code_graph.CallTreeItem">
+                                <t t-set="depth" t-value="0"/>
+                                <t t-set="direction" t-value="'up'"/>
+                            </t>
+                        </t>
+                        <div t-if="!state.calls.up.length" class="text-muted small">
+                            No indexed callers — it may be called from core code
+                            outside the indexed scope.
+                        </div>
+                    </div>
+
+                    <div t-if="m.unresolved.length" class="o_cg_card mb-3">
+                        <div class="o_cg_section_title">Unresolved dynamic calls</div>
+                        <div class="small text-muted mb-1">
+                            Static analysis cannot resolve these receivers
+                            (getattr, mapped, dynamic dispatch):
+                        </div>
+                        <code class="small" t-esc="m.unresolved.join(', ')"/>
+                    </div>
+                </t>
+            </div>
+
+            <!-- ─── Structure mode ─── -->
+            <div t-if="state.mode === 'structure'"
+                 class="o_cg_structure flex-grow-1 overflow-auto p-3">
+
+                <div t-if="state.loading" class="text-center py-5">
+                    <i class="fa fa-spinner fa-spin fa-2x" role="img" aria-label="Loading"/>
+                </div>
+
+                <div t-if="state.error" class="alert alert-warning" t-esc="state.error"/>
+
+                <div t-if="!state.focusKey and !state.loading" class="text-center py-5">
+                    <p class="h5 mb-2">Pick a model or module</p>
+                    <p class="text-muted">Type a technical name in the search box above,
+                        e.g. <code>sale.order</code> — or use the Structure Graph button
+                        on any model form.</p>
+                </div>
+
+                <!-- Model structure -->
+                <t t-if="state.structure and state.structure.type === 'model'">
+                    <t t-set="s" t-value="state.structure"/>
+                    <div class="o_cg_card mb-3">
+                        <div class="d-flex align-items-baseline gap-2 flex-wrap">
+                            <h4 class="mb-0"><code t-esc="s.key"/></h4>
+                            <span class="text-muted" t-esc="s.name"/>
+                            <button class="btn btn-sm btn-outline-secondary ms-auto"
+                                    t-on-click="() => this.openRecord(s.ref_model, s.ref_id)">
+                                <i class="fa fa-external-link me-1" role="img" aria-label="Open"/>Open Record
+                            </button>
+                        </div>
+                        <div class="text-muted small mt-1">
+                            Defined by <span class="fw-bold" t-esc="s.definer"/>
+                            <code t-if="s.file" class="ms-2"
+                                  t-esc="s.file + (s.line ? ':' + s.line : '')"/>
+                        </div>
+                        <div t-if="s.live" class="small mt-1 text-info">
+                            <i class="fa fa-bolt me-1" role="img" aria-label="Live"/>
+                            Core model — read live from the running registry. Call chains
+                            require deep indexing (config: ai_code_graph.extra_modules).
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap mt-2">
+                            <span class="o_cg_stat"><b t-esc="s.fields_total"/> fields</span>
+                            <span class="o_cg_stat"><b t-esc="s.methods_total"/> methods</span>
+                            <span class="o_cg_stat"><b t-esc="s.views_total"/> views</span>
+                            <span class="o_cg_stat"><b t-esc="s.entries.length"/> entry points</span>
+                            <span class="o_cg_stat"><b t-esc="s.chain.length"/> modules</span>
+                        </div>
+                    </div>
+
+                    <div class="o_cg_card mb-3">
+                        <div class="o_cg_section_title">Extension chain
+                            <span class="text-muted">(load order)</span></div>
+                        <div class="o_cg_chain d-flex align-items-center flex-wrap gap-1">
+                            <t t-foreach="s.chain" t-as="link" t-key="link_index">
+                                <span t-if="link_index > 0" class="o_cg_arrow">→</span>
+                                <a t-if="link.url" t-att-href="link.url"
+                                   class="o_cg_chain_pill"
+                                   t-att-class="link.is_custom ? 'o_cg_pill_custom' : ''"
+                                   t-att-title="'Open in editor: ' + link.file + ':' + link.line">
+                                    <t t-esc="link.module"/>
+                                    <span t-if="link.is_definer" class="o_cg_pill_tag">defines</span>
+                                    <i class="fa fa-pencil o_cg_pill_edit" role="img" aria-label="Edit"/>
+                                </a>
+                                <span t-else="" class="o_cg_chain_pill"
+                                      t-att-class="link.is_custom ? 'o_cg_pill_custom' : ''">
+                                    <t t-esc="link.module"/>
+                                    <span t-if="link.is_definer" class="o_cg_pill_tag">defines</span>
+                                </span>
+                            </t>
+                        </div>
+                        <div t-if="s.parents.length" class="mt-2 small">
+                            <span class="text-muted me-1">Parents:</span>
+                            <t t-foreach="s.parents" t-as="parent" t-key="parent_index">
+                                <a href="#" class="me-2 o_cg_link_text"
+                                   t-on-click.prevent="() => this.focusOn(parent.key, 'model')">
+                                    <code t-esc="parent.key"/>
+                                    <span class="text-muted">
+                                        (<t t-esc="parent.kind"/><t t-if="parent.field">
+                                        via <t t-esc="parent.field"/></t>)</span>
+                                </a>
+                            </t>
+                        </div>
+                    </div>
+
+                    <div class="o_cg_card mb-3">
+                        <div class="o_cg_section_title">Views
+                            <span class="text-muted">(<t t-esc="s.views_total"/>, indented = inherits)</span>
+                        </div>
+                        <t t-foreach="s.views" t-as="view_root" t-key="view_root.id">
+                            <t t-call="ai_code_graph.ViewTreeItem">
+                                <t t-set="item" t-value="view_root"/>
+                                <t t-set="depth" t-value="0"/>
+                            </t>
+                        </t>
+                        <div t-if="!s.views.length" class="text-muted small">No views indexed.</div>
+                    </div>
+
+                    <div class="o_cg_card mb-3">
+                        <div class="o_cg_section_title">Custom / extension fields
+                            <span class="text-muted">
+                                (<t t-esc="s.custom_fields.length"/> of <t t-esc="s.fields_total"/> total)
+                            </span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-1">
+                            <span t-foreach="s.custom_fields" t-as="field" t-key="field.id"
+                                  class="o_cg_field_chip" t-att-title="field.label">
+                                <code t-esc="field.name"/>
+                                <span class="text-muted small ms-1">
+                                    <t t-esc="field.ttype"/> · <t t-esc="field.module"/>
+                                </span>
+                            </span>
+                        </div>
+                        <div t-if="!s.custom_fields.length" class="text-muted small">
+                            No custom fields — all <t t-esc="s.fields_total"/> fields come
+                            from the defining module.
+                        </div>
+                    </div>
+
+                    <div class="o_cg_card mb-3">
+                        <div class="o_cg_section_title">Overridden methods
+                            <span class="text-muted">
+                                (<t t-esc="s.overridden_methods.length"/> of <t t-esc="s.methods_total"/> indexed)
+                            </span>
+                        </div>
+                        <div t-foreach="s.overridden_methods" t-as="method" t-key="method.id"
+                             class="o_cg_method_row">
+                            <a href="#" class="o_cg_link_text me-2"
+                               title="Open call hierarchy"
+                               t-on-click.prevent="() => this.focusOn(s.key + '.' + method.name, 'method')">
+                                <i class="fa fa-code-fork" role="img" aria-label="Call hierarchy"/>
+                                <code class="o_cg_hl" t-esc="method.name + '()'"/>
+                            </a>
+                            <t t-foreach="method.chain" t-as="module" t-key="module_index">
+                                <span t-if="module_index > 0" class="o_cg_arrow small">→</span>
+                                <span class="o_cg_chain_pill o_cg_pill_sm"
+                                      t-att-class="isCustomModule(module) ? 'o_cg_pill_custom' : ''"
+                                      t-esc="module"/>
+                            </t>
+                            <a t-if="method.url" t-att-href="method.url" class="o_cg_addr ms-2"
+                               t-att-title="'Open in editor: ' + method.file">
+                                <code t-esc="method.file + ':' + method.line"/>
+                            </a>
+                            <code t-elif="method.file" class="text-muted small ms-2"
+                                  t-esc="method.file + ':' + method.line"/>
+                        </div>
+                        <div t-if="!s.overridden_methods.length" class="text-muted small">
+                            No cross-module method overrides found in the indexed scope.
+                        </div>
+                    </div>
+
+                    <div class="o_cg_card mb-3">
+                        <div class="o_cg_section_title d-flex align-items-center">
+                            <span>All methods
+                                <span class="text-muted">(<t t-esc="s.methods.length"/> indexed)</span>
+                            </span>
+                            <input type="text" class="form-control form-control-sm ms-auto"
+                                   style="max-width: 200px;"
+                                   placeholder="Filter methods…"
+                                   t-att-value="state.methodFilter"
+                                   t-on-input="(ev) => { state.methodFilter = ev.target.value; }"/>
+                        </div>
+                        <div class="o_cg_method_grid">
+                            <div t-foreach="filteredMethods" t-as="method"
+                                 t-key="method.key or method.id"
+                                 class="o_cg_method_row o_cg_grid">
+                                <span class="o_cg_cell_name">
+                                    <a t-if="!s.live" href="#" class="o_cg_link_text"
+                                       title="Open call hierarchy"
+                                       t-on-click.prevent="() => this.focusOn(method.key, 'method')">
+                                        <i class="fa fa-code-fork me-1" role="img" aria-label="Calls"/>
+                                        <code t-att-class="method.overridden ? 'o_cg_hl' : ''"
+                                              t-esc="method.name + '()'"/>
+                                    </a>
+                                    <code t-else="" t-att-class="method.overridden ? 'o_cg_hl' : ''"
+                                          t-esc="method.name + '()'"/>
+                                    <span t-if="method.overridden"
+                                          class="badge text-bg-warning ms-1"
+                                          title="Overridden across modules">override</span>
+                                    <span t-if="method.calls" class="text-muted small ms-1"
+                                          t-att-title="method.calls + ' resolved calls inside'">
+                                        ·<t t-esc="method.calls"/> calls
+                                    </span>
+                                </span>
+                                <span class="o_cg_cell_mods">
+                                    <span t-foreach="method.modules" t-as="mod" t-key="mod_index"
+                                          class="o_cg_mod"
+                                          t-att-class="isCustomModule(mod) ? 'o_cg_mod_custom' : ''"
+                                          t-esc="mod"/>
+                                </span>
+                                <a t-if="method.url" t-att-href="method.url"
+                                   class="o_cg_addr" t-att-title="'Open in editor: ' + method.file">
+                                    <code t-esc="method.file + ':' + method.line"/>
+                                </a>
+                                <span t-elif="method.file" class="o_cg_addr">
+                                    <code t-esc="method.file + ':' + method.line"/>
+                                </span>
+                                <span t-else=""/>
+                            </div>
+                        </div>
+                        <div t-if="!s.methods.length" class="text-muted small">
+                            No methods defined in the indexed scope — this model's code
+                            lives entirely in core modules.
+                        </div>
+                    </div>
+
+                    <div class="o_cg_card mb-3">
+                        <div class="o_cg_section_title">Entry points</div>
+                        <div t-foreach="s.entries" t-as="entry" t-key="entry.kind + '_' + entry.id"
+                             class="small mb-1">
+                            <span t-if="entry.kind === 'server_action'"
+                                  class="badge me-1"
+                                  t-att-class="entry.ai ? 'text-bg-primary'
+                                               : (entry.usage === 'cron' ? 'text-bg-info' : 'text-bg-secondary')"
+                                  t-esc="entry.ai ? 'AI skill' : (entry.usage or 'server action')"/>
+                            <t t-if="entry.menus.length">
+                                <t t-foreach="entry.menus" t-as="menu" t-key="menu_index">
+                                    <span t-if="menu_index > 0"> · </span>
+                                    <span t-esc="menu"/>
+                                </t>
+                                <span class="o_cg_arrow mx-1">→</span>
+                            </t>
+                            <a t-if="entry.kind === 'server_action' and entry.key" href="#"
+                               class="fw-bold o_cg_link_text"
+                               t-on-click.prevent="() => this.focusOn(entry.key, 'server_action')">
+                                <t t-esc="entry.action"/>
+                            </a>
+                            <span t-else="" class="fw-bold" t-esc="entry.action"/>
+                            <span t-if="entry.module" class="text-muted"> [<t t-esc="entry.module"/>]</span>
+                        </div>
+                        <div t-if="!s.entries.length" class="text-muted small">
+                            No window actions target this model.
+                        </div>
+                    </div>
+
+                    <div class="o_cg_card mb-3">
+                        <div class="o_cg_section_title">Access &amp; record rules
+                            <span class="text-muted">(live)</span></div>
+                        <div t-foreach="s.security.access" t-as="acl" t-key="acl_index"
+                             class="small mb-1">
+                            <code class="me-2" style="min-width: 52px; display: inline-block;"
+                                  t-esc="acl.perms || '-'"/>
+                            <span t-if="acl.group" t-esc="acl.group"/>
+                            <span t-else="" class="fst-italic">Everyone (no group)</span>
+                            <span class="text-muted ms-1" t-att-title="acl.name">·</span>
+                        </div>
+                        <div t-if="!s.security.access.length" class="small text-danger">
+                            No access rules — users cannot use this model at all
+                            (or it is accessed with sudo only).
+                        </div>
+                        <t t-if="s.security.rules.length">
+                            <div class="small fw-bold text-muted mt-2 mb-1">Record rules</div>
+                            <div t-foreach="s.security.rules" t-as="rule" t-key="rule.id"
+                                 class="small mb-1">
+                                <code class="me-2" t-esc="rule.perms || '-'"/>
+                                <span t-esc="rule.name"/>
+                                <span class="text-muted">
+                                    [<t t-esc="rule.groups or 'Global'"/>]</span>
+                                <code t-if="rule.domain" class="text-muted d-block ps-4 text-truncate"
+                                      t-att-title="rule.domain" t-esc="rule.domain"/>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- Module structure -->
+                <t t-if="state.structure and state.structure.type === 'module'">
+                    <t t-set="s" t-value="state.structure"/>
+                    <div class="o_cg_card mb-3">
+                        <div class="d-flex align-items-baseline gap-2">
+                            <h4 class="mb-0"><code t-esc="s.key"/></h4>
+                            <span t-if="s.is_custom" class="badge text-bg-primary">custom</span>
+                        </div>
+                        <div class="text-muted small mt-1" t-esc="s.shortdesc"/>
+                    </div>
+
+                    <div class="o_cg_card mb-3">
+                        <div class="o_cg_section_title">Depends on</div>
+                        <div class="d-flex flex-wrap gap-1">
+                            <a t-foreach="s.depends" t-as="dep" t-key="dep_index"
+                               href="#" class="o_cg_chain_pill o_cg_link_text"
+                               t-att-class="dep.is_custom ? 'o_cg_pill_custom' : ''"
+                               t-on-click.prevent="() => this.focusOn(dep.name, 'module')">
+                                <t t-esc="dep.name"/>
+                            </a>
+                        </div>
+                        <div t-if="s.dependents.length" class="small mt-2">
+                            <span class="text-muted">Required by:</span>
+                            <t t-foreach="s.dependents" t-as="dependent" t-key="dependent_index">
+                                <a href="#" class="ms-1 o_cg_link_text"
+                                   t-on-click.prevent="() => this.focusOn(dependent, 'module')"
+                                   t-esc="dependent"/>
+                            </t>
+                        </div>
+                    </div>
+
+                    <div class="o_cg_card mb-3">
+                        <div class="o_cg_section_title">Models defined
+                            <span class="text-muted">(<t t-esc="s.models_defined.length"/>)</span></div>
+                        <div class="d-flex flex-wrap gap-1">
+                            <a t-foreach="s.models_defined" t-as="model" t-key="model.id"
+                               href="#" class="o_cg_field_chip o_cg_link_text"
+                               t-on-click.prevent="() => this.focusOn(model.key, 'model')">
+                                <code t-esc="model.key"/>
+                            </a>
+                        </div>
+                        <div t-if="!s.models_defined.length" class="text-muted small">None.</div>
+                    </div>
+
+                    <div class="o_cg_card mb-3">
+                        <div class="o_cg_section_title">Models extended
+                            <span class="text-muted">(<t t-esc="s.models_extended.length"/>)</span></div>
+                        <div t-foreach="s.models_extended" t-as="model" t-key="model.id"
+                             class="small o_cg_method_row o_cg_grid">
+                            <span class="o_cg_cell_name">
+                                <a href="#" class="o_cg_link_text"
+                                   t-on-click.prevent="() => this.focusOn(model.key, 'model')">
+                                    <code t-esc="model.key"/>
+                                </a>
+                            </span>
+                            <span/>
+                            <a t-if="model.url" t-att-href="model.url" class="o_cg_addr"
+                               t-att-title="'Open in editor: ' + model.file">
+                                <code t-esc="model.file + ':' + model.line"/>
+                            </a>
+                            <code t-elif="model.file" class="text-muted"
+                                  t-esc="model.file + ':' + model.line"/>
+                            <span t-else=""/>
+                        </div>
+                        <div t-if="!s.models_extended.length" class="text-muted small">None.</div>
+                    </div>
+
+                    <div class="o_cg_card mb-3">
+                        <div class="o_cg_section_title">Server actions &amp; AI skills
+                            <span class="text-muted">(<t t-esc="s.server_actions.length"/>)</span></div>
+                        <div t-foreach="s.server_actions" t-as="sa" t-key="sa.id" class="small mb-1">
+                            <span class="badge me-1"
+                                  t-att-class="sa.ai ? 'text-bg-primary'
+                                               : (sa.usage === 'cron' ? 'text-bg-info' : 'text-bg-secondary')"
+                                  t-esc="sa.ai ? 'AI skill' : (sa.usage or 'action')"/>
+                            <a href="#" class="o_cg_link_text"
+                               t-on-click.prevent="() => this.focusOn(sa.key, 'server_action')">
+                                <t t-esc="sa.name"/>
+                            </a>
+                            <span t-if="sa.model" class="text-muted ms-1">
+                                on <code t-esc="sa.model"/></span>
+                        </div>
+                        <div t-if="!s.server_actions.length" class="text-muted small">None.</div>
+                    </div>
+
+                    <div class="o_cg_card mb-3">
+                        <div class="o_cg_section_title">JavaScript</div>
+                        <div t-foreach="s.js" t-as="js_item" t-key="js_item.id"
+                             class="small o_cg_method_row o_cg_grid">
+                            <span class="o_cg_cell_name">
+                                <span class="badge o_cg_vtype me-1"
+                                      t-esc="js_item.kind === 'js_service' ? 'service'
+                                             : (js_item.kind === 'js_function' ? 'function' : 'component')"/>
+                                <a href="#" class="o_cg_link_text"
+                                   t-on-click.prevent="() => this.focusOn(js_item.key, js_item.node_type)">
+                                    <code t-esc="js_item.name"/>
+                                </a>
+                                <span t-if="js_item.exported" class="badge text-bg-light ms-1"
+                                      title="Exported from the file">export</span>
+                            </span>
+                            <span/>
+                            <a t-if="js_item.url" t-att-href="js_item.url" class="o_cg_addr"
+                               t-att-title="'Open in editor: ' + js_item.file">
+                                <code t-esc="js_item.file + ':' + js_item.line"/>
+                            </a>
+                            <code t-else="" class="text-muted"
+                                  t-esc="js_item.file + ':' + js_item.line"/>
+                        </div>
+                        <div t-foreach="s.patches" t-as="patch" t-key="patch.id"
+                             class="small o_cg_method_row o_cg_grid">
+                            <span class="o_cg_cell_name">
+                                <span class="badge text-bg-warning me-1">patch</span>
+                                <a href="#" class="o_cg_link_text"
+                                   t-on-click.prevent="() => this.focusOn(patch.key, patch.node_type)">
+                                    <code class="o_cg_hl" t-esc="patch.name"/>
+                                </a>
+                            </span>
+                            <span/>
+                            <a t-if="patch.url" t-att-href="patch.url" class="o_cg_addr"
+                               t-att-title="'Open in editor: ' + patch.file">
+                                <code t-esc="patch.file + ':' + patch.line"/>
+                            </a>
+                            <code t-else="" class="text-muted"
+                                  t-esc="patch.file + ':' + patch.line"/>
+                        </div>
+                        <div t-if="!s.js.length and !s.patches.length" class="text-muted small">
+                            No JavaScript indexed for this module.
+                        </div>
+                    </div>
+                </t>
+
+                <!-- Any other node type: generic detail card (JS components,
+                     templates, views, actions...) -->
+                <t t-if="state.structure and state.structure.type === 'other'">
+                    <t t-set="d" t-value="state.structure.detail"/>
+                    <div class="o_cg_card mb-3">
+                        <div class="d-flex align-items-baseline gap-2 flex-wrap">
+                            <h4 class="mb-0"><code t-esc="d.name"/></h4>
+                            <span class="badge text-bg-secondary"
+                                  t-esc="typeLabels[d.type] or d.type"/>
+                            <span class="badge"
+                                  t-attf-style="background-color: {{ layerColors[d.layer] }}; color: #fff;"
+                                  t-esc="d.layer"/>
+                            <span t-if="d.meta and d.meta.exported"
+                                  class="badge text-bg-light">export</span>
+                            <button t-if="d.ref_id" class="btn btn-sm btn-outline-secondary ms-auto"
+                                    t-on-click="() => this.openRecord(d.ref_model, d.ref_id)">
+                                <i class="fa fa-external-link me-1" role="img" aria-label="Open"/>Open Record
+                            </button>
+                        </div>
+                        <div class="text-muted small mt-1 text-break" t-esc="d.key"/>
+                        <table class="table table-sm small mt-2 mb-0" style="max-width: 560px;">
+                            <tbody>
+                                <tr t-if="d.module">
+                                    <td class="text-muted">Module</td><td t-esc="d.module"/>
+                                </tr>
+                                <tr t-if="d.model">
+                                    <td class="text-muted">Model</td><td t-esc="d.model"/>
+                                </tr>
+                                <tr t-if="d.file_path">
+                                    <td class="text-muted">Source</td>
+                                    <td><code t-esc="d.file_path + (d.line_no ? ':' + d.line_no : '')"/></td>
+                                </tr>
+                                <tr t-if="d.meta and d.meta.registry">
+                                    <td class="text-muted">Registry</td><td t-esc="d.meta.registry"/>
+                                </tr>
+                                <tr t-if="d.meta and d.meta.view_type">
+                                    <td class="text-muted">View type</td><td t-esc="d.meta.view_type"/>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <t t-foreach="[['out', 'Outgoing relations'], ['in', 'Incoming relations']]"
+                       t-as="direction" t-key="direction[0]">
+                        <t t-set="groups" t-value="d[direction[0]]"/>
+                        <div t-if="groups.length" class="o_cg_card mb-3">
+                            <div class="o_cg_section_title" t-esc="direction[1]"/>
+                            <div t-foreach="groups" t-as="group" t-key="group.edge_type" class="mb-2">
+                                <div class="small fw-bold">
+                                    <t t-esc="edgeLabels[group.edge_type] or group.edge_type"/>
+                                    <span class="text-muted"> (<t t-esc="group.count"/>)</span>
+                                </div>
+                                <a t-foreach="group.items" t-as="item" t-key="item.id"
+                                   href="#" class="d-block small ps-2 o_cg_link_text text-truncate"
+                                   t-att-title="item.key"
+                                   t-on-click.prevent="() => this.focusOn(item.key, item.type)">
+                                    <t t-esc="item.name"/>
+                                    <span class="text-muted"> — <t t-esc="typeLabels[item.type] or item.type"/></span>
+                                </a>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </div>
+
+            <!-- ═══ Sidebar (graph mode only) ═══ -->
+            <div t-if="state.selected and state.mode === 'graph'"
+                 class="o_cg_sidebar border-start p-3 overflow-auto">
+                <div class="d-flex align-items-start justify-content-between">
+                    <h5 class="mb-0 text-break" t-esc="state.selected.name"/>
+                    <button type="button" class="btn-close ms-2"
+                            aria-label="Close"
+                            t-on-click="() => { state.selected = null; }"/>
+                </div>
+                <div class="text-muted small mb-2 text-break" t-esc="state.selected.key"/>
+
+                <div class="mb-2">
+                    <span class="badge text-bg-secondary me-1"
+                          t-esc="typeLabels[state.selected.type] or state.selected.type"/>
+                    <span class="badge me-1"
+                          t-attf-style="background-color: {{ layerColors[state.selected.layer] }}; color: #fff;"
+                          t-esc="state.selected.layer"/>
+                    <span t-if="state.selected.skeleton" class="badge text-bg-light"
+                          title="Referenced only; outside the deep-indexed scope">skeleton</span>
+                </div>
+
+                <table class="table table-sm small mb-2">
+                    <tbody>
+                        <tr t-if="state.selected.module">
+                            <td class="text-muted">Module</td>
+                            <td t-esc="state.selected.module"/>
+                        </tr>
+                        <tr t-if="state.selected.model">
+                            <td class="text-muted">Model</td>
+                            <td t-esc="state.selected.model"/>
+                        </tr>
+                        <tr t-if="state.selected.file_path">
+                            <td class="text-muted">Source</td>
+                            <td class="text-break">
+                                <code t-esc="state.selected.file_path + (state.selected.line_no ? ':' + state.selected.line_no : '')"/>
+                            </td>
+                        </tr>
+                        <tr t-if="state.selected.meta and state.selected.meta.mro_modules">
+                            <td class="text-muted">MRO chain</td>
+                            <td t-esc="state.selected.meta.mro_modules.join(' → ')"/>
+                        </tr>
+                        <tr t-if="state.selected.meta and state.selected.meta.ttype">
+                            <td class="text-muted">Field type</td>
+                            <td t-esc="state.selected.meta.ttype"/>
+                        </tr>
+                        <tr t-if="state.selected.meta and state.selected.meta.view_type">
+                            <td class="text-muted">View type</td>
+                            <td t-esc="state.selected.meta.view_type"/>
+                        </tr>
+                        <tr t-if="state.selected.meta and state.selected.meta.registry">
+                            <td class="text-muted">Registry</td>
+                            <td t-esc="state.selected.meta.registry"/>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="d-flex gap-2 mb-3 flex-wrap">
+                    <button type="button" class="btn btn-sm btn-secondary"
+                            t-on-click="() => this.focusOn(state.selected.key, state.selected.type)">
+                        <i class="fa fa-crosshairs me-1" role="img" aria-label="Focus"/>Focus
+                    </button>
+                    <button t-if="state.selected.ref_id" type="button"
+                            class="btn btn-sm btn-secondary"
+                            t-on-click="openBackingRecord">
+                        <i class="fa fa-external-link me-1" role="img" aria-label="Open"/>Open Record
+                    </button>
+                </div>
+
+                <t t-foreach="[['out', 'Outgoing'], ['in', 'Incoming']]" t-as="direction" t-key="direction[0]">
+                    <t t-set="groups" t-value="state.selected[direction[0]]"/>
+                    <div t-if="groups.length" class="mb-2">
+                        <div class="fw-bold small text-uppercase text-muted mb-1"
+                             t-esc="direction[1] + ' relations'"/>
+                        <div t-foreach="groups" t-as="group" t-key="group.edge_type" class="mb-2">
+                            <div class="small fw-bold">
+                                <t t-esc="edgeLabels[group.edge_type] or group.edge_type"/>
+                                <span class="text-muted"> (<t t-esc="group.count"/>)</span>
+                            </div>
+                            <a t-foreach="group.items" t-as="item" t-key="item.id"
+                               href="#" class="d-block small text-truncate ps-2"
+                               t-att-title="item.key"
+                               t-on-click.prevent="() => this.selectNode(item.id)">
+                                <t t-esc="item.name"/>
+                            </a>
+                            <div t-if="group.count > group.items.length"
+                                 class="small text-muted ps-2">…</div>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </div>
+</t>
+
+</templates>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================================= -->
+    <!-- Read-only remote-query tools (ir.actions.server, state=code).  -->
+    <!-- The LLM-visible tool name = the xml-id suffix.                 -->
+    <!-- Each reads the bound remote instance from the chat channel.    -->
+    <!-- ============================================================= -->
+
+    <record id="remote_instance_info" model="ir.actions.server">
+        <field name="name">AI: Get Remote Instance Info</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="ai_tool_confirmation_policy">never</field>
+        <field name="model_id" ref="ai_chatbot_enhance.model_ai_agent_bot"/>
+        <field name="ai_tool_description">Return the bound customer instance's name, URL, database and Odoo server version. Call this FIRST so you know which version's data model to expect.</field>
+        <field name="ai_tool_schema">{"type": "object", "properties": {}, "required": []}</field>
+        <field name="code">
+channel = env.context.get('discuss_channel')
+instance = channel.support_instance_id if channel else False
+if not instance:
+    ai['result'] = '{"error": "No remote instance is bound to this chat."}'
+else:
+    ai['result'] = instance.ai_tool_run('instance_info')
+        </field>
+    </record>
+
+    <record id="remote_list_models" model="ir.actions.server">
+        <field name="name">AI: Search Remote Models</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="ai_tool_confirmation_policy">never</field>
+        <field name="model_id" ref="ai_chatbot_enhance.model_ai_agent_bot"/>
+        <field name="ai_tool_description">Search the technical model names available on the remote customer database. Optional 'keyword' filters by name.</field>
+        <field name="ai_tool_schema">{"type": "object", "properties": {"keyword": {"type": "string", "maxLength": 100, "description": "Filter models by name/label; may be empty."}}, "required": []}</field>
+        <field name="code">
+channel = env.context.get('discuss_channel')
+instance = channel.support_instance_id if channel else False
+if not instance:
+    ai['result'] = '{"error": "No remote instance is bound to this chat."}'
+else:
+    ai['result'] = instance.ai_tool_run('list_models', {'keyword': keyword})
+        </field>
+    </record>
+
+    <record id="remote_get_fields" model="ir.actions.server">
+        <field name="name">AI: Get Remote Model Fields</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="ai_tool_confirmation_policy">never</field>
+        <field name="model_id" ref="ai_chatbot_enhance.model_ai_agent_bot"/>
+        <field name="ai_tool_description">Return the field structure (name, type, relation, required, selection) of a remote model. Call this before querying records so you use the real field names for this Odoo version.</field>
+        <field name="ai_tool_schema">{"type": "object", "properties": {"model_name": {"type": "string", "maxLength": 200, "description": "Technical model name, e.g. account.move."}}, "required": ["model_name"]}</field>
+        <field name="code">
+channel = env.context.get('discuss_channel')
+instance = channel.support_instance_id if channel else False
+if not instance:
+    ai['result'] = '{"error": "No remote instance is bound to this chat."}'
+else:
+    ai['result'] = instance.ai_tool_run('fields_get', {'model': model_name})
+        </field>
+    </record>
+
+    <record id="remote_search_read" model="ir.actions.server">
+        <field name="name">AI: Search Read Remote Records</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="ai_tool_confirmation_policy">never</field>
+        <field name="model_id" ref="ai_chatbot_enhance.model_ai_agent_bot"/>
+        <field name="ai_tool_description">Read records from the remote database. 'domain' is a JSON string, e.g. [["state","=","posted"]]. 'fields' and 'order' are optional. Read-only. Sensitive values may be masked.</field>
+        <field name="ai_tool_schema">{"type": "object", "properties": {"model_name": {"type": "string", "maxLength": 200, "description": "Technical model name."}, "domain": {"type": "string", "maxLength": 4000, "description": "Odoo domain as a JSON string; empty means no filter."}, "fields": {"type": "string", "maxLength": 2000, "description": "Comma-separated field names to read; keep it minimal."}, "limit": {"type": "integer", "description": "Max rows (default 50, max 200)."}, "order": {"type": "string", "maxLength": 200, "description": "Sort, e.g. 'date desc'."}}, "required": ["model_name"]}</field>
+        <field name="code">
+channel = env.context.get('discuss_channel')
+instance = channel.support_instance_id if channel else False
+if not instance:
+    ai['result'] = '{"error": "No remote instance is bound to this chat."}'
+else:
+    ai['result'] = instance.ai_tool_run('search_read', {'model': model_name, 'domain': domain, 'fields': fields, 'limit': limit, 'order': order})
+        </field>
+    </record>
+
+    <record id="remote_read_group" model="ir.actions.server">
+        <field name="name">AI: Read Group Remote Records</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="ai_tool_confirmation_policy">never</field>
+        <field name="model_id" ref="ai_chatbot_enhance.model_ai_agent_bot"/>
+        <field name="ai_tool_description">Grouped aggregation on the remote database. 'fields' e.g. amount_total:sum ; 'groupby' e.g. state. Comma-separated. 'domain' is a JSON string.</field>
+        <field name="ai_tool_schema">{"type": "object", "properties": {"model_name": {"type": "string", "maxLength": 200, "description": "Technical model name."}, "domain": {"type": "string", "maxLength": 4000, "description": "Odoo domain as a JSON string; may be empty."}, "fields": {"type": "string", "maxLength": 500, "description": "Comma-separated aggregates, e.g. amount_total:sum."}, "groupby": {"type": "string", "maxLength": 500, "description": "Comma-separated group-by fields, e.g. state."}, "limit": {"type": "integer", "description": "Max groups."}}, "required": ["model_name", "fields", "groupby"]}</field>
+        <field name="code">
+channel = env.context.get('discuss_channel')
+instance = channel.support_instance_id if channel else False
+if not instance:
+    ai['result'] = '{"error": "No remote instance is bound to this chat."}'
+else:
+    ai['result'] = instance.ai_tool_run('read_group', {'model': model_name, 'domain': domain, 'fields': fields, 'groupby': groupby, 'limit': limit})
+        </field>
+    </record>
+
+    <record id="remote_count" model="ir.actions.server">
+        <field name="name">AI: Count Remote Records</field>
+        <field name="state">code</field>
+        <field name="use_in_ai" eval="True"/>
+        <field name="ai_tool_allow_end_message" eval="False"/>
+        <field name="ai_tool_confirmation_policy">never</field>
+        <field name="model_id" ref="ai_chatbot_enhance.model_ai_agent_bot"/>
+        <field name="ai_tool_description">Count records matching a domain on the remote database. 'domain' is a JSON string.</field>
+        <field name="ai_tool_schema">{"type": "object", "properties": {"model_name": {"type": "string", "maxLength": 200, "description": "Technical model name."}, "domain": {"type": "string", "maxLength": 4000, "description": "Odoo domain as a JSON string; may be empty."}}, "required": ["model_name"]}</field>
+        <field name="code">
+channel = env.context.get('discuss_channel')
+instance = channel.support_instance_id if channel else False
+if not instance:
+    ai['result'] = '{"error": "No remote instance is bound to this chat."}'
+else:
+    ai['result'] = instance.ai_tool_run('count', {'model': model_name, 'domain': domain})
+        </field>
+    </record>
+
+    <!-- ============================================================= -->
+    <!-- Skill (topic) bundling the tools                              -->
+    <!-- ============================================================= -->
+    <record id="ai_topic_remote_support" model="ai.en.topic">
+        <field name="name">Remote Support Diagnostics</field>
+        <field name="description">Query a customer's remote Odoo (read-only) to diagnose issues.</field>
+        <field name="instructions">You diagnose a customer's REMOTE Odoo instance through read-only tools only. Never claim you changed anything. Always confirm field names with remote_get_fields before querying, and support every conclusion with real record ids returned by the tools.</field>
+        <field name="tool_ids" eval="[(6, 0, [
+            ref('remote_instance_info'),
+            ref('remote_list_models'),
+            ref('remote_get_fields'),
+            ref('remote_search_read'),
+            ref('remote_read_group'),
+            ref('remote_count'),
+        ])]"/>
+    </record>
+
+    <!-- ============================================================= -->
+    <!-- Dedicated Remote Support agent (partner_id auto-created)       -->
+    <!-- ============================================================= -->
+    <record id="ai_agent_remote_support" model="ai.agent.bot">
+        <field name="name">Remote Support Diagnostician</field>
+        <field name="subtitle">Diagnoses customer Odoo instances (read-only) and proposes fixes.</field>
+        <field name="is_remote_support" eval="True"/>
+        <field name="llm_model">deepseek-v4-flash</field>
+        <field name="response_style">analytical</field>
+        <field name="allowed_group_ids" eval="[(6, 0, [ref('ai_chatbot_enhance.group_ai_manager')])]"/>
+        <field name="topic_ids" eval="[(6, 0, [ref('ai_topic_remote_support')])]"/>
+        <field name="system_prompt">你是一名资深 Odoo 支持工程师，通过**只读**工具远程诊断一个客户的 Odoo 实例。你绝不能修改客户数据——你只查询、定位问题、并给出让人来执行的修复方案。
+
+工作步骤：
+1. 先调用 remote_instance_info 确认当前客户实例和 Odoo 版本（不同版本字段结构可能不同）。
+2. 查询记录前，先用 remote_get_fields 确认该模型的真实字段名，不要凭空猜字段。
+3. 沿数据链条逐步排查：每一步基于上一步结果推进，直到定位根本原因。
+4. 每个结论都要有工具查到的真实记录作为证据（给出单号 / ID / 字段值）。部分敏感字段（金额、银行、税号等）可能被打码为 ***，这不影响你判断结构性问题。
+
+诊断完成后，用**简体中文**输出结构化报告，严格使用以下小标题：
+## 问题定位
+## 根本原因
+## 证据
+（列出支撑结论的记录/字段/值）
+## 可能原因
+（如根因不唯一，列出多个候选并说明各自的判断依据）
+## 解决步骤
+（给客户或顾问照做的具体操作步骤；如需在后台改配置/数据，写清在哪个菜单、改什么、注意事项。你只给方案，不执行。）
+## 处理级别
+（三选一：一线可直接答复 / 需顾问登录修复 / 需升级深查，并说明理由）
+## 置信度与盲区
+（你的把握程度，以及哪些部分因只读或数据不足而无法确定）</field>
+    </record>
+</odoo>

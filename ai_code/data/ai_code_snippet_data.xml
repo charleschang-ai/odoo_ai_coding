@@ -1,0 +1,827 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Odoo 19 idiom library (Context7-style, version-accurate).
+         Retrieved by the coding agent via the odoo_docs tool, filtered by
+         artifact_type and trimmed to a token budget. Keep every snippet
+         SHORT and CORRECT for Odoo 19 — this file is what stops the model
+         from writing Odoo 15 idioms. Updated on module upgrade (no noupdate). -->
+
+    <record id="snippet_model_skeleton" model="ai.code.snippet">
+        <field name="topic">model skeleton fields compute constraint</field>
+        <field name="title">Odoo 19 model: fields, compute, constrains</field>
+        <field name="artifact_type">model</field>
+        <field name="sequence">10</field>
+        <field name="source_ref">ai_code curated</field>
+        <field name="code"><![CDATA[
+# -*- coding: utf-8 -*-
+from odoo import api, fields, models, _
+from odoo.exceptions import UserError, ValidationError
+
+
+class LibraryBook(models.Model):
+    _name = 'library.book'
+    _description = 'Library Book'      # required, or a warning is logged
+    _order = 'name'
+
+    name = fields.Char(string='Title', required=True)
+    active = fields.Boolean(default=True)
+    date_published = fields.Date()
+    page_count = fields.Integer()
+    price = fields.Float(digits=(12, 2))
+    state = fields.Selection([
+        ('draft', 'Draft'),
+        ('available', 'Available'),
+        ('lost', 'Lost'),
+    ], default='draft', required=True)
+    partner_id = fields.Many2one('res.partner', string='Publisher', ondelete='set null')
+    tag_ids = fields.Many2many('library.book.tag', string='Tags')
+    line_ids = fields.One2many('library.book.line', 'book_id')
+    total_pages = fields.Integer(compute='_compute_total_pages', store=True)
+
+    @api.depends('line_ids.pages')
+    def _compute_total_pages(self):
+        for book in self:
+            book.total_pages = sum(book.line_ids.mapped('pages'))
+
+    @api.constrains('page_count')
+    def _check_page_count(self):
+        for book in self:
+            if book.page_count < 0:
+                raise ValidationError(_("Page count cannot be negative."))
+]]></field>
+    </record>
+
+    <record id="snippet_unique_constraint" model="ai.code.snippet">
+        <field name="topic">unique sql constraint</field>
+        <field name="title">SQL constraints: models.Constraint class (NOT _sql_constraints)</field>
+        <field name="artifact_type">model</field>
+        <field name="sequence">11</field>
+        <field name="source_ref">Odoo 19 breaking change, verified in this project</field>
+        <field name="code"><![CDATA[
+# Odoo 19: the old `_sql_constraints = [(...)]` list is silently IGNORED.
+# Declare constraints as class attributes instead:
+class LibraryBook(models.Model):
+    _name = 'library.book'
+    _description = 'Library Book'
+
+    _isbn_uniq = models.Constraint(
+        'UNIQUE(isbn)',
+        "A book with this ISBN already exists.")
+    _price_positive = models.Constraint(
+        'CHECK(price >= 0)',
+        "The price must be positive.")
+]]></field>
+    </record>
+
+    <record id="snippet_display_name" model="ai.code.snippet">
+        <field name="topic">display name record label name_get</field>
+        <field name="title">Record label: _compute_display_name (name_get was removed)</field>
+        <field name="artifact_type">model</field>
+        <field name="sequence">12</field>
+        <field name="source_ref">Odoo 19 breaking change</field>
+        <field name="code"><![CDATA[
+# name_get() no longer exists (removed in 17). Override the display_name compute:
+    @api.depends('name', 'reference')
+    def _compute_display_name(self):
+        for record in self:
+            record.display_name = f"[{record.reference}] {record.name}"
+# Reading labels: use record.display_name (never .name_get()).
+]]></field>
+    </record>
+
+    <record id="snippet_inherit_extend" model="ai.code.snippet">
+        <field name="topic">inherit extend existing model add field override method</field>
+        <field name="title">Extending an existing model (_inherit)</field>
+        <field name="artifact_type">model</field>
+        <field name="sequence">13</field>
+        <field name="code"><![CDATA[
+class SaleOrder(models.Model):
+    _inherit = 'sale.order'          # NO _name: extend in place
+
+    delivery_note = fields.Text()
+
+    def action_confirm(self):
+        # always call super() and return its result
+        result = super().action_confirm()
+        for order in self:
+            if order.delivery_note:
+                order.message_post(body=order.delivery_note)
+        return result
+]]></field>
+    </record>
+
+    <record id="snippet_manifest" model="ai.code.snippet">
+        <field name="topic">manifest module declaration depends data assets</field>
+        <field name="title">__manifest__.py for Odoo 19</field>
+        <field name="artifact_type">manifest</field>
+        <field name="sequence">10</field>
+        <field name="code"><![CDATA[
+# -*- coding: utf-8 -*-
+{
+    'name': 'Library Management',
+    'version': '19.0.1.0.0',
+    'category': 'Services',
+    'summary': 'Manage books and loans',
+    'author': 'Your Company',             # include it: a missing author logs a warning
+    'depends': ['base', 'mail'],          # every module referenced by views/models
+    'data': [
+        'security/library_security.xml',   # groups BEFORE the access csv
+        'security/ir.model.access.csv',
+        'data/library_data.xml',
+        'views/library_book_views.xml',    # views BEFORE the menus that reference them
+        'views/library_menus.xml',
+    ],
+    'assets': {                            # only when the module ships JS/SCSS
+        'web.assets_backend': [
+            'library_management/static/src/**/*',
+        ],
+    },
+    'license': 'LGPL-3',
+    'installable': True,
+    'application': True,
+}
+# Rules: data files load IN ORDER — security first, views before menus.
+# Every file listed must exist or install fails.
+]]></field>
+    </record>
+
+    <record id="snippet_list_form_view" model="ai.code.snippet">
+        <field name="topic">list form view record fields widget</field>
+        <field name="title">List + form view (Odoo 19: &lt;list&gt; tag, direct expressions)</field>
+        <field name="artifact_type">view</field>
+        <field name="sequence">10</field>
+        <field name="code"><![CDATA[
+<record id="view_library_book_list" model="ir.ui.view">
+    <field name="name">library.book.list</field>
+    <field name="model">library.book</field>
+    <field name="arch" type="xml">
+        <list>  <!-- Odoo 19 uses <list>, NOT <tree> -->
+            <field name="name"/>
+            <field name="partner_id" optional="show"/>
+            <field name="state" widget="badge"
+                   decoration-success="state == 'available'"
+                   decoration-danger="state == 'lost'"/>
+        </list>
+    </field>
+</record>
+
+<record id="view_library_book_form" model="ir.ui.view">
+    <field name="name">library.book.form</field>
+    <field name="model">library.book</field>
+    <field name="arch" type="xml">
+        <form>
+            <header>
+                <!-- attrs= and states= are GONE: use direct expressions -->
+                <button name="action_publish" type="object" string="Publish"
+                        class="btn-primary" invisible="state != 'draft'"/>
+                <field name="state" widget="statusbar"/>
+            </header>
+            <sheet>
+                <group>
+                    <group>
+                        <field name="name"/>
+                        <field name="partner_id" readonly="state == 'lost'"/>
+                    </group>
+                    <group>
+                        <field name="date_published"/>
+                        <field name="price" invisible="not date_published"/>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="Lines" name="lines">
+                        <field name="line_ids">
+                            <list editable="bottom">
+                                <field name="name"/>
+                                <field name="pages"/>
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
+            </sheet>
+        </form>
+    </field>
+</record>
+]]></field>
+    </record>
+
+    <record id="snippet_search_view" model="ai.code.snippet">
+        <field name="topic">search view filter group by</field>
+        <field name="title">Search view (Odoo 19 RNG-safe: plain group, no expand)</field>
+        <field name="artifact_type">view</field>
+        <field name="sequence">11</field>
+        <field name="source_ref">Odoo 19 RNG, verified in this project</field>
+        <field name="code"><![CDATA[
+<record id="view_library_book_search" model="ir.ui.view">
+    <field name="name">library.book.search</field>
+    <field name="model">library.book</field>
+    <field name="arch" type="xml">
+        <search>
+            <field name="name"/>
+            <field name="partner_id"/>
+            <filter name="filter_available" string="Available"
+                    domain="[('state', '=', 'available')]"/>
+            <separator/>
+            <filter name="filter_this_year" string="This Year"
+                    domain="[('date_published', '&gt;=', context_today().strftime('%Y-01-01'))]"/>
+            <!-- groupby block: a PLAIN <group> — expand=/string= violate the RNG -->
+            <group>
+                <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                <filter name="group_partner" string="Publisher" context="{'group_by': 'partner_id'}"/>
+            </group>
+        </search>
+    </field>
+</record>
+]]></field>
+    </record>
+
+    <record id="snippet_smart_button" model="ai.code.snippet">
+        <field name="topic">smart button stat button related records count form</field>
+        <field name="title">Smart button (Odoo 19: type="object" method, NEVER active_id in context)</field>
+        <field name="artifact_type">view</field>
+        <field name="sequence">14</field>
+        <field name="source_ref">verified failure: active_id in a smart-button context triggers
+            "Access Rights Inconsistency: field active_id does not exist" ValidationError</field>
+        <field name="code"><![CDATA[
+<!-- Smart button that opens related records. Use type="object" + a Python
+     method that RETURNS the action. Do NOT use type="action" with
+     context="{'search_default_x': active_id}" — Odoo 19's view validator
+     rejects active_id/id in a group-restricted button context with an
+     "Access Rights Inconsistency" error (the field does not exist on the model). -->
+<div class="oe_button_box" name="button_box">
+    <button class="oe_stat_button" type="object"
+            name="action_view_conversations" icon="fa-comments">
+        <field name="conversation_count" widget="statinfo" string="Conversations"/>
+    </button>
+</div>
+
+<!-- Python (on the model owning the form): -->
+    def action_view_conversations(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Conversations'),
+            'res_model': 'chat.conversation',
+            'view_mode': 'list,form',
+            'domain': [('assistant_id', '=', self.id)],
+            'context': {'default_assistant_id': self.id},
+        }
+]]></field>
+    </record>
+
+    <record id="snippet_kanban_view" model="ai.code.snippet">
+        <field name="topic">kanban view card board group by</field>
+        <field name="title">Kanban view (Odoo 19: t-name="card" template)</field>
+        <field name="artifact_type">view</field>
+        <field name="sequence">13</field>
+        <field name="code"><![CDATA[
+<record id="view_library_book_kanban" model="ir.ui.view">
+    <field name="name">library.book.kanban</field>
+    <field name="model">library.book</field>
+    <field name="arch" type="xml">
+        <kanban default_group_by="state">
+            <templates>
+                <!-- Odoo 17+ structure: t-name="card" (not the legacy kanban-box) -->
+                <t t-name="card">
+                    <div class="d-flex flex-column p-2">
+                        <field name="name" class="fw-bold"/>
+                        <div class="d-flex justify-content-between mt-1">
+                            <field name="partner_id"/>
+                            <field name="tag_ids" widget="many2many_tags"/>
+                        </div>
+                    </div>
+                </t>
+            </templates>
+        </kanban>
+    </field>
+</record>
+]]></field>
+    </record>
+
+    <record id="snippet_view_inherit" model="ai.code.snippet">
+        <field name="topic">view inherit xpath extend existing</field>
+        <field name="title">Inheriting an existing view with xpath</field>
+        <field name="artifact_type">view</field>
+        <field name="sequence">12</field>
+        <field name="code"><![CDATA[
+<record id="view_partner_form_library" model="ir.ui.view">
+    <field name="name">res.partner.form.library</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_form"/>
+    <field name="arch" type="xml">
+        <xpath expr="//page[@name='internal_notes']" position="before">
+            <page string="Library" name="library">
+                <field name="library_book_ids"/>
+            </page>
+        </xpath>
+        <!-- position: before / after / inside / replace / attributes -->
+        <xpath expr="//field[@name='website']" position="attributes">
+            <attribute name="invisible">is_library_member</attribute>
+        </xpath>
+    </field>
+</record>
+]]></field>
+    </record>
+
+    <record id="snippet_access_csv" model="ai.code.snippet">
+        <field name="topic">access rights csv security model</field>
+        <field name="title">ir.model.access.csv (exact header, one line per model+group)</field>
+        <field name="artifact_type">security</field>
+        <field name="sequence">10</field>
+        <field name="code"><![CDATA[
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_library_book_user,access_library_book_user,model_library_book,base.group_user,1,0,0,0
+access_library_book_manager,access_library_book_manager,model_library_book,library_management.group_library_manager,1,1,1,1
+
+# model_id:id = 'model_' + model name with dots replaced by underscores.
+# Cross-module group: prefix with the module name. EVERY new model needs
+# at least one access line or users get "no access rights" errors.
+]]></field>
+    </record>
+
+    <record id="snippet_security_groups" model="ai.code.snippet">
+        <field name="topic">security groups record rules category privilege</field>
+        <field name="title">Groups + record rule (Odoo 19: res.groups.privilege)</field>
+        <field name="artifact_type">security</field>
+        <field name="sequence">11</field>
+        <field name="source_ref">pattern from ai_chatbot_enhance/security/ai_security.xml</field>
+        <field name="code"><![CDATA[
+<odoo>
+    <record id="module_category_library" model="ir.module.category">
+        <field name="name">Library</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <!-- Odoo 19: the users-form dropdown is driven by res.groups.privilege -->
+    <record id="res_groups_privilege_library" model="res.groups.privilege">
+        <field name="name">Library</field>
+        <field name="category_id" ref="module_category_library"/>
+    </record>
+
+    <record id="group_library_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="privilege_id" ref="res_groups_privilege_library"/>
+    </record>
+    <record id="group_library_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="privilege_id" ref="res_groups_privilege_library"/>
+        <field name="implied_ids" eval="[(4, ref('group_library_user'))]"/>
+    </record>
+
+    <record id="rule_library_book_own" model="ir.rule">
+        <field name="name">Books: own records only</field>
+        <field name="model_id" ref="model_library_book"/>
+        <field name="domain_force">[('create_uid', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_library_user'))]"/>
+    </record>
+</odoo>
+]]></field>
+    </record>
+
+    <record id="snippet_menu_action" model="ai.code.snippet">
+        <field name="topic">menu action window menuitem</field>
+        <field name="title">Window action + menu tree</field>
+        <field name="artifact_type">menu</field>
+        <field name="sequence">10</field>
+        <field name="code"><![CDATA[
+<record id="action_library_book" model="ir.actions.act_window">
+    <field name="name">Books</field>
+    <field name="res_model">library.book</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_library_book_search"/>
+    <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">No book yet</p>
+    </field>
+</record>
+
+<!-- root menu (no parent), then children; actions must exist BEFORE menus -->
+<menuitem id="menu_library_root" name="Library" sequence="60"/>
+<menuitem id="menu_library_books" name="Books" parent="menu_library_root"
+          action="action_library_book" sequence="10"/>
+<!-- hang under another module's menu: parent="other_module.menu_xml_id" -->
+]]></field>
+    </record>
+
+    <record id="snippet_data_records" model="ai.code.snippet">
+        <field name="topic">data records noupdate default</field>
+        <field name="title">Data records + noupdate</field>
+        <field name="artifact_type">data</field>
+        <field name="sequence">10</field>
+        <field name="code"><![CDATA[
+<odoo>
+    <!-- noupdate="1": loaded once, NOT overwritten on module upgrade.
+         Use for user-editable defaults; leave it off for curated data
+         the module owns and should refresh on upgrade. -->
+    <data noupdate="1">
+        <record id="book_tag_scifi" model="library.book.tag">
+            <field name="name">Sci-Fi</field>
+        </record>
+    </data>
+    <record id="stage_draft" model="library.stage">
+        <field name="name">Draft</field>
+        <field name="sequence">1</field>
+    </record>
+</odoo>
+]]></field>
+    </record>
+
+    <record id="snippet_cron" model="ai.code.snippet">
+        <field name="topic">cron scheduled action ir.cron</field>
+        <field name="title">Scheduled action (ir.cron) Odoo 19</field>
+        <field name="artifact_type">data</field>
+        <field name="sequence">11</field>
+        <field name="source_ref">pattern from ai_code_graph/data/ir_cron_data.xml</field>
+        <field name="code"><![CDATA[
+<odoo>
+    <data noupdate="1">
+        <record id="ir_cron_library_overdue" model="ir.cron">
+            <field name="name">Library: flag overdue loans</field>
+            <field name="model_id" ref="model_library_loan"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_flag_overdue()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <!-- optional: <field name="active" eval="False"/> to ship disabled -->
+        </record>
+    </data>
+</odoo>
+<!-- The method is a plain model method, usually named _cron_*; no numbercall
+     field in Odoo 19. Trigger programmatically with cron_record._trigger(). -->
+]]></field>
+    </record>
+
+    <record id="snippet_controller" model="ai.code.snippet">
+        <field name="topic">controller http route json endpoint</field>
+        <field name="title">HTTP controller (Odoo 19 routes)</field>
+        <field name="artifact_type">controller</field>
+        <field name="sequence">10</field>
+        <field name="code"><![CDATA[
+# -*- coding: utf-8 -*-
+from odoo import http
+from odoo.http import request
+
+
+class LibraryController(http.Controller):
+
+    @http.route('/library/books', type='http', auth='user', website=False)
+    def list_books(self, **kwargs):
+        books = request.env['library.book'].search([], limit=50)
+        return request.make_json_response([
+            {'id': b.id, 'name': b.name} for b in books])
+
+    @http.route('/library/api/borrow', type='jsonrpc', auth='user', methods=['POST'])
+    def borrow(self, book_id, **kwargs):
+        # Odoo 19: type='jsonrpc' (the old type='json' alias still logs a warning)
+        book = request.env['library.book'].browse(int(book_id)).exists()
+        if not book:
+            return {'error': 'not found'}
+        book.action_borrow()
+        return {'ok': True}
+# Controllers live in controllers/*.py, imported from controllers/__init__.py,
+# which the module __init__.py imports too.
+]]></field>
+    </record>
+
+    <record id="snippet_wizard" model="ai.code.snippet">
+        <field name="topic">wizard transient model dialog</field>
+        <field name="title">Wizard (TransientModel) + its view/action</field>
+        <field name="artifact_type">wizard</field>
+        <field name="sequence">10</field>
+        <field name="code"><![CDATA[
+class LibraryLoanWizard(models.TransientModel):
+    _name = 'library.loan.wizard'
+    _description = 'Borrow Books Wizard'
+
+    book_ids = fields.Many2many('library.book', required=True)
+    partner_id = fields.Many2one('res.partner', required=True)
+
+    def action_confirm(self):
+        self.ensure_one()
+        for book in self.book_ids:
+            self.env['library.loan'].create({
+                'book_id': book.id, 'partner_id': self.partner_id.id})
+        return {'type': 'ir.actions.act_window_close'}
+
+# view: a normal <form> with <footer><button name="action_confirm"
+# type="object" string="Confirm" class="btn-primary"/></footer>
+# action: <record model="ir.actions.act_window"> with
+#   <field name="target">new</field>  (opens as dialog)
+# TransientModels still need an ir.model.access.csv line.
+]]></field>
+    </record>
+
+    <record id="snippet_owl_component" model="ai.code.snippet">
+        <field name="topic">owl component javascript frontend registry</field>
+        <field name="title">OWL component + registry (Odoo 19)</field>
+        <field name="artifact_type">js</field>
+        <field name="sequence">10</field>
+        <field name="code"><![CDATA[
+/** static/src/dashboard/library_dashboard.js */
+import { Component, useState, onWillStart } from "@odoo/owl";
+import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
+// A client-action component receives standard action props (action, actionId,
+// className...). Odoo 19: spread standardActionServiceProps — NEVER `static
+// props = {}` (that fails prop validation in debug mode).
+import { standardActionServiceProps } from "@web/webclient/actions/action_service";
+
+export class LibraryDashboard extends Component {
+    static template = "library_management.LibraryDashboard";
+    static props = { ...standardActionServiceProps };
+
+    setup() {
+        this.orm = useService("orm");
+        this.state = useState({ rows: [], filter: "all" });
+        onWillStart(() => this.load());
+    }
+
+    async load() {
+        // DATA CONTRACT: the backend method must return EVERY field the UI reads
+        // — including any field you filter/group by client-side. Here each row
+        // carries `category` precisely so the filter below can work.
+        this.state.rows = await this.orm.call("library.book", "get_dashboard_data", []);
+    }
+
+    get visibleRows() {
+        const f = this.state.filter;
+        return f === "all" ? this.state.rows : this.state.rows.filter((r) => r.category === f);
+    }
+
+    setFilter(f) { this.state.filter = f; }   // reactive: getter re-runs on change
+}
+registry.category("actions").add("library_dashboard_action", LibraryDashboard);
+
+/* Template (static/src/dashboard/library_dashboard.xml) — t-name MUST match
+   the static template string above:
+<templates xml:space="preserve">
+    <t t-name="library_management.LibraryDashboard">
+        <div class="o_library_dashboard p-3">
+            <button t-att-class="state.filter==='revenue' ? 'btn-primary' : 'btn-light'"
+                    t-on-click="() => this.setFilter('revenue')">Revenue</button>
+            <t t-foreach="visibleRows" t-as="row" t-key="row.id">
+                <div t-esc="row.name"/>
+            </t>
+        </div>
+    </t>
+</templates>
+Manifest assets: 'web.assets_backend': ['library_management/static/src/**/*']
+The client action opens via <record model="ir.actions.client"> tag=the registry key,
+or a menu with action pointing to it. */
+]]></field>
+    </record>
+
+    <record id="snippet_patch_js" model="ai.code.snippet">
+        <field name="topic">patch existing component javascript override</field>
+        <field name="title">Patching an existing OWL component / model</field>
+        <field name="artifact_type">js</field>
+        <field name="sequence">11</field>
+        <field name="code"><![CDATA[
+/** static/src/js/message_patch.js */
+import { patch } from "@web/core/utils/patch";
+import { Message } from "@mail/core/common/message";
+
+patch(Message.prototype, {
+    setup() {
+        super.setup(...arguments);
+        // extra setup here
+    },
+    get customLabel() {
+        return this.props.message.isSelfAuthored ? "me" : "other";
+    },
+});
+// Patch prototypes for methods/getters; patch the class itself
+// (patch(Message, {...})) only for static properties like components.
+]]></field>
+    </record>
+
+    <record id="snippet_unit_test" model="ai.code.snippet">
+        <field name="topic">unit test transaction case tagged</field>
+        <field name="title">Server test (Odoo 19 TransactionCase)</field>
+        <field name="artifact_type">test</field>
+        <field name="sequence">10</field>
+        <field name="code"><![CDATA[
+# tests/test_library.py  (tests/__init__.py: from . import test_library)
+from odoo.tests import TransactionCase, tagged
+
+
+@tagged('post_install', '-at_install')
+class TestLibraryBook(TransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.book = cls.env['library.book'].create({'name': 'Dune'})
+
+    def test_publish_flow(self):
+        self.book.action_publish()
+        self.assertEqual(self.book.state, 'available')
+
+    def test_negative_pages_blocked(self):
+        with self.assertRaises(Exception):
+            self.book.page_count = -1
+# Run: odoo-bin -d db -u library_management --test-enable --stop-after-init
+]]></field>
+    </record>
+
+    <record id="snippet_report" model="ai.code.snippet">
+        <field name="topic">qweb pdf report template</field>
+        <field name="title">QWeb PDF report</field>
+        <field name="artifact_type">report</field>
+        <field name="sequence">10</field>
+        <field name="code"><![CDATA[
+<record id="action_report_library_book" model="ir.actions.report">
+    <field name="name">Book Card</field>
+    <field name="model">library.book</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">library_management.report_book_card</field>
+    <field name="print_report_name">'Book - %s' % (object.name)</field>
+    <field name="binding_model_id" ref="model_library_book"/>
+    <field name="binding_type">report</field>
+</record>
+
+<template id="report_book_card">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="book">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2 t-field="book.name"/>
+                    <p>Publisher: <span t-field="book.partner_id"/></p>
+                </div>
+            </t>
+        </t>
+    </t>
+</template>
+]]></field>
+    </record>
+
+    <record id="snippet_pitfalls" model="ai.code.snippet">
+        <field name="topic">odoo 19 breaking changes pitfalls checklist migration</field>
+        <field name="title">Odoo 19 breaking-changes checklist (read before writing Python)</field>
+        <field name="artifact_type">other</field>
+        <field name="sequence">5</field>
+        <field name="source_ref">verified failures in this project</field>
+        <field name="code"><![CDATA[
+Every item below crashed a real install/run on Odoo 19 — do NOT write pre-17 idioms:
+1. `_sql_constraints = [...]` is IGNORED -> `_x_uniq = models.Constraint('UNIQUE(a,b)', "msg")`.
+2. `name_get()` removed -> override `_compute_display_name()`, read `.display_name`.
+3. Search views: `<group expand="0" string="...">` is INVALID -> plain `<group>`.
+4. `attrs=` / `states=` on view elements removed -> direct `invisible="..."` expressions.
+5. List views use `<list>`, not `<tree>`.
+6. BaseModel has `__slots__`: `self._anything = x` on a recordset raises AttributeError.
+7. `odoo.__file__` can be None -> anchor paths on `odoo.modules.module.__file__`.
+8. `@api.multi` / `@api.one` do not exist.
+9. Controllers: `type='jsonrpc'` (not `type='json'`).
+10. Never hand-write .po files; generate via base.language.export, then fill msgstr.
+11. Chatter: model must inherit `mail.thread` and the form view include
+    `<chatter/>` (Odoo 19 tag) to show messages/followers.
+12. Smart buttons: use `type="object"` + a Python method returning the action.
+    NEVER `type="action"` with `active_id`/`id` in the context — the view
+    validator raises "Access Rights Inconsistency: field active_id does not
+    exist" and the module fails to install. (This error is only visible with
+    --log-handler odoo.tools.convert:DEBUG.)
+13. A view referencing an action/record by xmlid must load AFTER that xmlid is
+    defined — order the manifest data list accordingly (actions before the
+    views/menus that reference them).
+14. Two fields with the same `string=` label on one model log a warning; give
+    related m2o/o2m fields distinct labels.
+15. A model method that creates a log/history/audit record for a user who lacks
+    create rights on that model must sudo() that create — else non-privileged
+    users get AccessError. See odoo_docs "sudo".
+16. A STORED computed field whose value comes from a search() on ANOTHER model
+    cannot be tracked by @api.depends; recompute it from that other model's
+    write/create/unlink. See odoo_docs "stored computed search".
+17. OWL client action: `static props = {}` fails prop validation in debug mode —
+    spread `standardActionServiceProps` (import from @web/webclient/actions/
+    action_service). The .xml t-name MUST equal the JS `static template` string.
+18. Frontend DATA CONTRACT: a backend data method must return EVERY field the UI
+    reads — including any field you filter/group/sort by client-side. If the UI
+    filters a list by category, each row in the returned data must carry category.
+    (Sandbox install does NOT run JS — verify dashboards/widgets by rendering.)
+19. Dashboard/report method reading MANY records: sudo() the read-only aggregation
+    (record rules + ACLs otherwise raise AccessError for most users and the OWL
+    dashboard crashes at onWillStart), AND gate the menu to the data's group. See
+    odoo_docs "dashboard".
+20. Odoo 19: res.users groups field is `group_ids` (was `groups_id`). Manager
+    groups usually imply the user group via implied_ids; a record rule on the user
+    group also constrains managers unless a broader manager rule/sudo is used.
+]]></field>
+    </record>
+
+    <record id="snippet_method_sudo" model="ai.code.snippet">
+        <field name="topic">sudo access rights create log history points method acl</field>
+        <field name="title">Model methods: sudo() when creating records the user's ACL forbids</field>
+        <field name="artifact_type">model</field>
+        <field name="sequence">15</field>
+        <field name="source_ref">verified: action_add_points create() without sudo -> AccessError
+            for non-manager users who lack perm_create on the log model</field>
+        <field name="code"><![CDATA[
+# A method that writes an audit/log/points record on behalf of a user who does
+# NOT have create rights on that log model MUST use .sudo() for the create,
+# otherwise every non-privileged user hits AccessError.
+    def action_add_points(self, points, reason=None):
+        self.ensure_one()
+        # sudo(): a normal user awards points but has no create right on the log
+        self.env['loyalty.history'].sudo().create({
+            'partner_id': self.id, 'points': points, 'reason': reason,
+        })
+        self.loyalty_points += points
+# Rule of thumb: if a method's create()/write() targets a model whose access csv
+# does NOT grant the acting group that permission, sudo() that ORM call (and only
+# that call). Do not sudo() the whole method. Common for: activity/mail logs,
+# audit trails, history lines, sequence bumps, counters.
+]]></field>
+    </record>
+
+    <record id="snippet_dashboard_data_method" model="ai.code.snippet">
+        <field name="topic">dashboard report aggregate method sudo access record rule menu group</field>
+        <field name="title">Dashboard/report data method: sudo() the aggregation + gate the menu</field>
+        <field name="artifact_type">model</field>
+        <field name="sequence">17</field>
+        <field name="source_ref">verified: get_dashboard_data without sudo -> AccessError for users
+            outside the model's group / limited by a record rule; the OWL dashboard then crashes at
+            onWillStart. Only caught by RENDERING (install does not call the method).</field>
+        <field name="code"><![CDATA[
+# A dashboard/report method aggregates across MANY records for reporting. Record
+# rules (e.g. "see only your own") and per-group ACLs will make plain reads raise
+# AccessError for most users -> the OWL component's onWillStart throws -> blank
+# dashboard. For a READ-ONLY org-wide aggregation, sudo() the reads:
+    @api.model
+    def get_dashboard_data(self):
+        projects = self.env['pulse.project'].sudo().search([])   # sudo: read-only report
+        tasks = self.env['pulse.task'].sudo().search([])
+        # ... aggregate, then return only the fields the UI needs ...
+        return {'kpis': [...], 'recent': [
+            {'id': t.id, 'name': t.name, 'state': t.state, 'priority': t.priority}
+            for t in tasks[:20]]}   # include EVERY field the UI filters/shows
+
+# AND gate the menu/action so only authorized users open the dashboard at all:
+#   <menuitem id="menu_x_root" ... groups="module.group_x_user"/>
+# Rule of thumb: a menu whose action reads records restricted by ACL/record-rule
+# must be restricted to the same group, and org-wide report methods sudo() reads.
+# NOTE: install-testing does NOT run JS or call the method — verify a dashboard by
+# actually rendering it (the AccessError only appears at runtime).
+]]></field>
+    </record>
+
+    <record id="snippet_stored_compute_search" model="ai.code.snippet">
+        <field name="topic">stored computed field depends search other model stale recompute</field>
+        <field name="title">Stored compute derived from another model's records (depends can't see search)</field>
+        <field name="artifact_type">model</field>
+        <field name="sequence">16</field>
+        <field name="source_ref">verified: stored loyalty_tier computed via search() on tier rules
+            goes stale when a rule is edited, because @api.depends cannot track it</field>
+        <field name="code"><![CDATA[
+# A STORED computed field whose value comes from a search() on ANOTHER model has
+# a dependency @api.depends CANNOT express — Odoo only recomputes stored fields
+# when a depended-on field ON THE RECORD (or a traversed relation) changes.
+# So the stored value goes STALE when the other model's data changes.
+class ResPartner(models.Model):
+    _inherit = 'res.partner'
+    loyalty_tier = fields.Selection(..., compute='_compute_loyalty_tier', store=True)
+
+    @api.depends('loyalty_points', 'loyalty_tier_manual')
+    def _compute_loyalty_tier(self):
+        for p in self:
+            if p.loyalty_tier_manual:
+                continue
+            rule = self.env['loyalty.tier.rule'].sudo().search(
+                [('min_points', '<=', p.loyalty_points)], order='min_points desc', limit=1)
+            p.loyalty_tier = rule.tier if rule else 'bronze'
+
+# Recompute from the OTHER model's write/create/unlink so edits propagate:
+class LoyaltyTierRule(models.Model):
+    _name = 'loyalty.tier.rule'
+
+    def write(self, vals):
+        res = super().write(vals)
+        if {'min_points', 'tier'} & set(vals):
+            self.env['res.partner'].search(
+                [('loyalty_tier_manual', '=', False)])._compute_loyalty_tier()
+        return res
+]]></field>
+    </record>
+
+    <record id="snippet_chatter" model="ai.code.snippet">
+        <field name="topic">chatter mail thread activity messages</field>
+        <field name="title">Chatter: mail.thread + &lt;chatter/&gt; tag</field>
+        <field name="artifact_type">model</field>
+        <field name="sequence">14</field>
+        <field name="code"><![CDATA[
+class LibraryLoan(models.Model):
+    _name = 'library.loan'
+    _description = 'Book Loan'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    name = fields.Char(tracking=True)      # tracking=True logs changes in chatter
+    state = fields.Selection([...], tracking=True)
+
+# form view — Odoo 19 uses the <chatter/> tag after </sheet>:
+#   <form>
+#     <sheet>...</sheet>
+#     <chatter/>
+#   </form>
+# manifest depends must include 'mail'.
+]]></field>
+    </record>
+
+</odoo>

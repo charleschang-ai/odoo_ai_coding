@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="ai_chat_platform.AiPlatform">
+    <div class="o_ai_platform" t-att-class="{ 'o_ai_platform--collapsed': state.collapsed }">
+        <div class="o_aip_backdrop" t-on-click="toggleSidebar"/>
+        <AiPlatformSidebar
+            conversations="state.conversations"
+            activeId="state.activeId"
+            userName="state.userName"
+            canViewAll="state.canViewAll"
+            showAll="state.showAll"
+            onToggleShowAll.bind="toggleShowAll"
+            onSelect.bind="openConversation"
+            onNew.bind="newChat"
+            onRename.bind="renameConversation"
+            onDelete.bind="deleteConversation"/>
+        <div class="o_aip_main">
+            <div class="o_aip_header">
+                <button class="o_aip_header_btn" t-on-click="toggleSidebar" title="Toggle sidebar">
+                    <i class="fa fa-bars"/>
+                </button>
+                <div class="o_aip_header_title" t-esc="headerTitle"/>
+                <!-- admin viewing another user's conversation -->
+                <span t-if="viewingOthers" class="o_aip_owner_chip"
+                      t-att-title="'Conversation of ' + activeConversation.owner_name + ' (read-only)'">
+                    <i class="fa fa-eye me-1"/><t t-esc="activeConversation.owner_name"/>
+                </span>
+                <!-- agent / model picker, right of the conversation name -->
+                <div class="o_aip_header_agent" t-if="currentAgent">
+                    <button class="o_aip_agent_pill" t-on-click="toggleAgentMenu"
+                            title="Choose the AI agent (each agent is bound to its model)">
+                        <img class="o_aip_agent_avatar" t-att-src="agentAvatarUrl(currentAgent)" alt=""/>
+                        <span class="o_aip_agent_pill_name" t-esc="currentAgent.name"/>
+                        <span t-if="currentAgent.model" class="o_aip_model_badge" t-esc="currentAgent.model"/>
+                        <i class="fa fa-angle-down o_aip_agent_pill_caret"
+                           t-att-class="{ 'o_aip_agent_pill_caret--open': state.agentMenuOpen }"/>
+                    </button>
+                    <div class="o_aip_agentmenu" t-att-class="{ 'o_aip_agentmenu--show': state.agentMenuOpen }">
+                        <div t-if="state.activeId" class="o_aip_agentmenu_note">
+                            <i class="fa fa-info-circle me-1"/>Picking a different agent starts a new chat
+                        </div>
+                        <button t-foreach="state.agents" t-as="agent" t-key="agent.id"
+                                class="o_aip_agentmenu_item"
+                                t-att-class="{ 'o_aip_agentmenu_item--current': agent.id === currentAgent.id }"
+                                t-on-click="() => this.pickAgent(agent.id)">
+                            <img class="o_aip_agent_avatar" t-att-src="agentAvatarUrl(agent)" alt=""/>
+                            <span class="o_aip_agentmenu_text">
+                                <span class="o_aip_agentmenu_name" t-esc="agent.name"/>
+                                <span t-if="agent.subtitle" class="o_aip_agentmenu_sub" t-esc="agent.subtitle"/>
+                            </span>
+                            <span class="o_aip_model_badge" t-esc="agent.model"/>
+                            <i t-if="agent.id === currentAgent.id" class="fa fa-check o_aip_agentmenu_check"/>
+                        </button>
+                    </div>
+                </div>
+                <!-- session token usage -->
+                <span t-if="state.usage" class="o_aip_usage_chip"
+                      t-att-title="'Session usage: ' + state.usage.turns + ' turns · ' + state.usage.total_tokens + ' tokens · $' + state.usage.cost">
+                    <i class="fa fa-bolt me-1"/><t t-esc="state.usage.total_tokens"/> tokens
+                    <span class="o_aip_usage_cost">· $<t t-esc="state.usage.cost"/></span>
+                </span>
+                <div class="o_aip_header_spacer"/>
+                <button class="o_aip_header_btn o_aip_header_new" t-on-click="() => this.newChat()"
+                        title="New chat">
+                    <i class="fa fa-plus"/>
+                </button>
+            </div>
+            <AiPlatformThread
+                thread="thread"
+                busy="state.busy"
+                loading="state.loadingThread"
+                suggestions="state.suggestions"
+                agentName="activeAgentName"
+                onSuggestion.bind="sendMessage"
+                onRegenerate.bind="regenerate"
+                onOption.bind="onQuickOption"
+                onPreview.bind="openPreview"/>
+            <div t-if="viewingOthers" class="o_aip_readonly_bar">
+                <i class="fa fa-lock me-2"/>
+                Read-only: this conversation belongs to <b t-esc="activeConversation.owner_name"/>.
+                <span class="o_aip_readonly_export" t-on-click="exportConversation">
+                    <i class="fa fa-download me-1"/>Export
+                </span>
+            </div>
+            <!-- independent t-if (not t-else): ai_code inserts its attach bar
+                 right before the composer, which would split a t-if/t-else pair -->
+            <AiPlatformComposer t-if="!viewingOthers"
+                thread="thread"
+                busy="state.busy"
+                onSend.bind="sendMessage"
+                requestThread.bind="ensureConversation"
+                onExport.bind="exportConversation"/>
+        </div>
+
+        <!-- attachment preview drawer (report / file preview) -->
+        <div t-if="state.preview" class="o_aip_drawer">
+            <div class="o_aip_drawer_header">
+                <i t-att-class="'fa ' + previewIcon + ' o_aip_drawer_icon'"/>
+                <span class="o_aip_drawer_name" t-att-title="state.preview.name" t-esc="state.preview.name"/>
+                <a class="o_aip_drawer_download" t-att-href="previewDownloadUrl" title="Download">
+                    <i class="fa fa-download me-1"/>Download
+                </a>
+                <button class="o_aip_drawer_close" t-on-click="closePreview" title="Close (Esc)">
+                    <i class="fa fa-times"/>
+                </button>
+            </div>
+            <div class="o_aip_drawer_body">
+                <iframe t-if="previewIsPdf" class="o_aip_drawer_frame"
+                        t-att-src="previewInlineUrl" t-att-title="state.preview.name"/>
+                <div t-elif="previewIsImage" class="o_aip_drawer_imgwrap">
+                    <img class="o_aip_drawer_img" t-att-src="previewInlineUrl" t-att-alt="state.preview.name"/>
+                </div>
+                <div t-else="" class="o_aip_drawer_noview">
+                    <i t-att-class="'fa ' + previewIcon"/>
+                    <div>No inline preview for this file type.</div>
+                    <a class="o_aip_drawer_download" t-att-href="previewDownloadUrl">
+                        <i class="fa fa-download me-1"/>Download file
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</t>
+
+</templates>

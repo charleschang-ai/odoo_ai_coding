@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ════════════════════════════════════════════
+         AI Studio — Actions only, no custom views.
+         Uses Odoo built-in views for all three models.
+         ════════════════════════════════════════════ -->
+
+    <record id="action_ai_studio_custom_fields" model="ir.actions.act_window">
+        <field name="name">Custom Fields</field>
+        <field name="res_model">ir.model.fields</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'manual')]</field>
+        <field name="context">{'default_state': 'manual'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No custom fields yet!</p>
+            <p>Ask the AI to create custom fields. Example:
+            "Add a VIP Level selection field to res.partner with options Bronze, Silver, Gold"</p>
+        </field>
+    </record>
+
+    <record id="action_ai_studio_custom_views" model="ir.actions.act_window">
+        <field name="name">Custom Views</field>
+        <field name="res_model">ir.ui.view</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('key', 'like', 'ai_studio.')]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No custom views yet!</p>
+            <p>Ask the AI to create or extend views. Example:
+            "Add the VIP Level field to the partner form view"</p>
+        </field>
+    </record>
+
+    <!-- Custom Menus: shows all ir.ui.menu records -->
+    <!-- Filtered to non-system menus (no associated xml_id from modules) -->
+    <record id="action_ai_studio_custom_menus" model="ir.actions.act_window">
+        <field name="name">Custom Menus</field>
+        <field name="res_model">ir.ui.menu</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No custom menus yet!</p>
+            <p>Ask the AI to create menus. Example:
+            "Add a VIP Contacts menu under Contacts showing only VIP partners"</p>
+        </field>
+    </record>
+
+</odoo>

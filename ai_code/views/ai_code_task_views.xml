@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_ai_code_task_list" model="ir.ui.view">
+        <field name="name">ai.code.task.list</field>
+        <field name="model">ai.code.task</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="display_name" string="Session"/>
+                <field name="module_name" optional="show"/>
+                <field name="target_dir" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'idle'"
+                       decoration-danger="state in ('failed', 'cancelled')"
+                       decoration-info="state == 'running'"
+                       decoration-warning="state == 'waiting_user'"/>
+                <field name="turn_count" optional="show"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                <field name="cost" optional="show" sum="Total"/>
+                <field name="create_date" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ai_code_task_form" model="ir.ui.view">
+        <field name="name">ai.code.task.form</field>
+        <field name="model">ai.code.task</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_abort" type="object" string="Stop"
+                            invisible="state != 'running'"
+                            confirm="Stop this session after the current step?"/>
+                    <button name="action_reset_draft" type="object" string="Reset to Ready"
+                            invisible="state not in ('failed', 'cancelled', 'waiting_user')"/>
+                    <button name="action_cancel" type="object" string="Cancel Session"
+                            invisible="state in ('cancelled',)"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="idle,running,waiting_user"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_channel" type="object"
+                                class="oe_stat_button" icon="fa-comments"
+                                string="Conversation" invisible="not channel_id"/>
+                    </div>
+                    <div class="alert alert-info" role="alert">
+                        💡 Sessions are driven from <b>AI Studio &gt; Code</b>: pick a folder and
+                        chat. This form is for review, statistics and troubleshooting.
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="display_name"/></h1>
+                    </div>
+                    <group>
+                        <group name="what">
+                            <field name="module_name"/>
+                            <field name="odoo_version"/>
+                            <field name="turn_count"/>
+                        </group>
+                        <group name="where">
+                            <field name="target_dir_pick" invisible="1"/>
+                            <field name="target_dir" readonly="1"/>
+                            <field name="channel_id" readonly="1" invisible="not channel_id"/>
+                            <field name="branch_name" readonly="1" invisible="not branch_name"/>
+                            <field name="user_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Advanced" name="advanced" col="2"
+                           class="o_ai_code_advanced">
+                        <field name="main_model"/>
+                        <field name="cheap_model"/>
+                        <field name="token_budget"/>
+                        <field name="abort_flag" invisible="not abort_flag"/>
+                        <field name="heartbeat" invisible="state != 'running'"/>
+                    </group>
+                    <notebook>
+                        <page string="Request &amp; Todo" name="requirement">
+                            <group>
+                                <field name="requirement" nolabel="1" colspan="2" readonly="1"/>
+                            </group>
+                            <separator string="Todo list"/>
+                            <field name="todo_md" readonly="1"/>
+                            <separator string="Queued user message" invisible="not pending_user_text"/>
+                            <field name="pending_user_text" readonly="1" invisible="not pending_user_text"/>
+                        </page>
+                        <page string="Events" name="events">
+                            <field name="event_ids" readonly="1">
+                                <list>
+                                    <field name="seq"/>
+                                    <field name="turn"/>
+                                    <field name="event_type"/>
+                                    <field name="role"/>
+                                    <field name="tool_name" optional="show"/>
+                                    <field name="status" optional="show"/>
+                                    <field name="duration_ms" optional="show"/>
+                                    <field name="token_est" optional="hide"/>
+                                    <field name="content"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Changes" name="changes">
+                            <field name="change_ids" readonly="1">
+                                <list>
+                                    <field name="file_path"/>
+                                    <field name="change_type"/>
+                                    <field name="git_sha"/>
+                                    <field name="reverted"/>
+                                    <button name="action_revert" type="object" string="Revert"
+                                            icon="fa-undo" invisible="reverted or not git_sha"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Result" name="result">
+                            <field name="result_summary" readonly="1"/>
+                            <separator string="Failure"/>
+                            <field name="error_message" readonly="1"/>
+                        </page>
+                        <page string="Statistics" name="stats">
+                            <group>
+                                <group>
+                                    <field name="api_calls"/>
+                                    <field name="tool_calls"/>
+                                    <field name="duration"/>
+                                    <field name="cost"/>
+                                </group>
+                                <group>
+                                    <field name="input_tokens"/>
+                                    <field name="cached_tokens"/>
+                                    <field name="output_tokens"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Legacy artifacts" name="legacy"
+                              invisible="not spec_md and not plan_md and not study_notes">
+                            <field name="spec_md" readonly="1"/>
+                            <field name="study_notes" readonly="1"/>
+                            <field name="plan_md" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_ai_code_task_search" model="ir.ui.view">
+        <field name="name">ai.code.task.search</field>
+        <field name="model">ai.code.task</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="module_name"/>
+                <field name="requirement"/>
+                <field name="target_dir"/>
+                <filter name="filter_running" string="Working"
+                        domain="[('state', '=', 'running')]"/>
+                <filter name="filter_waiting" string="Waiting for an answer"
+                        domain="[('state', '=', 'waiting_user')]"/>
+                <filter name="filter_failed" string="Failed" domain="[('state', '=', 'failed')]"/>
+                <separator/>
+                <filter name="filter_my" string="My Sessions"
+                        domain="[('user_id', '=', uid)]"/>
+                <group>
+                    <filter name="group_state" string="Stage" context="{'group_by': 'state'}"/>
+                    <filter name="group_user" string="Requested By" context="{'group_by': 'user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_ai_code_task" model="ir.actions.act_window">
+        <field name="name">Coding Sessions</field>
+        <field name="res_model">ai.code.task</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_ai_code_task_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No coding session yet</p>
+            <p>Open AI Studio &gt; Code, pick a working folder and describe what you
+               want — the agent plans, writes, tests and reports.</p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<!--
+    Dedicated coding workspace = a NEW template based on the AI Platform page
+    (t-inherit primary makes a copy, it does NOT modify the platform template).
+    The agent pill is swapped for the folder picker, a task strip is inserted
+    before the thread, and a diff drawer is added at the page root.
+-->
+<t t-name="ai_code.Workspace" t-inherit="ai_chat_platform.AiPlatform" t-inherit-mode="primary">
+
+    <!-- ⓪ scope class: lets the coding page restyle platform bits (responsive
+         header) without touching the normal chat page -->
+    <xpath expr="//div[hasclass('o_ai_platform')]" position="attributes">
+        <attribute name="class" add="o_aic_page" separator=" "/>
+    </xpath>
+
+    <!-- ① folder picker replaces the agent pill -->
+    <xpath expr="//div[hasclass('o_aip_header_agent')]" position="replace">
+        <div class="o_aic_dirpicker">
+            <button class="o_aic_dir_pill" t-on-click="aicToggleDirMenu"
+                    t-att-class="{ 'o_aic_dir_pill--empty': !aicWorkingDir, 'o_aic_dir_pill--locked': aicFolderLocked }"
+                    t-att-title="aicWorkingDir ? ((aicFolderLocked ? 'Locked to this session · ' : 'Working directory · ') + aicWorkingDir) : 'Choose a working folder'">
+                <i class="fa me-1" t-att-class="aicFolderLocked ? 'fa-folder' : 'fa-folder-open-o'"/>
+                <span class="o_aic_dir_name" t-esc="aicWorkingDirLabel"/>
+                <i class="fa ms-1" t-att-class="aicFolderLocked ? 'fa-lock' : 'fa-angle-down'"/>
+            </button>
+            <div class="o_aic_dirmenu" t-att-class="{ 'o_aic_dirmenu--show': codeState.dirMenuOpen }">
+                <!-- ══ LOCKED: read-only absolute path + copy (session bound to its folder) ══ -->
+                <t t-if="aicFolderLocked">
+                    <div class="o_aic_dirmenu_section">Folder — locked to this session</div>
+                    <div class="o_aic_lockedpath"><code t-esc="aicWorkingDir"/></div>
+                    <button class="o_aic_dirmenu_browse"
+                            t-on-click="() => this.aicCopy(aicWorkingDir, 'Path copied')">
+                        <i class="fa fa-clipboard me-2"/>Copy absolute path
+                    </button>
+                    <div t-if="aicGit and aicGit.is_git" class="o_aic_dirmenu_note">
+                        <i class="fa fa-code-fork me-1"/>git: <t t-esc="aicGit.branch"/><t
+                            t-if="aicGit.dirty"> · <t t-esc="aicGit.dirty"/> uncommitted</t>
+                    </div>
+                    <div class="o_aic_dirmenu_note">
+                        <i class="fa fa-info-circle me-1"/>Start a new session to work in a different folder.
+                    </div>
+                </t>
+                <!-- ══ BROWSE MODE (server-side folder browser) ══ -->
+                <t t-elif="codeState.browse">
+                    <div class="o_aic_browse_head">
+                        <button class="o_aic_browse_back" t-on-click="aicCloseBrowse" title="Back">
+                            <i class="fa fa-arrow-left"/>
+                        </button>
+                        <span class="o_aic_browse_path"
+                              t-esc="codeState.browse.current || 'Pick a starting location'"/>
+                    </div>
+                    <button t-if="codeState.browse.parent" class="o_aic_dirmenu_item"
+                            t-on-click="() => this.aicOpenBrowse(codeState.browse.parent)">
+                        <i class="fa fa-level-up me-2"/>
+                        <span class="o_aic_dirmenu_name">.. (up one level)</span>
+                    </button>
+                    <button t-foreach="codeState.browse.entries" t-as="e" t-key="e.path"
+                            class="o_aic_dirmenu_item"
+                            t-on-click="() => this.aicOpenBrowse(e.path)">
+                        <i class="fa fa-folder-o me-2"/>
+                        <span class="o_aic_dirmenu_text">
+                            <span class="o_aic_dirmenu_name">
+                                <t t-esc="e.name"/>
+                                <span t-if="e.module_count" class="o_aic_dirmenu_count"
+                                      t-esc="e.module_count + ' modules'"/>
+                                <span t-else="" class="o_aic_dirmenu_count o_aic_dirmenu_count--empty">empty</span>
+                            </span>
+                        </span>
+                        <i class="fa fa-angle-right ms-auto"/>
+                    </button>
+                    <div t-if="!codeState.browse.entries.length and !codeState.browseLoading"
+                         class="o_aic_dirmenu_note">No sub-folders here.</div>
+                    <div t-if="codeState.browse.selectable" class="o_aic_browse_use">
+                        <button class="o_aic_dir_addbtn" t-on-click="aicUseBrowsedDir">
+                            <i class="fa fa-check me-1"/>Use this folder<t
+                                t-if="!codeState.browse.current_is_git"> (no git — no revert)</t>
+                        </button>
+                    </div>
+                </t>
+                <!-- ══ LIST MODE (recent + detected + browse) ══ -->
+                <t t-else="">
+                    <div t-if="activeConversation and activeConversation.working_dir"
+                         class="o_aic_dirmenu_note">
+                        <i class="fa fa-info-circle me-1"/>This session is bound to its folder —
+                        picking another starts a new session
+                    </div>
+                    <t t-if="codeState.recent.length">
+                        <div class="o_aic_dirmenu_section">Recent</div>
+                        <button t-foreach="codeState.recent" t-as="ws" t-key="'r'+ws.path"
+                                class="o_aic_dirmenu_item"
+                                t-att-class="{ 'o_aic_dirmenu_item--current': aicWorkingDir === ws.path, 'o_aic_dirmenu_item--ro': ws.writable === false }"
+                                t-att-disabled="ws.writable === false"
+                                t-att-title="ws.writable === false ? 'Read-only mount — cannot be used for coding' : ws.path"
+                                t-on-click="() => this.aicPickWorkingDir(ws.path)">
+                            <i class="fa me-2" t-att-class="ws.writable === false ? 'fa-lock' : 'fa-clock-o'"/>
+                            <span class="o_aic_dirmenu_text">
+                                <span class="o_aic_dirmenu_name">
+                                    <t t-esc="ws.label"/>
+                                    <span t-if="ws.module_count" class="o_aic_dirmenu_count"
+                                          t-esc="ws.module_count + ' modules'"/>
+                                    <span t-else="" class="o_aic_dirmenu_count o_aic_dirmenu_count--empty">empty</span>
+                                </span>
+                                <span class="o_aic_dirmenu_path" t-esc="ws.path"/>
+                            </span>
+                            <i t-if="aicWorkingDir === ws.path" class="fa fa-check ms-auto"/>
+                        </button>
+                    </t>
+                    <div class="o_aic_dirmenu_section" t-if="codeState.workspaces.length">Detected (addons path)</div>
+                    <button t-foreach="codeState.workspaces" t-as="ws" t-key="'d'+ws.path"
+                            class="o_aic_dirmenu_item"
+                            t-att-class="{ 'o_aic_dirmenu_item--current': aicWorkingDir.startsWith(ws.path), 'o_aic_dirmenu_item--ro': ws.writable === false }"
+                            t-att-disabled="ws.writable === false"
+                            t-att-title="ws.writable === false ? 'Read-only mount — cannot be used for coding' : ws.path"
+                            t-on-click="() => this.aicPickWorkingDir(ws.path)">
+                        <i class="fa me-2" t-att-class="ws.writable === false ? 'fa-lock' : 'fa-folder-o'"/>
+                        <span class="o_aic_dirmenu_text">
+                            <span class="o_aic_dirmenu_name">
+                                <t t-esc="ws.label"/>
+                                <span t-if="ws.module_count" class="o_aic_dirmenu_count"
+                                      t-esc="ws.module_count + ' modules'"/>
+                                <span t-else="" class="o_aic_dirmenu_count o_aic_dirmenu_count--empty">empty</span>
+                            </span>
+                            <span class="o_aic_dirmenu_path" t-esc="ws.path"/>
+                        </span>
+                        <i t-if="aicWorkingDir.startsWith(ws.path)" class="fa fa-check ms-auto"/>
+                    </button>
+                    <div t-if="!codeState.workspaces.length and !codeState.recent.length"
+                         class="o_aic_dirmenu_note">
+                        <i class="fa fa-info-circle me-1"/>No addons folder detected — use Browse below,
+                        or add one in Settings &gt; AI Chatbot &gt; AI Code.
+                    </div>
+                    <button class="o_aic_dirmenu_browse" t-on-click="() => this.aicOpenBrowse('')">
+                        <i class="fa fa-folder-open me-2"/>Browse a folder…
+                    </button>
+                </t>
+            </div>
+        </div>
+        <!-- model picker: any model of a provider with an API key; per conversation + user default -->
+        <div class="o_aic_modelpicker" t-if="codeState.models.length">
+            <button class="o_aic_model_pill" t-on-click="aicToggleModelMenu"
+                    title="Choose the LLM model for this coding session">
+                <i class="fa fa-microchip me-1"/>
+                <span class="o_aic_model_name" t-esc="aicModelLabel"/>
+                <i class="fa fa-angle-down ms-1"/>
+            </button>
+            <div class="o_aic_dirmenu o_aic_modelmenu" t-att-class="{ 'o_aic_dirmenu--show': codeState.modelMenuOpen }">
+                <div t-if="state.activeId" class="o_aic_dirmenu_note">
+                    <i class="fa fa-info-circle me-1"/>Applies to this session from the next message
+                </div>
+                <t t-foreach="aicModelGroups" t-as="g" t-key="g.provider">
+                    <div class="o_aic_dirmenu_section" t-esc="g.label"/>
+                    <button t-foreach="g.models" t-as="m" t-key="m.id" class="o_aic_dirmenu_item"
+                            t-att-class="{ 'o_aic_dirmenu_item--current': m.id === aicCurrentModelId }"
+                            t-on-click="() => this.aicPickModel(m.id)">
+                        <i class="fa fa-microchip me-2"/>
+                        <span class="o_aic_dirmenu_text">
+                            <span class="o_aic_dirmenu_name" t-esc="m.label"/>
+                            <span class="o_aic_dirmenu_path" t-esc="m.id"/>
+                        </span>
+                        <i t-if="m.id === aicCurrentModelId" class="fa fa-check ms-auto"/>
+                    </button>
+                </t>
+            </div>
+        </div>
+        <!-- git chip: shown ONLY when the folder is a git repo (hidden otherwise) -->
+        <div t-if="aicGit and aicGit.is_git" class="o_aic_gitchip" t-att-title="aicGitTitle">
+            <i class="fa fa-code-fork me-1"/>
+            <span class="o_aic_gitbranch" t-esc="aicGit.branch"/>
+            <span t-if="aicGit.dirty" class="o_aic_gitdirty" t-esc="aicGit.dirty"/>
+        </div>
+        <!-- guided-task button: opens the structured-request dialog -->
+        <button class="o_aic_guided_btn" t-on-click="aicOpenGuided"
+                t-att-disabled="!aicWorkingDir"
+                title="Guided task — fill a short form, best practices pre-filled">
+            <i class="fa fa-magic"/>
+        </button>
+        <!-- compact task status IN the header: state chip, todo list, activity feed, stop, diff -->
+        <div t-if="aicTask" class="o_aic_hdr_task">
+            <span class="o_aic_chip" t-att-class="aicPhaseClass">
+                <i t-if="aicTask.running" class="fa fa-circle-o-notch fa-spin me-1"/>
+                <t t-esc="aicPhaseLabel"/>
+            </span>
+            <div t-if="aicTask.todo.total" class="o_aic_todo" t-on-click="aicToggleTodo"
+                 title="Todo list (the AI updates it as it works)">
+                <div class="o_aic_todo_bar">
+                    <div class="o_aic_todo_fill" t-attf-style="width: {{aicTodoPercent}}%"/>
+                </div>
+                <span class="o_aic_todo_count">
+                    <t t-esc="aicTask.todo.done_count"/>/<t t-esc="aicTask.todo.total"/>
+                </span>
+                <i class="fa fa-angle-down ms-1"/>
+                <div class="o_aic_todo_panel" t-att-class="{ 'o_aic_todo_panel--show': codeState.todoOpen }">
+                    <div t-foreach="aicTodoItems" t-as="step" t-key="step.index"
+                         class="o_aic_todo_item"
+                         t-att-class="{ 'o_aic_todo_item--done': step.status === 'completed',
+                                        'o_aic_todo_item--active': step.status === 'in_progress' }">
+                        <i t-att-class="'fa me-2 ' + (step.status === 'completed' ? 'fa-check-circle'
+                                        : step.status === 'in_progress' ? 'fa-circle-o-notch fa-spin' : 'fa-circle-o')"/>
+                        <span class="o_aic_todo_sum" t-esc="step.content"/>
+                    </div>
+                </div>
+            </div>
+            <div class="o_aic_activity" t-on-click="aicToggleActivity"
+                 title="What the AI is doing (tool calls, live)">
+                <i class="fa fa-terminal"/>
+                <span t-if="aicActivity.length" class="o_aic_activity_count" t-esc="aicActivity.length"/>
+                <div class="o_aic_activity_panel" t-att-class="{ 'o_aic_activity_panel--show': codeState.activityOpen }"
+                     t-on-click.stop="">
+                    <div class="o_aic_dirmenu_section">Activity</div>
+                    <div t-if="!aicActivity.length" class="o_aic_dirmenu_note">Nothing yet.</div>
+                    <div t-foreach="aicActivity" t-as="a" t-key="a.id" class="o_aic_act"
+                         t-att-class="{ 'o_aic_act--phase': a.kind === 'phase_change',
+                                        'o_aic_act--error': a.status === 'error' }">
+                        <i t-att-class="'fa me-2 ' + aicActivityIcon(a)"/>
+                        <span class="o_aic_act_label" t-esc="aicActivityLabel(a)"/>
+                        <span t-if="a.ms" class="o_aic_act_ms" t-esc="(a.ms / 1000).toFixed(1) + 's'"/>
+                    </div>
+                </div>
+            </div>
+            <button t-if="aicTask.running" class="o_aic_stop_btn" t-on-click="aicStopCurrent"
+                    t-att-disabled="codeState.stopping" title="Stop after the current step">
+                <i class="fa fa-stop"/>
+            </button>
+            <button class="o_aic_changes_btn" t-on-click="aicToggleChanges"
+                    t-att-disabled="!aicActiveChanges.length"
+                    title="Review the file changes (diffs, revert)">
+                <i class="fa fa-file-code-o"/>
+                <span class="o_aic_changes_badge" t-esc="aicActiveChanges.length"/>
+            </button>
+        </div>
+        <!-- manual refresh: current task + background list + folder/git scan -->
+        <button class="o_aic_refresh_btn" t-on-click="aicManualRefresh"
+                t-att-disabled="codeState.refreshing"
+                title="Refresh task status and content">
+            <i class="fa fa-refresh" t-att-class="{ 'fa-spin': codeState.refreshing }"/>
+        </button>
+        <!-- background-tasks widget (all conversations) -->
+        <div class="o_aic_bg">
+            <button class="o_aic_bg_btn" t-on-click="aicToggleBgPanel"
+                    t-att-class="{ 'o_aic_bg_btn--active': aicBgRunningCount }"
+                    title="Background coding tasks">
+                <i class="fa" t-att-class="aicBgRunningCount ? 'fa-circle-o-notch fa-spin' : 'fa-tasks'"/>
+                <span t-if="aicBgRunningCount" class="o_aic_bg_badge" t-esc="aicBgRunningCount"/>
+                <span t-elif="aicBgWaitingCount" class="o_aic_bg_badge o_aic_bg_badge--wait"
+                      t-esc="aicBgWaitingCount"/>
+            </button>
+            <div class="o_aic_bg_panel" t-att-class="{ 'o_aic_bg_panel--show': codeState.bgOpen }">
+                <div class="o_aic_bg_tabs">
+                    <button class="o_aic_bg_tab"
+                            t-att-class="{ 'o_aic_bg_tab--active': codeState.bgTab === 'active' }"
+                            t-on-click="() => this.aicSetBgTab('active')">Active</button>
+                    <button class="o_aic_bg_tab"
+                            t-att-class="{ 'o_aic_bg_tab--active': codeState.bgTab === 'history' }"
+                            t-on-click="() => this.aicSetBgTab('history')">History</button>
+                </div>
+                <!-- ACTIVE: running + waiting + very-recent finished -->
+                <t t-if="codeState.bgTab === 'active'">
+                    <div t-if="!codeState.bgTasks.length" class="o_aic_dirmenu_note">
+                        No coding task running.
+                    </div>
+                    <div t-foreach="codeState.bgTasks" t-as="t" t-key="t.task_id" class="o_aic_bg_row">
+                        <button class="o_aic_bg_main" t-on-click="() => this.aicOpenBgTask(t)"
+                                t-att-title="'Open the conversation of ' + t.label">
+                            <i class="fa me-2"
+                               t-att-class="t.running ? 'fa-circle-o-notch fa-spin o_aic_bg_i--run'
+                                            : t.waiting ? 'fa-hourglass-half o_aic_bg_i--wait'
+                                            : t.state === 'done' ? 'fa-check-circle o_aic_bg_i--done'
+                                            : 'fa-times-circle o_aic_bg_i--fail'"/>
+                            <span class="o_aic_bg_text">
+                                <span class="o_aic_bg_label">
+                                    <t t-esc="t.label"/>
+                                    <span t-if="t.folder" class="o_aic_bg_folder" t-esc="'[' + t.folder + ']'"/>
+                                </span>
+                                <span class="o_aic_bg_sub">
+                                    <t t-esc="aicBgStateLabel(t)"/>
+                                    <t t-if="t.progress"> · <t t-esc="t.progress"/> files</t>
+                                    <t t-if="t.running"> · <t t-esc="aicFmtElapsed(t.elapsed)"/></t>
+                                    <t t-elif="t.duration"> · <t t-esc="aicFmtElapsed(t.duration)"/></t>
+                                    <t t-if="t.cost"> · $<t t-esc="t.cost"/></t>
+                                </span>
+                            </span>
+                        </button>
+                        <button t-if="t.running or t.waiting" class="o_aic_bg_stop"
+                                t-att-title="t.running ? 'Stop after the current step' : 'Cancel this task'"
+                                t-on-click="() => this.aicStopBgTask(t)">
+                            <i class="fa" t-att-class="t.running ? 'fa-stop' : 'fa-times'"/>
+                        </button>
+                    </div>
+                </t>
+                <!-- HISTORY: all finished tasks (done/failed/cancelled), newest first -->
+                <t t-else="">
+                    <div t-if="codeState.historyLoading" class="o_aic_dirmenu_note">Loading…</div>
+                    <div t-elif="!codeState.history.length" class="o_aic_dirmenu_note">
+                        No finished tasks yet.
+                    </div>
+                    <div t-foreach="codeState.history" t-as="t" t-key="'h' + t.task_id" class="o_aic_bg_row">
+                        <button class="o_aic_bg_main" t-on-click="() => this.aicOpenBgTask(t)"
+                                t-att-title="t.error or ('Open the conversation of ' + t.label)">
+                            <i class="fa me-2"
+                               t-att-class="t.state === 'done' ? 'fa-check-circle o_aic_bg_i--done'
+                                            : t.state === 'cancelled' ? 'fa-ban o_aic_bg_i--wait'
+                                            : 'fa-times-circle o_aic_bg_i--fail'"/>
+                            <span class="o_aic_bg_text">
+                                <span class="o_aic_bg_label">
+                                    <t t-esc="t.label"/>
+                                    <span t-if="t.folder" class="o_aic_bg_folder" t-esc="'[' + t.folder + ']'"/>
+                                </span>
+                                <span class="o_aic_bg_sub">
+                                    <t t-esc="aicBgStateLabel(t)"/>
+                                    <t t-if="t.progress"> · <t t-esc="t.progress"/> files</t>
+                                    <t t-if="t.duration"> · <t t-esc="aicFmtElapsed(t.duration)"/></t>
+                                    <t t-if="t.cost"> · $<t t-esc="t.cost"/></t>
+                                </span>
+                            </span>
+                        </button>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </xpath>
+
+    <!-- ② workspace card between header and thread (task status now lives in the header) -->
+    <xpath expr="//AiPlatformThread" position="before">
+        <!-- server dev=reload warning: coding runs get killed by the restarts -->
+        <div t-if="codeState.devReload and !codeState.devWarnDismissed" class="o_aic_warnbar">
+            <i class="fa fa-exclamation-triangle me-2"/>
+            <div class="o_aic_errbar_text">
+                This server runs with <code>--dev=all/reload</code> — every .py file the AI
+                writes restarts the server and <b>kills the coding run</b>. Restart Odoo
+                without it (<code>--dev=xml</code> keeps template hot-reload).
+            </div>
+            <button class="o_aic_errbar_copy" title="Dismiss (stays hidden in this browser)"
+                    t-on-click="aicDismissDevWarn">
+                <i class="fa fa-times"/>
+            </button>
+        </div>
+    </xpath>
+
+    <xpath expr="//AiPlatformThread" position="before">
+        <!-- workspace card: on a NEW chat with a folder chosen, tell the user
+             whether it's a new project (empty) or which modules can be modified -->
+        <div t-if="!state.activeId and aicWorkingDir and codeState.scan" class="o_aic_wscard">
+            <t t-if="codeState.scan.is_empty">
+                <i class="fa fa-folder-open-o me-2"/>
+                <span>This folder has no module yet — describe what you want and I'll
+                    create a new module in <b t-esc="aicWorkingDirLabel"/>.</span>
+            </t>
+            <t t-else="">
+                <div class="o_aic_wscard_head">
+                    <i class="fa fa-cubes me-2"/>Modules in <b t-esc="aicWorkingDirLabel"/> —
+                    click one to modify it, or just describe a new module:
+                </div>
+                <div class="o_aic_wschips">
+                    <button t-foreach="aicFolderModules" t-as="mod" t-key="mod.name"
+                            class="o_aic_modchip"
+                            t-att-class="{ 'o_aic_modchip--active': codeState.intent and codeState.intent.module === mod.name }"
+                            t-on-click="() => this.aicPickModule(mod.name)">
+                        <i class="fa fa-cube me-1"/>
+                        <span class="o_aic_modchip_name" t-esc="mod.name"/>
+                        <span t-if="mod.title !== mod.name" class="o_aic_modchip_title" t-esc="mod.title"/>
+                    </button>
+                </div>
+            </t>
+        </div>
+        <!-- failure-reason banner: shows WHY the current task failed; × dismisses -->
+        <div t-if="aicTask and aicTask.state === 'failed' and aicTask.error and !aicTask.error_ack"
+             class="o_aic_errbar">
+            <i class="fa fa-exclamation-triangle me-2"/>
+            <div class="o_aic_errbar_text"><b>Failed:</b> <t t-esc="aicTask.error"/></div>
+            <button class="o_aic_errbar_copy" title="Copy the error"
+                    t-on-click="() => this.aicCopy(aicTask.error, 'Error copied')">
+                <i class="fa fa-clipboard"/>
+            </button>
+            <button class="o_aic_errbar_copy" title="Dismiss — everything saved is kept; just send the next message"
+                    t-on-click="() => this.aicAckError()">
+                <i class="fa fa-times"/>
+            </button>
+        </div>
+    </xpath>
+
+    <!-- ④ ONE slim accessory row above the composer: paperclip + attachment
+         chips + modify-intent + (right-aligned) working indicator -->
+    <xpath expr="//AiPlatformComposer" position="before">
+        <!-- live draft: the answer streamed token by token, until the real message lands -->
+        <div t-if="codeState.draft" class="o_aic_draft">
+            <div class="o_aic_draft_who"><i class="fa fa-circle-o-notch fa-spin me-1"/><t t-esc="activeAgentName"/></div>
+            <div class="o_aic_draft_body" t-esc="codeState.draft"/>
+        </div>
+        <div class="o_aic_attachbar" t-if="!viewingOthers">
+            <input type="file" multiple="multiple" class="d-none" t-ref="aicFileInput"
+                   accept=".pdf,.xlsx,.xlsm,.csv,.docx,.txt,.json,.xml,.md"
+                   t-on-change="aicFilesChosen"/>
+            <button class="o_aic_attach_btn" t-on-click="aicClickAttach"
+                    t-att-disabled="codeState.uploading"
+                    title="Upload documents (quotation / invoice / price list) — the AI builds the module from them">
+                <i class="fa" t-att-class="codeState.uploading ? 'fa-circle-o-notch fa-spin' : 'fa-paperclip'"/>
+            </button>
+            <div t-foreach="codeState.attachments" t-as="att" t-key="att.id" class="o_aic_attchip"
+                 t-att-title="att.name + ' · ' + aicFmtSize(att.size)">
+                <i class="fa me-1" t-att-class="aicAttIcon(att)"/>
+                <span class="o_aic_attchip_name" t-esc="att.name"/>
+                <span class="o_aic_attchip_size" t-esc="aicFmtSize(att.size)"/>
+                <button class="o_aic_attchip_x" title="Remove"
+                        t-on-click="() => this.aicDeleteAttachment(att)">
+                    <i class="fa fa-times"/>
+                </button>
+            </div>
+            <div t-if="codeState.intent" class="o_aic_intent">
+                <i class="fa fa-pencil me-1"/>
+                <span>Modifying <b t-esc="codeState.intent.module"/></span>
+                <button class="o_aic_intent_x" t-on-click="aicClearIntent" title="Clear">
+                    <i class="fa fa-times"/>
+                </button>
+            </div>
+            <div t-if="aicWorking" class="o_aic_working">
+                <span class="o_aic_working_dots">
+                    <span class="o_aic_working_dot"/><span class="o_aic_working_dot"/><span class="o_aic_working_dot"/>
+                </span>
+                <span class="o_aic_working_label">
+                    <t t-esc="aicWorkingLabel"/>…
+                </span>
+            </div>
+        </div>
+    </xpath>
+
+    <!-- ③ diff review drawer -->
+    <xpath expr="//div[hasclass('o_ai_platform')]" position="inside">
+        <div t-if="codeState.changesOpen and aicTask" class="o_aip_drawer o_aic_drawer">
+            <div class="o_aip_drawer_header">
+                <i class="fa fa-file-code-o o_aip_drawer_icon"/>
+                <span class="o_aip_drawer_name">
+                    <t t-if="codeState.selectedChange" t-esc="codeState.selectedChange.file_path"/>
+                    <t t-else="">Changes — <t t-esc="aicTask.module_name"/>
+                        <t t-if="aicTask.branch"> (<t t-esc="aicTask.branch"/>)</t>
+                    </t>
+                </span>
+                <button t-if="codeState.selectedChange" class="o_aip_drawer_download"
+                        t-on-click="() => { this.codeState.selectedChange = null; }">
+                    <i class="fa fa-arrow-left me-1"/>All changes
+                </button>
+                <button class="o_aip_drawer_close" t-on-click="aicToggleChanges" title="Close">
+                    <i class="fa fa-times"/>
+                </button>
+            </div>
+            <div class="o_aip_drawer_body o_aic_drawer_body">
+                <div t-if="!codeState.selectedChange" class="o_aic_changelist">
+                    <div t-if="!aicTask.changes.length" class="o_aic_dirmenu_note">
+                        No file changes yet.
+                    </div>
+                    <div t-foreach="aicTask.changes" t-as="change" t-key="change.id"
+                         class="o_aic_change" t-att-class="{ 'o_aic_change--reverted': change.reverted }">
+                        <button class="o_aic_change_main" t-on-click="() => this.aicOpenChange(change)">
+                            <span class="o_aic_change_type" t-att-class="'o_aic_change_type--' + change.change_type"
+                                  t-esc="change.change_type"/>
+                            <span class="o_aic_change_path" t-esc="change.file_path"/>
+                            <span t-if="change.git_sha" class="o_aic_change_sha" t-esc="change.git_sha"/>
+                        </button>
+                        <button t-if="change.change_type != 'delete'" class="o_aic_change_revert"
+                                title="Copy the full file content"
+                                t-on-click="() => this.aicCopyFile(change)">
+                            <i class="fa fa-clipboard"/>
+                        </button>
+                        <button t-if="!change.reverted and change.git_sha" class="o_aic_change_revert"
+                                title="Revert this step (git revert)"
+                                t-on-click="() => this.aicRevertChange(change)">
+                            <i class="fa fa-undo"/>
+                        </button>
+                        <span t-if="change.reverted" class="o_aic_change_revertedtag">reverted</span>
+                    </div>
+                </div>
+                <div t-else="" class="o_aic_diff">
+                    <div t-if="codeState.diffLoading" class="o_aic_dirmenu_note">Loading…</div>
+                    <pre class="o_aic_diff_pre"><t t-foreach="aicDiffLines" t-as="line" t-key="line.id"><span
+                        t-att-class="'o_aic_diff_line ' + line.cls" t-esc="line.text"/>
+</t></pre>
+                    <div class="o_aic_diff_actions">
+                        <button class="o_aic_diff_copybtn" t-on-click="aicCopyDiff"
+                                title="Copy the unified diff">
+                            <i class="fa fa-clipboard me-1"/>Copy diff
+                        </button>
+                        <button t-if="codeState.selectedChange.change_type != 'delete'"
+                                class="o_aic_diff_copybtn"
+                                t-on-click="() => this.aicCopyFile(codeState.selectedChange)"
+                                title="Copy the full current file">
+                            <i class="fa fa-file-code-o me-1"/>Copy file
+                        </button>
+                        <div class="o_aip_header_spacer"/>
+                        <button t-if="!codeState.selectedChange.reverted and codeState.selectedChange.git_sha"
+                                class="o_aic_change_revert o_aic_change_revert--wide"
+                                t-on-click="() => this.aicRevertChange(codeState.selectedChange)">
+                            <i class="fa fa-undo me-1"/>Revert this step
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </xpath>
+
+</t>
+
+</templates>

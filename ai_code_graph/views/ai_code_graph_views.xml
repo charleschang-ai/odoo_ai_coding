@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══ Client action: interactive graph viewer ═══ -->
+    <record id="action_ai_code_graph" model="ir.actions.client">
+        <field name="name">Code Graph</field>
+        <field name="tag">ai_code_graph_action</field>
+    </record>
+
+    <!-- ═══ Nodes ═══ -->
+    <record id="view_ai_code_node_list" model="ir.ui.view">
+        <field name="name">ai.code.node.list</field>
+        <field name="model">ai.code.node</field>
+        <field name="arch" type="xml">
+            <list create="false" edit="false">
+                <field name="technical_key"/>
+                <field name="name"/>
+                <field name="node_type"/>
+                <field name="layer"/>
+                <field name="module_name"/>
+                <field name="model_name" optional="show"/>
+                <field name="degree"/>
+                <field name="file_path" optional="hide"/>
+                <field name="is_skeleton" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ai_code_node_form" model="ir.ui.view">
+        <field name="name">ai.code.node.form</field>
+        <field name="model">ai.code.node</field>
+        <field name="arch" type="xml">
+            <form create="false" edit="false">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_backing_record" type="object"
+                                class="oe_stat_button" icon="fa-external-link"
+                                string="Open Record"
+                                invisible="not ref_id"/>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="technical_key"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="node_type"/>
+                            <field name="layer"/>
+                            <field name="module_name"/>
+                            <field name="model_name"/>
+                        </group>
+                        <group>
+                            <field name="file_path"/>
+                            <field name="line_no"/>
+                            <field name="degree"/>
+                            <field name="in_degree"/>
+                            <field name="out_degree"/>
+                            <field name="is_skeleton"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Outgoing Relations" name="out_edges">
+                            <field name="out_edge_ids">
+                                <list>
+                                    <field name="edge_type"/>
+                                    <field name="target_id"/>
+                                    <field name="module_name"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Incoming Relations" name="in_edges">
+                            <field name="in_edge_ids">
+                                <list>
+                                    <field name="edge_type"/>
+                                    <field name="source_id"/>
+                                    <field name="module_name"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_ai_code_node_search" model="ir.ui.view">
+        <field name="name">ai.code.node.search</field>
+        <field name="model">ai.code.node</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="technical_key"/>
+                <field name="name"/>
+                <field name="module_name"/>
+                <field name="model_name"/>
+                <filter name="filter_python" string="Python" domain="[('layer', '=', 'python')]"/>
+                <filter name="filter_xml" string="XML" domain="[('layer', '=', 'xml')]"/>
+                <filter name="filter_js" string="JavaScript" domain="[('layer', '=', 'js')]"/>
+                <separator/>
+                <filter name="filter_no_skeleton" string="Fully Indexed"
+                        domain="[('is_skeleton', '=', False)]"/>
+                <group>
+                    <filter name="group_type" string="Type" context="{'group_by': 'node_type'}"/>
+                    <filter name="group_layer" string="Layer" context="{'group_by': 'layer'}"/>
+                    <filter name="group_module" string="Module" context="{'group_by': 'module_name'}"/>
+                    <filter name="group_model" string="Model" context="{'group_by': 'model_name'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_ai_code_node_pivot" model="ir.ui.view">
+        <field name="name">ai.code.node.pivot</field>
+        <field name="model">ai.code.node</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="module_name" type="row"/>
+                <field name="node_type" type="col"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_ai_code_node" model="ir.actions.act_window">
+        <field name="name">Graph Nodes</field>
+        <field name="res_model">ai.code.node</field>
+        <field name="view_mode">list,form,pivot</field>
+        <field name="search_view_id" ref="view_ai_code_node_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">The code graph index is empty</p>
+            <p>Open AI Studio &gt; Code Graph and click "Rebuild Index" to scan your codebase.</p>
+        </field>
+    </record>
+
+    <!-- ═══ Edges ═══ -->
+    <record id="view_ai_code_edge_list" model="ir.ui.view">
+        <field name="name">ai.code.edge.list</field>
+        <field name="model">ai.code.edge</field>
+        <field name="arch" type="xml">
+            <list create="false" edit="false">
+                <field name="source_id"/>
+                <field name="edge_type"/>
+                <field name="target_id"/>
+                <field name="module_name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ai_code_edge_search" model="ir.ui.view">
+        <field name="name">ai.code.edge.search</field>
+        <field name="model">ai.code.edge</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="source_id"/>
+                <field name="target_id"/>
+                <field name="module_name"/>
+                <group>
+                    <filter name="group_edge_type" string="Relation Type"
+                            context="{'group_by': 'edge_type'}"/>
+                    <filter name="group_module" string="Module"
+                            context="{'group_by': 'module_name'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_ai_code_edge" model="ir.actions.act_window">
+        <field name="name">Graph Edges</field>
+        <field name="res_model">ai.code.edge</field>
+        <field name="view_mode">list</field>
+        <field name="search_view_id" ref="view_ai_code_edge_search"/>
+    </record>
+
+</odoo>

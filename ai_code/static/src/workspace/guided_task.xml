@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="ai_code.GuidedTaskDialog">
+    <Dialog title="'✨ New coding task'" size="'lg'">
+        <div class="o_aic_guided">
+            <!-- context strip: folder + target Odoo version (editable) -->
+            <div class="o_aic_guided_ctx">
+                <i class="fa fa-folder-open-o me-1"/><b t-esc="props.folderLabel || 'working folder'"/>
+                <span class="o_aic_guided_ver">
+                    <span class="me-1">Odoo</span>
+                    <select class="form-select form-select-sm" t-model="form.version"
+                            t-on-change="() => this.onField()">
+                        <option t-foreach="versionOptions" t-as="v" t-key="v"
+                                t-att-value="v"><t t-esc="v"/>.0</option>
+                    </select>
+                </span>
+            </div>
+
+            <!-- task type -->
+            <div class="o_aic_guided_row">
+                <label>What do you want to do?</label>
+                <div class="btn-group btn-group-sm o_aic_typebtns">
+                    <button class="btn" t-att-class="form.taskType==='new_module' ? 'btn-primary' : 'btn-outline-primary'"
+                            t-on-click="() => { this.form.taskType='new_module'; this.onField(); }">
+                        <i class="fa fa-plus-square me-1"/>New module</button>
+                    <button class="btn" t-att-class="form.taskType==='modify_module' ? 'btn-primary' : 'btn-outline-primary'"
+                            t-on-click="() => { this.form.taskType='modify_module'; this.onField(); }">
+                        <i class="fa fa-wrench me-1"/>Modify module</button>
+                    <button class="btn" t-att-class="form.taskType==='analyze' ? 'btn-primary' : 'btn-outline-primary'"
+                            t-on-click="() => { this.form.taskType='analyze'; this.onField(); }">
+                        <i class="fa fa-search me-1"/>Analyze code</button>
+                </div>
+            </div>
+
+            <!-- NEW MODULE -->
+            <t t-if="form.taskType === 'new_module'">
+                <div class="o_aic_guided_row">
+                    <label><i class="fa fa-magic"/>Kind <span class="o_aic_hint">(pre-fills best practices)</span></label>
+                    <select class="form-select form-select-sm" t-on-change="(ev) => this.applyPreset(ev.target.value)">
+                        <option t-foreach="Object.keys(presets)" t-as="k" t-key="k"
+                                t-att-value="k" t-att-selected="k === form.kind" t-esc="presets[k].label"/>
+                    </select>
+                </div>
+                <div class="o_aic_guided_row">
+                    <label><i class="fa fa-bullseye"/>Goal <span class="o_aic_req">*</span></label>
+                    <input class="form-control form-control-sm" t-model="form.goal"
+                           placeholder="e.g. a sales pipeline dashboard over crm.lead" t-on-input="() => this.onField()"/>
+                </div>
+                <div class="o_aic_guided_2col">
+                    <div><label><i class="fa fa-cube"/>Module name</label>
+                        <input class="form-control form-control-sm" t-model="form.moduleName"
+                               placeholder="empty — the agent proposes one" t-on-input="() => this.onField()"/></div>
+                    <div><label><i class="fa fa-sitemap"/>Depends</label>
+                        <input class="form-control form-control-sm" t-model="form.depends" t-on-input="() => this.onField()"/></div>
+                </div>
+                <div class="o_aic_guided_row">
+                    <label><i class="fa fa-book"/>Study first — reference modules</label>
+                    <input class="form-control form-control-sm" t-model="form.reference"
+                           placeholder="e.g. crm, sale — the agent reads their REAL field names (optional)"
+                           t-on-input="() => this.onField()"/>
+                </div>
+                <details class="o_aic_guided_more">
+                    <summary><i class="fa fa-sliders me-1"/>Detailed spec (optional — the preset already filled it)</summary>
+                    <div class="o_aic_guided_morebody">
+                        <div class="o_aic_guided_row"><label><i class="fa fa-database"/>Models &amp; fields</label>
+                            <textarea class="form-control form-control-sm" rows="2" t-model="form.models" t-on-input="() => this.onField()"/></div>
+                        <div class="o_aic_guided_row"><label><i class="fa fa-cogs"/>Backend (methods &amp; exact return structure)</label>
+                            <textarea class="form-control form-control-sm" rows="3" t-model="form.backend" t-on-input="() => this.onField()"/></div>
+                        <div class="o_aic_guided_row"><label><i class="fa fa-window-maximize"/>Frontend</label>
+                            <textarea class="form-control form-control-sm" rows="2" t-model="form.frontend" t-on-input="() => this.onField()"/></div>
+                        <div class="o_aic_guided_row"><label><i class="fa fa-bars"/>Menu &amp; access</label>
+                            <textarea class="form-control form-control-sm" rows="2" t-model="form.menu" t-on-input="() => this.onField()"/></div>
+                    </div>
+                </details>
+            </t>
+
+            <!-- MODIFY MODULE -->
+            <t t-if="form.taskType === 'modify_module'">
+                <div class="o_aic_guided_row">
+                    <label><i class="fa fa-cube"/>Which module <span class="o_aic_hint">(from this folder)</span></label>
+                    <select t-if="modules.length" class="form-select form-select-sm" t-model="form.targetModule" t-on-change="() => this.onField()">
+                        <option t-foreach="modules" t-as="m" t-key="m.name" t-att-value="m.name">
+                            <t t-esc="m.name"/><t t-if="m.title and m.title !== m.name"> — <t t-esc="m.title"/></t>
+                        </option>
+                    </select>
+                    <input t-else="" class="form-control form-control-sm" t-model="form.targetModule"
+                           placeholder="module technical name" t-on-input="() => this.onField()"/>
+                </div>
+                <div class="o_aic_guided_row">
+                    <label><i class="fa fa-pencil"/>What to change <span class="o_aic_req">*</span></label>
+                    <textarea class="form-control form-control-sm" rows="3" t-model="form.changes"
+                              placeholder="e.g. add a priority field and a kanban view" t-on-input="() => this.onField()"/>
+                </div>
+                <details class="o_aic_guided_more">
+                    <summary><i class="fa fa-sliders me-1"/>Details (optional)</summary>
+                    <div class="o_aic_guided_morebody">
+                        <div class="o_aic_guided_row"><label><i class="fa fa-shield"/>Keep working (do not break)</label>
+                            <textarea class="form-control form-control-sm" rows="2" t-model="form.constraints" t-on-input="() => this.onField()"/></div>
+                        <div class="o_aic_guided_row"><label><i class="fa fa-book"/>Reference modules</label>
+                            <input class="form-control form-control-sm" t-model="form.reference" t-on-input="() => this.onField()"/></div>
+                    </div>
+                </details>
+            </t>
+
+            <!-- ANALYZE -->
+            <t t-if="form.taskType === 'analyze'">
+                <div class="o_aic_guided_row">
+                    <label><i class="fa fa-crosshairs"/>Module or model to analyze</label>
+                    <input class="form-control form-control-sm" t-model="form.analyzeTarget"
+                           placeholder="e.g. sale.order, or the module name" t-on-input="() => this.onField()"/>
+                </div>
+                <div class="o_aic_guided_row">
+                    <label><i class="fa fa-question-circle"/>Your question <span class="o_aic_req">*</span></label>
+                    <textarea class="form-control form-control-sm" rows="3" t-model="form.question"
+                              placeholder="e.g. how is the invoice total computed? what breaks if I change field X?" t-on-input="() => this.onField()"/>
+                </div>
+            </t>
+
+            <!-- editable preview -->
+            <div class="o_aic_guided_preview">
+                <div class="o_aic_guided_prevhead">
+                    <span><i class="fa fa-paper-plane me-1"/>Message to send<span t-if="form.previewDirty" class="text-warning ms-1">(edited)</span></span>
+                    <button class="btn btn-sm btn-link" t-on-click="() => this.resetPreview()">Regenerate from fields</button>
+                </div>
+                <textarea class="form-control form-control-sm o_aic_guided_prevbox" rows="6"
+                          t-att-value="form.preview" t-on-input="(ev) => this.onPreviewInput(ev)"/>
+            </div>
+        </div>
+        <t t-set-slot="footer">
+            <button class="btn btn-primary o_aic_guided_send" t-on-click="() => this.confirm()"
+                    t-att-disabled="!form.preview.trim()">
+                <i class="fa fa-paper-plane me-1"/>Send to AI
+            </button>
+            <button class="btn btn-secondary" t-on-click="() => this.cancel()">Cancel</button>
+        </t>
+    </Dialog>
+</t>
+
+</templates>

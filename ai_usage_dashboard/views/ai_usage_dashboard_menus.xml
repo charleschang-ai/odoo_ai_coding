@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Client action that loads the OWL dashboard component -->
+    <record id="ai_usage_dashboard_action" model="ir.actions.client">
+        <field name="name">AI Usage Dashboard</field>
+        <field name="tag">ai_usage_dashboard.dashboard</field>
+    </record>
+
+    <!-- Menu entry under the AI Chat root, gated to AI managers -->
+    <menuitem id="ai_usage_dashboard_menu"
+              name="AI Usage"
+              parent="ai_chatbot_enhance.ai_menu_root"
+              sequence="55"
+              groups="ai_chatbot_enhance.group_ai_manager"
+              action="ai_usage_dashboard_action"/>
+</odoo>

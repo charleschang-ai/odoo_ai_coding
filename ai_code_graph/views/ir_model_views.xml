@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Structure Graph button on ir.model form (base header is an empty
+         override hook, see base/views/ir_model_views.xml) -->
+    <record id="view_model_form_code_graph" model="ir.ui.view">
+        <field name="name">ir.model.form.code.graph</field>
+        <field name="model">ir.model</field>
+        <field name="inherit_id" ref="base.view_model_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_open_code_graph" type="object"
+                        string="Structure Graph" class="btn-secondary"
+                        groups="base.group_system"
+                        help="Open the code graph centered on this model"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-inherit="mail.Thread" t-inherit-mode="extension">
+        <xpath expr="//Message" position="after">
+            <div t-if="aiChosenNote(msg)" class="o_ai_choice_footnote">
+                <i class="fa fa-check-circle" role="presentation"/>
+                <span t-esc="aiChosenNote(msg)"/>
+            </div>
+        </xpath>
+        <xpath expr="//t[@t-foreach='messages']" position="after">
+            <div t-if="aiQuickForm" class="o_ai_form_card">
+                <div t-if="aiQuickForm.title" class="o_ai_form_card_title" t-esc="aiQuickForm.title"/>
+                <div t-foreach="aiQuickForm.fields" t-as="field" t-key="field_index" class="o_ai_form_field">
+                    <label class="o_ai_form_label" t-esc="field.label"/>
+                    <select t-if="field.type === 'select'" class="o_ai_form_input"
+                            t-att-data-ai-form-label="field.label"
+                            t-on-change="onAiFormInput">
+                        <option t-foreach="field.options" t-as="opt" t-key="opt_index"
+                                t-att-value="opt" t-att-selected="opt === aiFormValue(field) ? 'selected' : undefined"
+                                t-esc="opt"/>
+                    </select>
+                    <input t-else="" class="o_ai_form_input"
+                           t-att-type="field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : 'text'"
+                           t-att-value="aiFormValue(field)"
+                           t-att-data-ai-form-label="field.label"
+                           t-on-input="onAiFormInput"/>
+                </div>
+                <button class="o_ai_form_submit" t-on-click="onSubmitAiForm">
+                    <i class="fa fa-paper-plane me-2" role="presentation"/>
+                    <t t-esc="aiQuickForm.submit_label || '提交'"/>
+                </button>
+            </div>
+            <div t-if="aiQuickOptions.length" class="o_ai_option_buttons">
+                <button t-foreach="aiQuickOptions" t-as="option" t-key="option_index"
+                        class="o_ai_option_card"
+                        t-att-class="'o_ai_option_card--' + option.kind"
+                        t-on-click="() => this.onClickAiQuickOption(option)">
+                    <span class="o_ai_option_card_badge">
+                        <i t-if="option.kind === 'confirm'" class="fa fa-check" role="presentation"/>
+                        <i t-elif="option.kind === 'cancel'" class="fa fa-times" role="presentation"/>
+                        <i t-elif="option.kind === 'modify'" class="fa fa-pencil" role="presentation"/>
+                        <t t-else="" t-esc="option_index + 1"/>
+                    </span>
+                    <span class="o_ai_option_card_text" t-esc="option.text"/>
+                    <i class="fa fa-chevron-right o_ai_option_card_chevron" role="presentation"/>
+                </button>
+                <div class="o_ai_option_hint">
+                    <i class="fa fa-keyboard-o" role="presentation"/>
+                    也可以直接在下方输入框输入您的要求
+                </div>
+            </div>
+        </xpath>
+    </t>
+</templates>

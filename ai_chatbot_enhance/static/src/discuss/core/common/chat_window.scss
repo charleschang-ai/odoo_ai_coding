@@ -1,0 +1,11 @@
+// 覆盖原有背景色
+.o-mail-ChatWindow {
+  background: linear-gradient(to bottom, #f8fbff 0%, #e0ebff 100%) !important;
+}
+
+.o-mail-ChatWindow-header {
+  background-image: linear-gradient(135deg, #3B82F6, #8B5CF6) !important;
+  background-color: transparent !important;
+  border-bottom: none !important;
+  color: white !important;
+}

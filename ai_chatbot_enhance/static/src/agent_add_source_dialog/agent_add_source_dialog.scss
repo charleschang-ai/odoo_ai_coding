@@ -1,0 +1,100 @@
+.agent-source-card {
+    .card-body {
+        background: linear-gradient(to right, $card-bg, rgba($card-bg, .95));
+        border-radius: inherit;
+    }
+
+    &:hover {
+        background: $o-action;
+        border-radius: inherit;
+    }
+
+    .agent-source-icon {
+        &.fa {
+            font-size: 48px;
+            line-height: 48px;
+        }
+    }
+
+    .agent-source-image {
+        max-width: 48px;
+        max-height: 48px;
+        object-fit: contain;
+    }
+}
+
+.o_agent_source_picker {
+  p.mb-1 {
+    font-size: 13px;
+    color: #6c6b8a;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+}
+
+.o_source_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 8px;
+  transition: opacity .2s;
+}
+
+.o_source_card {
+  position: relative;
+  border-radius: 14px;
+  padding: 1.1rem .75rem .85rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  text-align: center;
+  overflow: hidden;
+  border: 1px solid #e2dff8;
+  background: #f5f3ff;
+  transition: border-color .18s, background .18s, transform .14s;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: #7f77dd;
+    border-radius: 14px 14px 0 0;
+  }
+
+  &:hover {
+    background: #ede9ff;
+    border-color: #b8b0f0;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0) scale(.97);
+  }
+}
+
+.o_source_card_accent {
+  display: none; // 已用 ::before 替代，可移除该元素
+}
+
+.o_source_icon_wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #ddd8f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  i { font-size: 18px; color: #534ab7; }
+  .o_source_img { width: 22px; height: 22px; object-fit: contain; }
+}
+
+.o_source_label {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #3c3489;
+  line-height: 1.3;
+}

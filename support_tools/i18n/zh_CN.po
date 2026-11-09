@@ -1,0 +1,735 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* support_tools
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-25 08:37+0000\n"
+"PO-Revision-Date: 2026-07-25 08:37+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: support_tools
+#: model:ir.model.fields.selection,name:support_tools.selection__support_diagnostic_message__role__assistant
+msgid "AI"
+msgstr "AI"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_session__agent_id
+msgid "AI Agent"
+msgstr "AI 智能体"
+
+#. module: support_tools
+#: model:ir.model,name:support_tools.model_ai_agent_bot
+msgid "AI Agent Bot"
+msgstr "AI 智能体机器人"
+
+#. module: support_tools
+#: model:ir.model.fields,help:support_tools.field_support_diagnostic_session__agent_id
+msgid ""
+"AI agent that runs the diagnosis. Only remote-support agents (whose tools "
+"query the remote instance) are allowed, so a generic agent that would query "
+"the local database can't be picked."
+msgstr ""
+"运行诊断的 AI 智能体。只能选择远程支援智能体（其工具查询远程实例），因此不会误选到会查询本地数据库的通用智能体。"
+
+#. module: support_tools
+#: model:ir.actions.server,name:support_tools.remote_count
+msgid "AI: Count Remote Records"
+msgstr "AI：统计远程记录"
+
+#. module: support_tools
+#: model:ir.actions.server,name:support_tools.remote_instance_info
+msgid "AI: Get Remote Instance Info"
+msgstr "AI：获取远程实例信息"
+
+#. module: support_tools
+#: model:ir.actions.server,name:support_tools.remote_get_fields
+msgid "AI: Get Remote Model Fields"
+msgstr "AI：获取远程模型字段"
+
+#. module: support_tools
+#: model:ir.actions.server,name:support_tools.remote_read_group
+msgid "AI: Read Group Remote Records"
+msgstr "AI：分组聚合远程记录"
+
+#. module: support_tools
+#: model:ir.actions.server,name:support_tools.remote_search_read
+msgid "AI: Search Read Remote Records"
+msgstr "AI：搜索读取远程记录"
+
+#. module: support_tools
+#: model:ir.actions.server,name:support_tools.remote_list_models
+msgid "AI: Search Remote Models"
+msgstr "AI：搜索远程模型"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__api_key
+msgid "API Key"
+msgstr "API 密钥"
+
+#. module: support_tools
+#: model:ir.model.fields,help:support_tools.field_support_remote_instance__api_key
+msgid ""
+"API key generated from the remote user's profile (Preferences > Account "
+"Security). Stored per Odoo convention; restrict database access accordingly."
+msgstr ""
+"从远程用户的个人资料（偏好设置 > 账户安全）生成的 API 密钥。按 Odoo 惯例存储；请相应限制数据库访问权限。"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__active
+msgid "Active"
+msgstr "有效"
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_diagnostic_session.py:0
+msgid ""
+"Agent '%s' is not a Remote Support agent: its tools would query the LOCAL "
+"database, not the customer's remote instance. Pick the Remote Support "
+"Diagnostician agent."
+msgstr ""
+"智能体 '%s' 不是远程支援智能体：它的工具会查询本地数据库，而不是客户的远程实例。请选择「远程支援诊断」智能体。"
+
+#. module: support_tools
+#: model:ir.model.fields,help:support_tools.field_support_remote_instance__mask_monetary
+msgid ""
+"Also mask every field whose type is monetary, regardless of its name. "
+"Requires 'Mask Sensitive Data'."
+msgstr ""
+"同时屏蔽所有货币类型的字段，无论其名称如何。需先启用「屏蔽敏感数据」。"
+
+#. module: support_tools
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_form
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_search
+msgid "Archived"
+msgstr "已归档"
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_remote_instance.py:0
+msgid ""
+"Authentication failed on %s. Check the database name, username and API key."
+msgstr ""
+"在 %s 上认证失败。请检查数据库名、用户名和 API 密钥。"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_message__author_name
+msgid "Author"
+msgstr "作者"
+
+#. module: support_tools
+#: model:ir.model.fields,help:support_tools.field_support_remote_instance__url
+msgid "Base URL of the remote Odoo, e.g. https://customer.odoo.com"
+msgstr "远程 Odoo 的基础网址，例如 https://customer.odoo.com"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_session__channel_id
+msgid "Chat"
+msgstr "聊天"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_session__chat_seeded
+msgid "Chat Seeded"
+msgstr "已发送首问"
+
+#. module: support_tools
+#: model_terms:ir.ui.view,arch_db:support_tools.support_diagnostic_session_view_form
+msgid ""
+"Click <b>Open Diagnosis Chat</b> to start. Your question is\n"
+"                           sent to the AI, which investigates the remote instance and\n"
+"                           replies here. The whole conversation is saved on this record."
+msgstr ""
+"点击 <b>打开诊断聊天</b> 开始。你的问题会发送给 AI，它会（只读）调查远程实例并在此回复。整段对话都会保存在这条记录上。"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__color
+msgid "Color Index"
+msgstr "颜色索引"
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_remote_instance.py:0
+msgid "Connected as uid %s."
+msgstr "已连接，uid 为 %s。"
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_remote_instance.py:0
+msgid "Connected to %(name)s. Server version %(ver)s, uid %(uid)s."
+msgstr "已连接到 %(name)s。服务器版本 %(ver)s，uid %(uid)s。"
+
+#. module: support_tools
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_form
+msgid "Connection"
+msgstr "连接"
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_remote_instance.py:0
+msgid "Connection failed: %s"
+msgstr "连接失败：%s"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_session__message_ids
+#: model_terms:ir.ui.view,arch_db:support_tools.support_diagnostic_session_view_form
+msgid "Conversation"
+msgstr "对话"
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_remote_instance.py:0
+msgid "Could not reach %s: %s"
+msgstr "无法连接 %s：%s"
+
+#. module: support_tools
+#: model:ir.actions.server,ai_tool_description:support_tools.remote_count
+msgid ""
+"Count records matching a domain on the remote database. 'domain' is a JSON "
+"string."
+msgstr ""
+"统计远程数据库中匹配某个 domain 的记录数。'domain' 是一个 JSON 字符串。"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_message__create_uid
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_session__create_uid
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__create_uid
+msgid "Created by"
+msgstr "创建人"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_message__create_date
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_session__create_date
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__create_date
+msgid "Created on"
+msgstr "创建时间"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_session__question
+#: model_terms:ir.ui.view,arch_db:support_tools.support_diagnostic_session_view_form
+msgid "Customer Question"
+msgstr "客户问题"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__db
+msgid "Database"
+msgstr "数据库"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_message__date
+msgid "Date"
+msgstr "日期"
+
+#. module: support_tools
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_form
+msgid "Deployment type, plan, contacts, scope of read access..."
+msgstr "部署方式、套餐、联系人、只读权限范围……"
+
+#. module: support_tools
+#: model:ir.actions.act_window,name:support_tools.support_diagnostic_session_action
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__session_count
+#: model:ir.ui.menu,name:support_tools.menu_support_diagnostic_session
+#: model_terms:ir.ui.view,arch_db:support_tools.support_diagnostic_session_view_list
+#: model_terms:ir.ui.view,arch_db:support_tools.support_diagnostic_session_view_search
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_form
+msgid "Diagnoses"
+msgstr "诊断"
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_remote_instance.py:0
+msgid "Diagnoses — %s"
+msgstr "诊断 — %s"
+
+#. module: support_tools
+#: model_terms:ir.ui.view,arch_db:support_tools.support_diagnostic_session_view_form
+msgid "Diagnosis"
+msgstr "诊断"
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_diagnostic_session.py:0
+msgid "Diagnosis %(ref)s — %(inst)s"
+msgstr "诊断 %(ref)s — %(inst)s"
+
+#. module: support_tools
+#: model:ir.model,name:support_tools.model_support_diagnostic_message
+msgid "Diagnostic Conversation Turn"
+msgstr "诊断对话记录"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_discuss_channel__support_session_id
+msgid "Diagnostic Session"
+msgstr "诊断会话"
+
+#. module: support_tools
+#: model:ir.model,name:support_tools.model_discuss_channel
+msgid "Discussion Channel"
+msgstr "讨论频道"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_ai_agent_bot__display_name
+#: model:ir.model.fields,field_description:support_tools.field_discuss_channel__display_name
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_message__display_name
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_session__display_name
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__display_name
+msgid "Display Name"
+msgstr "显示名称"
+
+#. module: support_tools
+#: model:ir.model.fields.selection,name:support_tools.selection__support_diagnostic_session__state__draft
+msgid "Draft"
+msgstr "草稿"
+
+#. module: support_tools
+#: model:ir.model.fields.selection,name:support_tools.selection__support_remote_instance__state__fail
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_search
+msgid "Failed"
+msgstr "失败"
+
+#. module: support_tools
+#: model:ir.actions.server,ai_tool_description:support_tools.remote_read_group
+msgid ""
+"Grouped aggregation on the remote database. 'fields' e.g. amount_total:sum ;"
+" 'groupby' e.g. state. Comma-separated. 'domain' is a JSON string."
+msgstr ""
+"对远程数据库做分组聚合。'fields' 例如 amount_total:sum；'groupby' 例如 state。用逗号分隔。'domain' 是一个 JSON 字符串。"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_ai_agent_bot__id
+#: model:ir.model.fields,field_description:support_tools.field_discuss_channel__id
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_message__id
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_session__id
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__id
+msgid "ID"
+msgstr "ID"
+
+#. module: support_tools
+#: model:ir.model.fields.selection,name:support_tools.selection__support_diagnostic_session__state__active
+#: model_terms:ir.ui.view,arch_db:support_tools.support_diagnostic_session_view_search
+msgid "In Progress"
+msgstr "进行中"
+
+#. module: support_tools
+#: model_terms:ir.ui.view,arch_db:support_tools.support_diagnostic_session_view_search
+msgid "Instance"
+msgstr "实例"
+
+#. module: support_tools
+#: model:ir.model.fields,help:support_tools.field_support_remote_instance__name
+msgid "Label for this customer instance, e.g. 'Customer A — Production'."
+msgstr "该客户实例的标签，例如：客户A — 生产库。"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__last_test_message
+msgid "Last Test Message"
+msgstr "上次测试信息"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__last_test
+msgid "Last Tested"
+msgstr "上次测试时间"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_message__write_uid
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_session__write_uid
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__write_uid
+msgid "Last Updated by"
+msgstr "最后更新人"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_message__write_date
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_session__write_date
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__write_date
+msgid "Last Updated on"
+msgstr "最后更新时间"
+
+#. module: support_tools
+#: model:ir.model.fields,help:support_tools.field_support_remote_instance__username
+msgid ""
+"Login (usually an email) of the dedicated read-only support user on the "
+"remote instance."
+msgstr ""
+"远程实例上专用只读支援用户的登录名（通常是邮箱）。"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__mask_monetary
+msgid "Mask All Monetary Fields"
+msgstr "屏蔽所有货币字段"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__mask_sensitive
+msgid "Mask Sensitive Data"
+msgstr "屏蔽敏感数据"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_message__body
+msgid "Message"
+msgstr "消息"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_session__message_count
+msgid "Message Count"
+msgstr "消息数"
+
+#. module: support_tools
+#: model_terms:ir.ui.view,arch_db:support_tools.support_diagnostic_session_view_list
+msgid "Messages"
+msgstr "消息"
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_remote_instance.py:0
+msgid "Method '%s' is blocked: the support connector is read-only."
+msgstr "方法 '%s' 被拦截：支援连接器为只读。"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__name
+msgid "Name"
+msgstr "名称"
+
+#. module: support_tools
+#: model:ir.model.fields,help:support_tools.field_support_remote_instance__timeout
+msgid "Network timeout for each remote call, in seconds."
+msgstr "每次远程调用的网络超时时间（秒）。"
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_diagnostic_session.py:0
+msgid "New"
+msgstr "新建"
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_remote_instance.py:0
+msgid "No API key configured for %s."
+msgstr "%s 未配置 API 密钥。"
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_diagnostic_session.py:0
+msgid "No Remote Support AI agent is available. Please select one."
+msgstr "没有可用的远程支援 AI 智能体。请选择一个。"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__notes
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_form
+msgid "Notes"
+msgstr "备注"
+
+#. module: support_tools
+#: model_terms:ir.ui.view,arch_db:support_tools.support_diagnostic_session_view_form
+msgid "Open Diagnosis Chat"
+msgstr "打开诊断聊天"
+
+#. module: support_tools
+#: model_terms:ir.ui.view,arch_db:support_tools.support_diagnostic_session_view_form
+msgid "Open in Discuss"
+msgstr "在讨论中打开"
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_diagnostic_session.py:0
+msgid "Open the chat first."
+msgstr "请先打开聊天。"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_session__user_id
+msgid "Opened by"
+msgstr "打开人"
+
+#. module: support_tools
+#: model_terms:ir.actions.act_window,help:support_tools.support_diagnostic_session_action
+msgid ""
+"Pick a remote instance, describe the customer's problem, then open\n"
+"                the chat. The AI investigates the remote database (read-only) and\n"
+"                proposes fixes."
+msgstr ""
+"选择一个远程实例，描述客户的问题，然后打开聊天。AI 会（只读）调查远程数据库并给出修复建议。"
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_diagnostic_session.py:0
+msgid "Please describe the problem to diagnose first."
+msgstr "请先描述要诊断的问题。"
+
+#. module: support_tools
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_form
+msgid "Privacy / Masking"
+msgstr "隐私 / 屏蔽"
+
+#. module: support_tools
+#: model:ir.model.fields.selection,name:support_tools.selection__support_remote_instance__state__ok
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_search
+msgid "Reachable"
+msgstr "可连接"
+
+#. module: support_tools
+#: model:ir.actions.server,ai_tool_description:support_tools.remote_search_read
+msgid ""
+"Read records from the remote database. 'domain' is a JSON string, e.g. "
+"[[\"state\",\"=\",\"posted\"]]. 'fields' and 'order' are optional. Read-"
+"only. Sensitive values may be masked."
+msgstr ""
+"从远程数据库读取记录。'domain' 是 JSON 格式的 Odoo 域字符串（例如按状态过滤已过账的记录）。'fields' 和 'order' 可选。只读。敏感值可能被屏蔽。"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_session__name
+msgid "Reference"
+msgstr "编号"
+
+#. module: support_tools
+#: model_terms:ir.actions.act_window,help:support_tools.support_remote_instance_action
+msgid "Register a customer's remote Odoo instance"
+msgstr "登记一个客户的远程 Odoo 实例"
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_remote_instance.py:0
+msgid "Remote Connection"
+msgstr "远程连接"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_discuss_channel__support_instance_id
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_session__instance_id
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_form
+msgid "Remote Instance"
+msgstr "远程实例"
+
+#. module: support_tools
+#: model:ir.actions.act_window,name:support_tools.support_remote_instance_action
+#: model:ir.ui.menu,name:support_tools.menu_support_remote_instance
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_list
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_search
+msgid "Remote Instances"
+msgstr "远程实例"
+
+#. module: support_tools
+#: model:ir.model,name:support_tools.model_support_remote_instance
+msgid "Remote Odoo Instance (Support Target)"
+msgstr "远程 Odoo 实例（支援目标）"
+
+#. module: support_tools
+#: model:ir.ui.menu,name:support_tools.menu_support_root
+msgid "Remote Support"
+msgstr "远程支援"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_ai_agent_bot__is_remote_support
+msgid "Remote Support Agent"
+msgstr "远程支援智能体"
+
+#. module: support_tools
+#: model:ir.model,name:support_tools.model_support_diagnostic_session
+msgid "Remote Support Diagnostic Session"
+msgstr "远程支援诊断会话"
+
+#. module: support_tools
+#: model:ir.model.fields,help:support_tools.field_support_remote_instance__db
+msgid "Remote database name."
+msgstr "远程数据库名称。"
+
+#. module: support_tools
+#: model:ir.actions.server,ai_tool_description:support_tools.remote_instance_info
+msgid ""
+"Return the bound customer instance's name, URL, database and Odoo server "
+"version. Call this FIRST so you know which version's data model to expect."
+msgstr ""
+"返回绑定的客户实例的名称、网址、数据库和 Odoo 服务器版本。请先调用它，以便了解应按哪个版本的数据模型来查询。"
+
+#. module: support_tools
+#: model:ir.actions.server,ai_tool_description:support_tools.remote_get_fields
+msgid ""
+"Return the field structure (name, type, relation, required, selection) of a "
+"remote model. Call this before querying records so you use the real field "
+"names for this Odoo version."
+msgstr ""
+"返回某个远程模型的字段结构（名称、类型、关系、是否必填、选项）。在查询记录之前先调用它，以便使用该 Odoo 版本的真实字段名。"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_message__role
+msgid "Role"
+msgstr "角色"
+
+#. module: support_tools
+#: model:ir.actions.server,ai_tool_description:support_tools.remote_list_models
+msgid ""
+"Search the technical model names available on the remote customer database. "
+"Optional 'keyword' filters by name."
+msgstr ""
+"搜索远程客户数据库上可用的技术模型名。可选参数 'keyword' 按名称过滤。"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__sensitive_fields
+msgid "Sensitive Field Keywords"
+msgstr "敏感字段关键词"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__version_info
+msgid "Server Version"
+msgstr "服务器版本"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_message__session_id
+msgid "Session"
+msgstr "会话"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_message__message_id
+msgid "Source Message"
+msgstr "来源消息"
+
+#. module: support_tools
+#: model:ir.model.fields,help:support_tools.field_support_remote_instance__sensitive_fields
+msgid ""
+"Space/comma/newline separated keywords. A field is masked when its technical"
+" name contains any keyword (case-insensitive)."
+msgstr ""
+"用空格/逗号/换行分隔的关键词。当某字段的技术名包含任一关键词时（不区分大小写），该字段会被屏蔽。"
+
+#. module: support_tools
+#: model_terms:ir.actions.act_window,help:support_tools.support_diagnostic_session_action
+msgid "Start a remote diagnosis"
+msgstr "开始一次远程诊断"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_diagnostic_session__state
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__state
+#: model_terms:ir.ui.view,arch_db:support_tools.support_diagnostic_session_view_search
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_form
+msgid "Status"
+msgstr "状态"
+
+#. module: support_tools
+#: model_terms:ir.actions.act_window,help:support_tools.support_remote_instance_action
+msgid ""
+"Store the URL, database, a dedicated read-only support user and\n"
+"                its API key. The AI can then diagnose issues on that instance\n"
+"                without a remote desktop session."
+msgstr ""
+"存储网址、数据库、一个专用只读支援用户及其 API 密钥。之后 AI 无需远程桌面即可诊断该实例上的问题。"
+
+#. module: support_tools
+#: model:ir.model.fields.selection,name:support_tools.selection__support_diagnostic_message__role__user
+msgid "Support"
+msgstr "支援"
+
+#. module: support_tools
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_form
+msgid "Test Connection"
+msgstr "测试连接"
+
+#. module: support_tools
+#: model:ir.model.fields,help:support_tools.field_support_diagnostic_message__message_id
+msgid "The discuss message this record mirrors."
+msgstr "本记录所镜像的讨论消息。"
+
+#. module: support_tools
+#: model:ir.model.fields,help:support_tools.field_support_diagnostic_session__question
+msgid ""
+"The problem to diagnose, e.g. 'Invoice INV/2026/0087 cannot be posted'. Sent"
+" as the first chat message when you open the chat."
+msgstr ""
+"要诊断的问题，例如：发票 INV/2026/0087 无法过账。打开聊天时会作为第一条消息发送。"
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_remote_instance.py:0
+msgid "The remote URL is not set on %s."
+msgstr "%s 未设置远程网址。"
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_diagnostic_session.py:0
+msgid "The selected remote instance has no API key configured."
+msgstr "所选远程实例未配置 API 密钥。"
+
+#. module: support_tools
+#: model:ir.model.fields,help:support_tools.field_ai_agent_bot__is_remote_support
+msgid ""
+"This agent diagnoses remote customer instances through the support_tools "
+"read-only tools instead of the local database."
+msgstr ""
+"该智能体通过 support_tools 的只读工具诊断客户的远程实例，而不是查询本地数据库。"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__timeout
+msgid "Timeout (s)"
+msgstr "超时（秒）"
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_remote_instance.py:0
+msgid "Timeout must be between 1 and 300 seconds."
+msgstr "超时必须在 1 到 300 秒之间。"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__url
+msgid "URL"
+msgstr "网址"
+
+#. module: support_tools
+#: model:ir.model.fields.selection,name:support_tools.selection__support_remote_instance__state__unknown
+msgid "Untested"
+msgstr "未测试"
+
+#. module: support_tools
+#: model:ir.model.fields,field_description:support_tools.field_support_remote_instance__username
+msgid "Username"
+msgstr "用户名"
+
+#. module: support_tools
+#: model:ir.model.fields,help:support_tools.field_support_remote_instance__mask_sensitive
+msgid ""
+"When on, values of sensitive fields (amounts, bank/tax ids, credentials, "
+"...) are replaced with *** before being sent to the AI. Turn off only when a"
+" diagnosis genuinely needs the real values."
+msgstr ""
+"开启后，敏感字段（金额、银行/税号、凭证等）的值在发送给 AI 之前会被替换为 ***。仅当诊断确实需要真实值时才关闭。"
+
+#. module: support_tools
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_form
+msgid "amount total price iban vat password ..."
+msgstr ""
+
+#. module: support_tools
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_form
+msgid "customer-db-name"
+msgstr "客户数据库名"
+
+#. module: support_tools
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_form
+msgid "e.g. Customer A — Production"
+msgstr "例如：客户A — 生产库"
+
+#. module: support_tools
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_form
+msgid "https://customer.odoo.com"
+msgstr ""
+
+#. module: support_tools
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_form
+msgid "remote API key"
+msgstr "远程 API 密钥"
+
+#. module: support_tools
+#: model_terms:ir.ui.view,arch_db:support_tools.support_remote_instance_view_form
+msgid "support@customer.com"
+msgstr ""
+
+#. module: support_tools
+#. odoo-python
+#: code:addons/support_tools/models/support_remote_instance.py:0
+msgid "unknown"
+msgstr "未知"
+
+#. module: support_tools
+#: model_terms:ir.ui.view,arch_db:support_tools.support_diagnostic_session_view_form
+msgid "描述客户遇到的问题，例如：发票 INV/2026/0087 点确认时报错，无法过账；或：产品 A123 的库存数量和仓库实际对不上。"
+msgstr "描述客户遇到的问题，例如：发票 INV/2026/0087 点确认时报错，无法过账；或：产品 A123 的库存数量和仓库实际对不上。"

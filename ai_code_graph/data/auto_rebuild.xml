@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- No noupdate: re-runs on every upgrade so the index always matches
+         the extractor version currently installed. -->
+    <function model="ai.code.graph.builder" name="_auto_rebuild_on_upgrade"/>
+</odoo>

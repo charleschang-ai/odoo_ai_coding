@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.ai.code</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="ai_chatbot_enhance.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='ai_chatbot_enhance']" position="inside">
+                <block title="AI Code" name="ai_code">
+                    <setting id="ai_code_workspaces" string="Workspace Directories"
+                             help="Whitelisted addons directories the coding agent may write in. One absolute path per line (git repositories get per-step checkpoints and revert)."
+                             groups="base.group_system">
+                        <field name="ai_code_workspace_dirs" nolabel="1" class="w-100" widget="text"
+                               placeholder="D:\odoo_project\odoo19\custom\my-addons"/>
+                    </setting>
+                    <setting id="ai_code_git" string="Git Author"
+                             help="Author identity used for the agent's checkpoint commits."
+                             groups="base.group_system">
+                        <div class="row">
+                            <label for="ai_code_git_user_name" class="col-4 o_light_label"/>
+                            <field name="ai_code_git_user_name" class="col-8"/>
+                        </div>
+                        <div class="row">
+                            <label for="ai_code_git_user_email" class="col-4 o_light_label"/>
+                            <field name="ai_code_git_user_email" class="col-8"/>
+                        </div>
+                    </setting>
+                    <setting id="ai_code_sandbox" string="Sandbox Testing"
+                             help="The agent install-tests modules in a disposable database and repairs its own code from the real errors."
+                             groups="base.group_system">
+                        <div class="row">
+                            <label for="ai_code_sandbox_enabled" class="col-4 o_light_label"/>
+                            <field name="ai_code_sandbox_enabled" class="col-8"/>
+                        </div>
+                        <div class="row">
+                            <label for="ai_code_sandbox_db" class="col-4 o_light_label"/>
+                            <field name="ai_code_sandbox_db" class="col-8"/>
+                        </div>
+                        <div class="row">
+                            <label for="ai_code_sandbox_modules" class="col-4 o_light_label"/>
+                            <field name="ai_code_sandbox_modules" class="col-8"/>
+                        </div>
+                    </setting>
+                    <setting id="ai_code_executor" string="Execution"
+                             help="Where a turn runs and whether answers stream token by token."
+                             groups="base.group_system">
+                        <div class="row">
+                            <label for="ai_code_executor" class="col-4 o_light_label"/>
+                            <field name="ai_code_executor" class="col-8"/>
+                        </div>
+                        <div class="row">
+                            <label for="ai_code_streaming" class="col-4 o_light_label"/>
+                            <field name="ai_code_streaming" class="col-8"/>
+                        </div>
+                    </setting>
+                    <setting id="ai_code_shell" string="Shell Tool"
+                             help="Read-only commands run immediately; state-changing commands pause on an approval card in the chat. git mutations and catastrophic commands are always refused."
+                             groups="base.group_system">
+                        <div class="row">
+                            <label for="ai_code_shell_enabled" class="col-4 o_light_label"/>
+                            <field name="ai_code_shell_enabled" class="col-8"/>
+                        </div>
+                        <div class="row">
+                            <label for="ai_code_shell_auto_approve" class="col-4 o_light_label"/>
+                            <field name="ai_code_shell_auto_approve" class="col-8"/>
+                        </div>
+                    </setting>
+                    <setting id="ai_code_models" string="Models &amp; Limits"
+                             help="Main model runs the agent loop; the cheap model distills memory. Round and token caps are safety nets."
+                             groups="base.group_system">
+                        <div class="row">
+                            <label for="ai_code_default_main_model" class="col-4 o_light_label"/>
+                            <field name="ai_code_default_main_model" class="col-8"/>
+                        </div>
+                        <div class="row">
+                            <label for="ai_code_default_cheap_model" class="col-4 o_light_label"/>
+                            <field name="ai_code_default_cheap_model" class="col-8"/>
+                        </div>
+                        <div class="row">
+                            <label for="ai_code_max_rounds" class="col-4 o_light_label"/>
+                            <field name="ai_code_max_rounds" class="col-8"/>
+                        </div>
+                        <div class="row">
+                            <label for="ai_code_default_token_budget" class="col-4 o_light_label"/>
+                            <field name="ai_code_default_token_budget" class="col-8"/>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
