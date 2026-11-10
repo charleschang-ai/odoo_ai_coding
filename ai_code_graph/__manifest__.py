@@ -30,6 +30,7 @@ to AI chat agents (model map, blast radius).
         ],
     },
     'license': 'OPL-1',
+    'images': ['static/description/icon.png'],
     'installable': True,
     'auto_install': False,
     'application': False,

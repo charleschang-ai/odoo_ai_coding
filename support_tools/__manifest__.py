@@ -25,9 +25,10 @@ Key ideas
   reused). The model investigates the remote database through the read-only
   tools and returns a structured diagnosis in Chinese.
 """,
-    'author': 'AstaCRM',
-    'website': 'https://www.astacrm.com',
+    'author': 'Don Shan',
+    'maintainer': 'Don Shan',
     'license': 'LGPL-3',
+    'images': ['static/description/icon.png'],
     'depends': ['ai_chatbot_enhance'],
     'data': [
         'security/ir.model.access.csv',

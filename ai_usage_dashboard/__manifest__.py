@@ -5,6 +5,7 @@
     'category': 'Productivity/Discuss',
     'summary': 'Dashboard for AI token usage and cost analytics',
     'author': 'Don Shan',
+    'maintainer': 'Don Shan',
     'depends': ['ai_chatbot_enhance', 'web'],
     'data': [
         'security/ir.model.access.csv',
@@ -16,6 +17,7 @@
         ],
     },
     'license': 'LGPL-3',
+    'images': ['static/description/icon.png'],
     'installable': True,
     'application': False,
 }
